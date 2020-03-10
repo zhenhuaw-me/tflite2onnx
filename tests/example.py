@@ -1,10 +1,6 @@
 import onnx
-from onnx import helper
-from onnx import AttributeProto, TensorProto, GraphProto
-
-
-# The protobuf definition can be found here:
-# https://github.com/onnx/onnx/blob/master/onnx/onnx.proto
+from onnx import *
+import tflite2onnx as t2o
 
 
 # Create one input (ValueInfoProto)
