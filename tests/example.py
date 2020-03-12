@@ -1,37 +1,6 @@
-import onnx
-from onnx import *
 import tflite2onnx as t2o
 
+basedir = '/home/scratch.zhenhuaw_sw/onnx/shrub//misc/models/tfbuilder/'
+f = 'elementwise/abs.int32.tflite'
 
-# Create one input (ValueInfoProto)
-X = helper.make_tensor_value_info('X', TensorProto.FLOAT, [3, 2])
-pads = helper.make_tensor_value_info('pads', TensorProto.FLOAT, [1, 4])
-
-value = helper.make_tensor_value_info('value', AttributeProto.FLOAT, [1])
-
-
-# Create one output (ValueInfoProto)
-Y = helper.make_tensor_value_info('Y', TensorProto.FLOAT, [3, 4])
-
-# Create a node (NodeProto) - This is based on Pad-11
-node_def = helper.make_node(
-    'Pad', # node name
-    ['X', 'pads', 'value'], # inputs
-    ['Y'], # outputs
-    mode='constant', # attributes
-)
-
-# Create the graph (GraphProto)
-graph_def = helper.make_graph(
-    [node_def],
-    'test-model',
-    [X, pads, value],
-    [Y],
-)
-
-# Create the model (ModelProto)
-model_def = helper.make_model(graph_def, producer_name='onnx-example')
-
-print('The model is:\n{}'.format(model_def))
-onnx.checker.check_model(model_def)
-print('The model is checked!')
+t2o.convert(basedir + f, 'm.onnx')
