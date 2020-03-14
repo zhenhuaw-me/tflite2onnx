@@ -8,9 +8,11 @@ class Graph(object):
     ops = []
     inputs = []
     outputs = []
+    tflite = None
     onnx = None
 
     def __init__(self, model, graph):
+        self.tflite = graph
         onodes = []
         oinputs = []
         ooutputs = []
