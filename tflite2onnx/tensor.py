@@ -13,7 +13,6 @@ DTYPE_TFLITE2ONNX = {
         }
 
 class Tensor(BaseABC):
-    name = 'Uninitialized'
     def __init__(self, model, graph, tfl_index):
         self.tflite = graph.Tensors(tfl_index)
         self.name = self.tflite.Name().decode('utf-8')

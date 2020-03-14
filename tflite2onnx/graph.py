@@ -5,12 +5,9 @@ from .op.mapping import Operator
 from .common import BaseABC
 
 class Graph(BaseABC):
-    name = None
     ops = []
     inputs = []
     outputs = []
-    tflite = None
-    onnx = None
 
     def __init__(self, model, graph):
         self.tflite = graph

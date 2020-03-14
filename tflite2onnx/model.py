@@ -1,14 +1,13 @@
 import tflite
+import onnx
 from onnx import helper
 
 from .common import BaseABC
 from .graph import Graph
 
 class Model(BaseABC):
-    name = None
+    """Everything helps to convert TFLite model to ONNX model"""
     graphs = []
-    tflite = None
-    onnx = None
 
     def __init__(self, model):
         self.tflite = model
@@ -19,3 +18,7 @@ class Model(BaseABC):
             self.graphs.append(graph)
 
         self.onnx = helper.make_model(self.graphs[0].onnx, producer_name='tflite2onnx')
+
+    def save(self, path: str):
+        onnx.checker.check_model(self.onnx)
+        onnx.save(self.onnx, path)
