@@ -1,9 +1,10 @@
 import tflite
 from onnx import helper
 
+from .common import BaseABC
 from .graph import Graph
 
-class Model(object):
+class Model(BaseABC):
     name = None
     graphs = []
     tflite = None

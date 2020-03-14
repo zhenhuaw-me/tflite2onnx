@@ -1,5 +1,6 @@
 import tflite
 from onnx import helper, TensorProto
+from .common import BaseABC
 
 DTYPE_TFLITE2ONNX = {
         tflite.TensorType.BOOL    : TensorProto.BOOL   ,
@@ -11,10 +12,8 @@ DTYPE_TFLITE2ONNX = {
         tflite.TensorType.UINT8   : TensorProto.UINT8  ,
         }
 
-class Tensor(object):
+class Tensor(BaseABC):
     name = 'Uninitialized'
-    tflite = None
-    onnx = None
     def __init__(self, model, graph, tfl_index):
         self.tflite = graph.Tensors(tfl_index)
         self.name = self.tflite.Name().decode('utf-8')

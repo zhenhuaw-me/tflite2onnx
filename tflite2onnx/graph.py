@@ -2,8 +2,9 @@ import tflite
 from onnx import helper
 
 from .op.mapping import Operator
+from .common import BaseABC
 
-class Graph(object):
+class Graph(BaseABC):
     name = None
     ops = []
     inputs = []

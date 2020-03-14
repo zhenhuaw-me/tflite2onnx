@@ -2,17 +2,16 @@ import tflite
 from onnx import helper
 
 from ..tensor import Tensor
+from ..common import BaseABC
 
 TFLITE2ONNX = {
         tflite.BuiltinOperator.ABS : 'Abs',
         }
 
-class Operator(object):
+class Operator(BaseABC):
     type = None
     inputs = []
     outputs = []
-    tflite = None
-    onnx = None
 
     def __init__(self, model, graph, op):
         self.tflite = op
