@@ -1,6 +1,7 @@
 import tflite
 from onnx import helper, TensorProto
-from .common import BaseABC
+
+from .common import BaseABC, logger
 
 DTYPE_TFLITE2ONNX = {
         tflite.TensorType.BOOL    : TensorProto.BOOL   ,
@@ -14,6 +15,7 @@ DTYPE_TFLITE2ONNX = {
 
 class Tensor(BaseABC):
     def __init__(self, model, graph, tfl_index):
+        logger.debug("[Tensor] Converting...")
         self.tflite = graph.Tensors(tfl_index)
         self.name = self.tflite.Name().decode('utf-8')
         dims = [ int(i) for i in self.tflite.ShapeAsNumpy()]
@@ -21,5 +23,7 @@ class Tensor(BaseABC):
         dtype = DTYPE_TFLITE2ONNX[self.tflite.Type()]
         # data_buf = model.Buffers(self.tflite.Buffer())
         # return helper.make_tensor(self.name, dtype, dims, data_buf, True)
+
+        logger.debug("[Tensor] Making ONNX...")
         self.onnx = helper.make_tensor_value_info(self.name, dtype, dims)
 

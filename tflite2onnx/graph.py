@@ -1,20 +1,23 @@
 import tflite
 from onnx import helper
 
+from .common import BaseABC, logger
 from .op.mapping import Operator
-from .common import BaseABC
 
 class Graph(BaseABC):
     ops = []
     inputs = []
     outputs = []
 
-    def __init__(self, model, graph):
+    def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
+        logger.debug("[Graph] Converting...")
         self.tflite = graph
         onodes = []
         oinputs = []
         ooutputs = []
+
         for i in range(graph.OperatorsLength()):
+            logger.debug("[Graph] Converting operator: {}".format(i))
             op_tflite = graph.Operators(i)
             op = Operator(model, graph, op_tflite)
             self.ops.append(op)
@@ -29,7 +32,8 @@ class Graph(BaseABC):
             for t in op.outputs:
                 ooutputs.append(t.onnx)
 
-            self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs)
+        logger.debug("[Graph] Making ONNX...")
+        self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs)
 
 
 

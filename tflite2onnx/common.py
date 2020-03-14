@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 
 class BaseABC(ABC):
@@ -6,3 +7,5 @@ class BaseABC(ABC):
     tflite = None
     onnx = None
 
+
+logger = logging.getLogger('tflite2onnx')
