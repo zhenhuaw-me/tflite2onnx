@@ -2,7 +2,7 @@ import tflite
 from onnx import helper
 
 from .common import BaseABC, logger
-from .op.mapping import Operator
+from .op import convert
 
 class Graph(BaseABC):
     ops = []
@@ -19,7 +19,7 @@ class Graph(BaseABC):
         for i in range(graph.OperatorsLength()):
             logger.debug("[Graph] Converting operator: {}".format(i))
             op_tflite = graph.Operators(i)
-            op = Operator(model, graph, op_tflite)
+            op = convert(model, graph, op_tflite)
             self.ops.append(op)
 
             # FIXME: not all op IO are graph IO
