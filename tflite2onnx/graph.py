@@ -13,9 +13,6 @@ class Graph(BaseABC):
     def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
         logger.debug("[Graph] Converting...")
         self.tflite = graph
-        onodes = []
-        oinputs = []
-        ooutputs = []
 
         # inputs
         logger.debug("[Graph] Converting inputs...")
@@ -32,16 +29,16 @@ class Graph(BaseABC):
             op = convert(model, graph, op_tflite)
             self.ops.append(op)
 
-            # FIXME: not all op IO are graph IO
-            self.outputs += op.outputs
-
-            onodes.append(op.onnx)
-            for t in op.outputs:
-                ooutputs.append(t.onnx)
-
+        # outputs
+        for i in range(graph.OutputsLength()):
+            index = graph.Outputs(i)
+            t = create_tensor(model, graph, index)
+            self.outputs.append(t)
 
         logger.debug("[Graph] Making ONNX...")
+        onodes = [n.onnx for n in self.ops]
         oinputs = [t.onnx for t in self.inputs]
+        ooutputs = [t.onnx for t in self.outputs]
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs)
 
 
