@@ -2,7 +2,7 @@ import tflite
 from onnx import helper
 
 from ..common import logger
-from ..tensor import Tensor
+from ..tensor import create_tensor
 from .op import Operator
 
 OpTypeMapping = {
@@ -21,14 +21,14 @@ class Unary(Operator):
         assert(op.OutputsLength() == 1)
 
         ti = op.Inputs(0)
-        to = Tensor(model, graph, ti)
+        to = create_tensor(model, graph, ti)
         self.inputs.append(to)
 
         ti = op.Outputs(0)
-        to = Tensor(model, graph, ti)
+        to = create_tensor(model, graph, ti)
         self.outputs.append(to)
 
-        inames = [input.name for input in self.inputs]
-        onames = [output.name for output in self.outputs]
+        inames = [t.name for t in self.inputs]
+        onames = [t.name for t in self.outputs]
         logger.debug("[Unary] Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames)
