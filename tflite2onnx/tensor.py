@@ -27,12 +27,7 @@ class Tensor(BaseABC):
         # return helper.make_tensor(self.name, dtype, dims, data_buf, True)
 
         self.onnx = helper.make_tensor_value_info(self.name, dtype, dims)
-        print(type(self.onnx))
         # onnx.checker.check_tensor(self.onnx)
-
-    # def __str__(self):
-    #     return helper.
-
 
 TensorMapping = {}
 

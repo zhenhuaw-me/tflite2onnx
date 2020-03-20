@@ -7,5 +7,8 @@ class BaseABC(ABC):
     tflite = None
     onnx = None
 
+    def __str__(self):
+        return self.onnx.__str__()
+
 
 logger = logging.getLogger('tflite2onnx')
