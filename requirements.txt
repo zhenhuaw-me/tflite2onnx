@@ -1,5 +1,9 @@
 numpy
+onnx
+onnxruntime
 setuptools
+shrub
+tensorflow
 tflite
 twine
 wheel

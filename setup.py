@@ -27,7 +27,7 @@ setuptools.setup(
     ],
     keywords=['tflite', 'tensorflow', 'onnx'],
     python_requires='>=3.5.*, <4',
-    install_requires=['numpy'],
+    install_requires=['numpy', 'onnx', 'tflite'],
 
     author='王振华(Zhenhua WANG)',
     author_email='i@jackwish.net',
