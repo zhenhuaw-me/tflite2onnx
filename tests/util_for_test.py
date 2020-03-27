@@ -1,8 +1,11 @@
 import os
+import requests
 
-HERE = os.path.abspath(os.path.dirname(__file__))
-
-def getTFLiteModel(key):
-  model_dir = os.path.abspath(os.path.join(HERE, '../assets/models'))
-  return os.path.abspath(os.path.join(model_dir, key + '.tflite'))
-
+def download(fname: str):
+    if not os.path.exists(fname):
+        with open(fname, 'wb') as f:
+            BaseURL = 'https://jackwish.net/storage/models/tests/'
+            response = requests.get(BaseURL + fname)
+            f.write(response.content)
+        f.close()
+    return fname

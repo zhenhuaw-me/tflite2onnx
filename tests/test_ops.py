@@ -11,7 +11,7 @@ OP_LIST = (
         )
 
 for op in OP_LIST:
-    tflm_path = util_for_test.getTFLiteModel(op)
+    tflm_path = util_for_test.download(op + '.tflite')
     t2o.convert(tflm_path, op + '.onnx')
 
     m = shrub.tflite.parse(tflm_path)
