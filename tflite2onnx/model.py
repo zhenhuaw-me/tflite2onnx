@@ -21,9 +21,8 @@ class Model(BaseABC):
             graph = Graph(model, g)
             self.graphs.append(graph)
 
-        print(self.graphs[0].onnx)
-
-        assert(len(self.graphs) == 1)
+        # print(self.graphs[0].onnx)
+        # assert(len(self.graphs) == model.SubgraphsLength())
         self.onnx = helper.make_model(self.graphs[0].onnx, producer_name='tflite2onnx')
 
     def save(self, path: str):
