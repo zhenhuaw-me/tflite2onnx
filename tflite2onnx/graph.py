@@ -5,6 +5,7 @@ from .common import BaseABC, logger
 from .tensor import create_tensor
 from .op import convert
 
+
 class Graph(BaseABC):
     ops = []
     inputs = []
@@ -20,7 +21,6 @@ class Graph(BaseABC):
             index = graph.Inputs(i)
             t = create_tensor(model, graph, index)
             self.inputs.append(t)
-
 
         # operators
         for i in range(graph.OperatorsLength()):
@@ -40,6 +40,3 @@ class Graph(BaseABC):
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs)
-
-
-

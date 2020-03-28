@@ -5,13 +5,15 @@ from ..common import logger
 from ..tensor import create_tensor
 from .op import Operator
 
+
 OpTypeMapping = {
-        tflite.BuiltinOperator.ABS : 'Abs',
-        }
+        tflite.BuiltinOperator.ABS : 'Abs',     # noqa: E203
+}
+
 
 class Unary(Operator):
     def __init__(self, model, graph, op):
-        logger.debug("[Unary] Converting...")
+        logger.debug("Converting...")
         self.tflite = op
         opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in OpTypeMapping)

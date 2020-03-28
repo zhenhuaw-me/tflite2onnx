@@ -9,3 +9,4 @@ tensorflow
 tflite
 twine
 wheel
+yapf

@@ -5,6 +5,7 @@ from onnx import helper
 from .common import BaseABC, logger
 from .graph import Graph
 
+
 class Model(BaseABC):
     """Everything helps to convert TFLite model to ONNX model"""
     graphs = []
@@ -26,6 +27,7 @@ class Model(BaseABC):
         self.onnx = helper.make_model(self.graphs[0].onnx, producer_name='tflite2onnx')
 
     def save(self, path: str):
+        logger.debug("save model as %s, path")
         assert(self.onnx is not None)
         onnx.checker.check_model(self.onnx)
         onnx.save(self.onnx, path)

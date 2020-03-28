@@ -1,9 +1,8 @@
 import tflite
-import onnx
-from onnx import helper
 
 from .model import Model
 from .common import logger
+
 
 def convert(tflite_path: str, onnx_path: str):
     """Converting TensorFlow Lite models (*tflite) to ONNX models"""
@@ -17,5 +16,3 @@ def convert(tflite_path: str, onnx_path: str):
     model = Model(im)
     model.save(onnx_path)
     logger.info("Converted ONNX model: %s", onnx_path)
-
-

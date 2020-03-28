@@ -6,9 +6,11 @@ import util_for_test
 logging.basicConfig(format='[%(name)s:%(levelname)6s] [%(filename)12s:%(lineno)3d] [%(funcName)s] %(message)s',
                     level=logging.DEBUG)
 
+
 OP_LIST = (
         'abs.float32',
         )
+
 
 def test_ops():
     for op in OP_LIST:
