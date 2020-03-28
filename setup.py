@@ -26,7 +26,7 @@ setuptools.setup(
         'Operating System :: OS Independent',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
-    keywords=['tflite', 'tensorflow', 'onnx'],
+    keywords=['tflite', 'onnx'],
     python_requires='>=3.5.*, <4',
     install_requires=['numpy', 'onnx', 'tflite'],
 

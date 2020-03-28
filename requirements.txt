@@ -5,7 +5,6 @@ onnxruntime
 pytest
 setuptools
 shrub
-tensorflow
 tflite
 twine
 wheel
