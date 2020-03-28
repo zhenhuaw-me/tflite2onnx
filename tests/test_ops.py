@@ -23,4 +23,5 @@ def test_ops():
         assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
 
 
-test_ops()
+if __name__ == '__main__':
+    test_ops()
