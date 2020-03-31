@@ -7,11 +7,11 @@ from .op import Operator
 
 
 OpTypeMapping = {
-        tflite.BuiltinOperator.ABS : 'Abs',     # noqa: E203
+        tflite.BuiltinOperator.ADD : 'Add',     # noqa: E203
 }
 
 
-class Unary(Operator):
+class Binary(Operator):
     def __init__(self, model, graph, op):
         logger.debug("Converting...")
         self.tflite = op
@@ -19,12 +19,13 @@ class Unary(Operator):
         assert(opcode in OpTypeMapping)
         self.type = OpTypeMapping[opcode]
 
-        assert(op.InputsLength() == 1)
+        assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)
 
-        ti = op.Inputs(0)
-        to = create_tensor(model, graph, ti)
-        self.inputs.append(to)
+        for i in range(op.InputsLength()):
+            ti = op.Inputs(i)
+            to = create_tensor(model, graph, ti)
+            self.inputs.append(to)
 
         ti = op.Outputs(0)
         to = create_tensor(model, graph, ti)

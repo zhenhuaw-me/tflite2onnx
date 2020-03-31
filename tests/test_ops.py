@@ -7,7 +7,8 @@ shrub.util.formatLogging(logging.DEBUG)
 
 OP_LIST = (
         # 'abs.float32',
-        'softmax.float32',
+        'add.float32',
+        # 'softmax.float32',
         )
 
 
