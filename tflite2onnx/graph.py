@@ -2,7 +2,7 @@ import tflite
 from onnx import helper
 
 from .common import BaseABC, logger
-from .tensor import create_tensor
+from .tensor import create_tensor, TensorMapping
 from .op import convert
 
 
@@ -12,11 +12,12 @@ class Graph(BaseABC):
     outputs = []
 
     def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
-        logger.debug("[Graph] Converting...")
+        logger.debug("Converting...")
         self.tflite = graph
+        TensorMapping.clear()
 
         # inputs
-        logger.debug("[Graph] Converting inputs...")
+        logger.debug("Converting inputs...")
         for i in range(graph.InputsLength()):
             index = graph.Inputs(i)
             t = create_tensor(model, graph, index)
@@ -24,7 +25,7 @@ class Graph(BaseABC):
 
         # operators
         for i in range(graph.OperatorsLength()):
-            logger.debug("[Graph] Converting operator: {}".format(i))
+            logger.debug("Converting operator: {}".format(i))
             op_tflite = graph.Operators(i)
             op = convert(model, graph, op_tflite)
             self.ops.append(op)
@@ -35,7 +36,7 @@ class Graph(BaseABC):
             t = create_tensor(model, graph, index)
             self.outputs.append(t)
 
-        logger.debug("[Graph] Making ONNX...")
+        logger.debug("Making ONNX...")
         onodes = [n.onnx for n in self.ops]
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]

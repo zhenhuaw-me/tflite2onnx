@@ -19,11 +19,12 @@ class Tensor(BaseABC):
     def __init__(self, model, graph, index):
         self.tflite = graph.Tensors(index)
         self.name = self.tflite.Name().decode('utf-8')
-        logger.debug("[Tensor] Converting {}...".format(self.name))
+        logger.debug("Converting %s...", self.name)
         dims = [int(i) for i in self.tflite.ShapeAsNumpy()]
 
         if len(dims) == 4:
             dims = transform(dims, 'NHWC', 'NCHW')
+
         assert(self.tflite.Type() in DTYPE_MAP)
         dtype = DTYPE_MAP[self.tflite.Type()]
         # data_buf = model.Buffers(self.tflite.Buffer())

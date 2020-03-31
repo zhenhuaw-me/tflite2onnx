@@ -9,6 +9,7 @@ from .pooling import AveragePool
 OP_CONVERTERS = {
         tflite.BuiltinOperator.ABS      : Unary,        # noqa: E203
         tflite.BuiltinOperator.SOFTMAX  : Softmax,      # noqa: E203
+        tflite.BuiltinOperator.ADD      : Binary,       # noqa: E203
         tflite.BuiltinOperator.AVERAGE_POOL_2D      : AveragePool,       # noqa: E203
 }
 
