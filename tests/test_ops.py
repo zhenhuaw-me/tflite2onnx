@@ -6,9 +6,10 @@ shrub.util.formatLogging(logging.DEBUG)
 
 
 OP_LIST = (
-        # 'abs.float32',
+        'abs.float32',
         'add.float32',
-        # 'softmax.float32',
+        'avgpooling.float32',
+        'softmax.float32',
         )
 
 
@@ -25,5 +26,12 @@ def test_ops():
         assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
 
 
+
+def test_transform():
+    from tflite2onnx.tensor import transform
+    assert(transform([1, 2, 6, 8], 'NCHW', 'NHWC') == [1, 6, 8, 2])
+    assert(transform([1, 2, 6, 8], 'NHWC', 'NCHW') == [1, 8, 2, 6])
+
 if __name__ == '__main__':
     test_ops()
+    test_transform()

@@ -21,6 +21,9 @@ class Tensor(BaseABC):
         self.name = self.tflite.Name().decode('utf-8')
         logger.debug("[Tensor] Converting {}...".format(self.name))
         dims = [int(i) for i in self.tflite.ShapeAsNumpy()]
+
+        if len(dims) == 4:
+            dims = transform(dims, 'NHWC', 'NCHW')
         assert(self.tflite.Type() in DTYPE_MAP)
         dtype = DTYPE_MAP[self.tflite.Type()]
         # data_buf = model.Buffers(self.tflite.Buffer())
@@ -37,3 +40,17 @@ def create_tensor(model, graph, index):
     if index not in TensorMapping:
         TensorMapping[index] = Tensor(model, graph, index)
     return TensorMapping[index]
+
+def transform(input, ilayout: str, olayout: str):
+    if (ilayout == olayout):
+        return input
+
+    char2index = {}
+    for i in range(len(ilayout)):
+        c = ilayout[i]
+        char2index[c] = i
+
+    assert(isinstance(input, (list, tuple)))
+    transfrom_axis = [input[char2index[c]] for c in olayout]
+    return transfrom_axis
+
