@@ -13,6 +13,7 @@ OpTypeMapping = {
 
 class Softmax(Operator):
     def __init__(self, model, graph, op):
+        Operator.__init__(self)
         logger.debug("Converting...")
         self.tflite = op
         opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()

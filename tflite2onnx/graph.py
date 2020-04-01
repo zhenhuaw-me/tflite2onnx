@@ -7,11 +7,10 @@ from .op import convert
 
 
 class Graph(BaseABC):
-    ops = []
-    inputs = []
-    outputs = []
-
     def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
+        self.ops = []
+        self.inputs = []
+        self.outputs = []
         logger.debug("Converting...")
         self.tflite = graph
         TensorMapping.clear()
@@ -40,4 +39,5 @@ class Graph(BaseABC):
         onodes = [n.onnx for n in self.ops]
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]
+
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs)

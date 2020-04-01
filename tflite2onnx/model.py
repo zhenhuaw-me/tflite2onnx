@@ -8,9 +8,8 @@ from .graph import Graph
 
 class Model(BaseABC):
     """Everything helps to convert TFLite model to ONNX model"""
-    graphs = []
-
     def __init__(self, model: tflite.Model):
+        self.graphs = []
         self.tflite = model
         if (model.SubgraphsLength() != 1):
             raise NotImplementedError("ONNX supports one graph per model only, while TFLite has ",
@@ -21,8 +20,7 @@ class Model(BaseABC):
             graph = Graph(model, g)
             self.graphs.append(graph)
 
-        # print(self.graphs[0].onnx)
-        # assert(len(self.graphs) == model.SubgraphsLength())
+        assert(len(self.graphs) == model.SubgraphsLength())
         self.onnx = helper.make_model(self.graphs[0].onnx, producer_name='tflite2onnx')
 
     def save(self, path: str):

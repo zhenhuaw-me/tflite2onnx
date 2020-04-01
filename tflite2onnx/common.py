@@ -4,9 +4,10 @@ from abc import ABC
 
 class BaseABC(ABC):
     """Holding objects of TFLite and ONNX"""
-    name = "Unintialized"
-    tflite = None
-    onnx = None
+    def __init__(self):
+        self.name = 'Unintialized'
+        self.tflite = None
+        self.onnx = None
 
     def __str__(self):
         return self.onnx.__str__()
