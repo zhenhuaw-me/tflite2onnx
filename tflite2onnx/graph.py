@@ -15,19 +15,19 @@ class Graph(BaseABC):
         self.tflite = graph
         TensorMapping.clear()
 
-        # inputs
-        logger.debug("Converting inputs...")
-        for i in range(graph.InputsLength()):
-            index = graph.Inputs(i)
-            t = create_tensor(model, graph, index)
-            self.inputs.append(t)
-
         # operators
         for i in range(graph.OperatorsLength()):
             logger.debug("Converting operator: {}".format(i))
             op_tflite = graph.Operators(i)
             op = convert(model, graph, op_tflite)
             self.ops.append(op)
+
+        # inputs
+        logger.debug("Converting inputs...")
+        for i in range(graph.InputsLength()):
+            index = graph.Inputs(i)
+            t = create_tensor(model, graph, index)
+            self.inputs.append(t)
 
         # outputs
         for i in range(graph.OutputsLength()):

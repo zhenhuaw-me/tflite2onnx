@@ -16,30 +16,30 @@ DTYPE_MAP = {
 
 class Tensor(BaseABC):
 
-    def __init__(self, model, graph, index):
+    def __init__(self, model, graph, index, transform_to_nchw):
         self.tflite = graph.Tensors(index)
         self.name = self.tflite.Name().decode('utf-8')
         logger.debug("Converting %s...", self.name)
-        dims = [int(i) for i in self.tflite.ShapeAsNumpy()]
+        self.dims = [int(i) for i in self.tflite.ShapeAsNumpy()]
 
-        if len(dims) == 4:
-            dims = transform(dims, 'NHWC', 'NCHW')
+        if len(self.dims) == 4 and transform_to_nchw:
+            self.dims = transform(self.dims, 'NHWC', 'NCHW')
 
         assert(self.tflite.Type() in DTYPE_MAP)
         dtype = DTYPE_MAP[self.tflite.Type()]
         # data_buf = model.Buffers(self.tflite.Buffer())
-        # return helper.make_tensor(self.name, dtype, dims, data_buf, True)
+        # return helper.make_tensor(self.name, dtype, self.dims, data_buf, True)
 
-        self.onnx = helper.make_tensor_value_info(self.name, dtype, dims)
+        self.onnx = helper.make_tensor_value_info(self.name, dtype, self.dims)
         # onnx.checker.check_tensor(self.onnx)
 
 
 TensorMapping = {}
 
 
-def create_tensor(model, graph, index):
+def create_tensor(model, graph, index, transform_to_nchw = True):
     if index not in TensorMapping:
-        TensorMapping[index] = Tensor(model, graph, index)
+        TensorMapping[index] = Tensor(model, graph, index, transform_to_nchw)
     return TensorMapping[index]
 
 def transform(input, ilayout: str, olayout: str):
