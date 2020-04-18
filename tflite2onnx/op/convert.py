@@ -23,4 +23,8 @@ def convert(model, graph, op):
 
     op_converter = OP_CONVERTERS[opcode]
 
-    return op_converter(model, graph, op)
+    if opcode == tflite.BuiltinOperator.AVERAGE_POOL_2D:
+        cvt = op_converter(model, graph, op)
+        return cvt.convert(model, graph, op)
+    else:
+        return op_converter(model, graph, op)

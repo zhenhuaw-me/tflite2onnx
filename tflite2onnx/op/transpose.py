@@ -39,3 +39,33 @@ class Transpose(Operator):
         onames = [t.name for t in self.outputs]
         logger.debug("Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames, perm=perm)
+
+
+class TransposeHelper(Operator):
+    def __init__(self, model, graph, op, ilayout, olayout, iIndex=None, oIndex=None):
+        Operator.__init__(self)
+        logger.debug("Converting...")
+        self.tflite = op  # the tflite operator that Transpose helps for.
+        assert((iIndex is None) != (oIndex is None)), "One of this IO needs to be empty"
+        opcode = tflite.BuiltinOperator.TRANSPOSE
+        assert(opcode in OpTypeMapping)
+        self.type = OpTypeMapping[opcode]
+
+        if iIndex is None:
+            iTensor = tensor.createTransposeTensor(model, graph, oIndex, ilayout, olayout)
+        else:
+            iTensor = tensor.convert(model, graph, iIndex)
+        self.inputs.append(iTensor)
+
+        if oIndex is None:
+            oTensor = tensor.createTransposeTensor(model, graph, iIndex, ilayout, olayout)
+        else:
+            oTensor = tensor.convert(model, graph, oIndex)
+        self.outputs.append(oTensor)
+
+        perm = tensor.getPerm(ilayout, olayout)
+
+        inames = [t.name for t in self.inputs]
+        onames = [t.name for t in self.outputs]
+        logger.debug("Making ONNX...")
+        self.onnx = helper.make_node(self.type, inames, onames, perm=perm)

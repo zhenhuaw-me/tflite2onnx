@@ -19,8 +19,9 @@ class Graph(BaseABC):
         for i in range(graph.OperatorsLength()):
             logger.debug("Converting operator: {}".format(i))
             op_tflite = graph.Operators(i)
-            op = convert(model, graph, op_tflite)
-            self.ops.append(op)
+            ops = convert(model, graph, op_tflite)
+            ops = ops if isinstance(ops, list) else [ops]
+            self.ops += ops
 
         # inputs
         logger.debug("Converting inputs...")
