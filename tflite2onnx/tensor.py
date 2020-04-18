@@ -22,8 +22,8 @@ class Tensor(BaseABC):
         logger.debug("Converting %s...", self.name)
         self.dims = [int(i) for i in self.tflite.ShapeAsNumpy()]
 
-        if len(self.dims) == 4 and transform_to_nchw:
-            self.dims = transform(self.dims, 'NHWC', 'NCHW')
+        # if len(self.dims) == 4 and transform_to_nchw:
+        #     self.dims = transform(self.dims, 'NHWC', 'NCHW')
 
         assert(self.tflite.Type() in DTYPE_MAP)
         dtype = DTYPE_MAP[self.tflite.Type()]
