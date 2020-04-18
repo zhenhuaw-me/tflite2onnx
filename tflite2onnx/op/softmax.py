@@ -23,7 +23,6 @@ class Softmax(Operator):
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
-
         ti = op.Inputs(0)
         to = create_tensor(model, graph, ti, False)
         self.inputs.append(to)

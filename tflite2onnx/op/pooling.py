@@ -31,8 +31,8 @@ class AveragePool(Operator):
         option = tflite.Pool2DOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
 
-        auto_pad = 'SAME_UPPER' # See ComputePaddingHeightWidth() of TFLite
-        ceil_mod = 0
+        auto_pad = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
+        # ceil_mod = 0
         kshape = [option.FilterHeight(), option.FilterWidth()]
         strides = [option.StrideH(), option.StrideW()]
 

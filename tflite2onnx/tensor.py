@@ -40,10 +40,12 @@ class Tensor(BaseABC):
 # TODO: move the registery to Graph scope to save clear operation.
 Registery = {}
 
-def create_tensor(model, graph, index, transform_to_nchw = True):
+
+def create_tensor(model, graph, index, transform_to_nchw=True):
     if index not in Registery:
         Registery[index] = Tensor(model, graph, index, transform_to_nchw)
     return Registery[index]
+
 
 def transform(input, ilayout: str, olayout: str):
     if (ilayout == olayout):
@@ -58,6 +60,7 @@ def transform(input, ilayout: str, olayout: str):
     transfrom_axis = [input[char2index[c]] for c in olayout]
     return transfrom_axis
 
+
 def getData(model, graph, index, dtype):
     assert(dtype == np.int32)
     assert(index < graph.TensorsLength())
@@ -67,4 +70,3 @@ def getData(model, graph, index, dtype):
     raw = model.Buffers(bi).DataAsNumpy()
     data = np.frombuffer(raw, dtype=np.int32)
     return data
-
