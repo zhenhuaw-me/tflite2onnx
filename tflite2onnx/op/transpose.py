@@ -3,7 +3,7 @@ import tflite
 from onnx import helper
 
 from ..common import logger
-from ..tensor import create_tensor
+from ..tensor import create_tensor, getData
 from .op import Operator
 
 
@@ -29,9 +29,7 @@ class Transpose(Operator):
         self.inputs.append(to)
 
         ti = op.Inputs(1)
-        tperm = graph.Tensors(ti)
-        b = model.Buffers(tperm.Buffer())
-        perm = np.frombuffer(b.DataAsNumpy(), dtype=np.int32)
+        perm = getData(model, graph, ti, np.int32)
 
         ti = op.Outputs(0)
         to = create_tensor(model, graph, ti)

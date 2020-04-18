@@ -1,3 +1,4 @@
+import numpy as np
 import tflite
 from onnx import helper, TensorProto
 
@@ -34,13 +35,15 @@ class Tensor(BaseABC):
         # onnx.checker.check_tensor(self.onnx)
 
 
-TensorMapping = {}
-
+# The Registery holds all tensors in a SubGraph of TFLite
+# As Registery here is *global*, we need to manually clear it when new in a SubGraph
+# TODO: move the registery to Graph scope to save clear operation.
+Registery = {}
 
 def create_tensor(model, graph, index, transform_to_nchw = True):
-    if index not in TensorMapping:
-        TensorMapping[index] = Tensor(model, graph, index, transform_to_nchw)
-    return TensorMapping[index]
+    if index not in Registery:
+        Registery[index] = Tensor(model, graph, index, transform_to_nchw)
+    return Registery[index]
 
 def transform(input, ilayout: str, olayout: str):
     if (ilayout == olayout):
@@ -54,4 +57,14 @@ def transform(input, ilayout: str, olayout: str):
     assert(isinstance(input, (list, tuple)))
     transfrom_axis = [input[char2index[c]] for c in olayout]
     return transfrom_axis
+
+def getData(model, graph, index, dtype):
+    assert(dtype == np.int32)
+    assert(index < graph.TensorsLength())
+    t = graph.Tensors(index)
+    bi = t.Buffer()
+    assert(bi < model.BuffersLength())
+    raw = model.Buffers(bi).DataAsNumpy()
+    data = np.frombuffer(raw, dtype=np.int32)
+    return data
 

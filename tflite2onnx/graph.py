@@ -2,7 +2,7 @@ import tflite
 from onnx import helper
 
 from .common import BaseABC, logger
-from .tensor import create_tensor, TensorMapping
+from .tensor import create_tensor, Registery
 from .op import convert
 
 
@@ -13,7 +13,7 @@ class Graph(BaseABC):
         self.outputs = []
         logger.debug("Converting...")
         self.tflite = graph
-        TensorMapping.clear()
+        Registery.clear()
 
         # operators
         for i in range(graph.OperatorsLength()):
