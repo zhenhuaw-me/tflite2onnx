@@ -2,7 +2,7 @@ import tflite
 from onnx import helper
 
 from .common import BaseABC, logger
-from .tensor import create_tensor, Registery
+from . import tensor
 from .op import convert
 
 
@@ -13,7 +13,7 @@ class Graph(BaseABC):
         self.outputs = []
         logger.debug("Converting...")
         self.tflite = graph
-        Registery.clear()
+        tensor.Registery.clear()
 
         # operators
         for i in range(graph.OperatorsLength()):
@@ -26,13 +26,13 @@ class Graph(BaseABC):
         logger.debug("Converting inputs...")
         for i in range(graph.InputsLength()):
             index = graph.Inputs(i)
-            t = create_tensor(model, graph, index)
+            t = tensor.convert(model, graph, index)
             self.inputs.append(t)
 
         # outputs
         for i in range(graph.OutputsLength()):
             index = graph.Outputs(i)
-            t = create_tensor(model, graph, index)
+            t = tensor.convert(model, graph, index)
             self.outputs.append(t)
 
         logger.debug("Making ONNX...")

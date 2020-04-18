@@ -41,7 +41,7 @@ class Tensor(BaseABC):
 Registery = {}
 
 
-def create_tensor(model, graph, index, transform_to_nchw=True):
+def convert(model, graph, index, transform_to_nchw=True):
     if index not in Registery:
         Registery[index] = Tensor(model, graph, index, transform_to_nchw)
     return Registery[index]

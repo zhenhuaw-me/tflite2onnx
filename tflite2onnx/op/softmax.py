@@ -1,8 +1,8 @@
 import tflite
 from onnx import helper
 
+from .. import tensor
 from ..common import logger
-from ..tensor import create_tensor
 from .op import Operator
 
 
@@ -24,7 +24,7 @@ class Softmax(Operator):
         assert(op.OutputsLength() == 1)
 
         ti = op.Inputs(0)
-        to = create_tensor(model, graph, ti, False)
+        to = tensor.convert(model, graph, ti, False)
         self.inputs.append(to)
 
         # TFLite Softmax ALWAYS softmax on `-1` axis, while ONNX on `1` by default.
@@ -40,7 +40,7 @@ class Softmax(Operator):
         axis = -1
 
         ti = op.Outputs(0)
-        to = create_tensor(model, graph, ti, False)
+        to = tensor.convert(model, graph, ti, False)
         self.outputs.append(to)
 
         inames = [t.name for t in self.inputs]

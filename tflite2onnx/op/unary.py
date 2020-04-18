@@ -2,7 +2,7 @@ import tflite
 from onnx import helper
 
 from ..common import logger
-from ..tensor import create_tensor
+from .. import tensor
 from .op import Operator
 
 
@@ -24,11 +24,11 @@ class Unary(Operator):
         assert(op.OutputsLength() == 1)
 
         ti = op.Inputs(0)
-        to = create_tensor(model, graph, ti)
+        to = tensor.convert(model, graph, ti)
         self.inputs.append(to)
 
         ti = op.Outputs(0)
-        to = create_tensor(model, graph, ti)
+        to = tensor.convert(model, graph, ti)
         self.outputs.append(to)
 
         inames = [t.name for t in self.inputs]

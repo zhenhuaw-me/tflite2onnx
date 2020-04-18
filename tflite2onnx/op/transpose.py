@@ -2,8 +2,8 @@ import numpy as np
 import tflite
 from onnx import helper
 
+from .. import tensor
 from ..common import logger
-from ..tensor import create_tensor, getData
 from .op import Operator
 
 
@@ -25,14 +25,14 @@ class Transpose(Operator):
         assert(op.OutputsLength() == 1)
 
         ti = op.Inputs(0)
-        to = create_tensor(model, graph, ti)
+        to = tensor.convert(model, graph, ti)
         self.inputs.append(to)
 
         ti = op.Inputs(1)
-        perm = getData(model, graph, ti, np.int32)
+        perm = tensor.getData(model, graph, ti, np.int32)
 
         ti = op.Outputs(0)
-        to = create_tensor(model, graph, ti)
+        to = tensor.convert(model, graph, ti)
         self.outputs.append(to)
 
         inames = [t.name for t in self.inputs]
