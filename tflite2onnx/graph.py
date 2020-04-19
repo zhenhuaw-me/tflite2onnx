@@ -14,7 +14,7 @@ class Graph(BaseABC):
         self.initializers = []
         logger.debug("Converting...")
         self.tflite = graph
-        tensor.Registery.clear()
+        tensor.registery.clear()
 
         # operators
         for i in range(graph.OperatorsLength()):
