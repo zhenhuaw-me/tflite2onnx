@@ -3,6 +3,7 @@ import tflite
 from onnx import helper
 
 from .. import tensor
+from .. import layout
 from ..common import logger
 from .op import Operator
 
@@ -63,7 +64,7 @@ class TransposeHelper(Operator):
             oTensor = tensor.convert(model, graph, oIndex)
         self.outputs.append(oTensor)
 
-        perm = tensor.getPerm(ilayout, olayout)
+        perm = layout.getPerm(ilayout, olayout)
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]

@@ -4,6 +4,7 @@ import tflite
 from onnx import helper, TensorProto
 
 from .common import BaseABC, logger
+from . import layout
 
 DTYPE_MAP = {
         tflite.TensorType.BOOL    : TensorProto.BOOL   ,    # noqa: E203
@@ -56,18 +57,9 @@ def createTransposeTensor(model, graph, index, ilayout, olayout):
     t = copy.copy(ref)
     t.tflite = None
     t.name = t.name + '_' + ilayout + '_to_' + olayout
-    t.dims = transform(t.dims, ilayout, olayout)
+    t.dims = layout.transform(t.dims, ilayout, olayout)
     t.onnx = helper.make_tensor_value_info(t.name, t.dtype, t.dims)
     return t
-
-
-def transform(input, ilayout: str, olayout: str):
-    if (ilayout == olayout):
-        return input
-
-    perm = getPerm(ilayout, olayout)
-    transfrom_axis = [input[p] for p in perm]
-    return transfrom_axis
 
 
 def getData(model, graph, index, dtype):
@@ -79,13 +71,3 @@ def getData(model, graph, index, dtype):
     raw = model.Buffers(bi).DataAsNumpy()
     data = np.frombuffer(raw, dtype=dtype)
     return data
-
-
-def getPerm(ilayout: str, olayout: str):
-    char2index = {}
-    for i in range(len(ilayout)):
-        c = ilayout[i]
-        char2index[c] = i
-
-    perm = [char2index[c] for c in olayout]
-    return perm
