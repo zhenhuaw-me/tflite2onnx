@@ -2,11 +2,11 @@ import tflite
 import onnx
 from onnx import helper
 
-from .common import BaseABC, logger
+from .common import T2OBase, logger
 from .graph import Graph
 
 
-class Model(BaseABC):
+class Model(T2OBase):
     """Everything helps to convert TFLite model to ONNX model"""
     def __init__(self, model: tflite.Model):
         self.graphs = []

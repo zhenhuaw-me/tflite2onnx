@@ -1,12 +1,12 @@
 import tflite
 from onnx import helper
 
-from .common import BaseABC, logger
+from .common import T2OBase, logger
 from . import tensor
 from .op import convert
 
 
-class Graph(BaseABC):
+class Graph(T2OBase):
     def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
         self.ops = []
         self.inputs = []

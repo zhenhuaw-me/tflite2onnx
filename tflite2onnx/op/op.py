@@ -1,9 +1,9 @@
-from ..common import BaseABC
+from ..common import T2OBase
 
 
-class Operator(BaseABC):
+class Operator(T2OBase):
     def __init__(self):
-        BaseABC.__init__(self)
+        T2OBase.__init__(self)
         self.type = None
         self.inputs = []
         self.outputs = []

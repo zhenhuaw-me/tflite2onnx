@@ -3,8 +3,9 @@ import onnx
 import tflite
 from onnx import helper, TensorProto
 
-from .common import BaseABC, logger
+from .common import T2OBase, TFLiteObjectBase, logger
 from . import layout
+
 
 DTYPE_MAP = {
         tflite.TensorType.BOOL    : TensorProto.BOOL   ,    # noqa: E203
@@ -17,18 +18,17 @@ DTYPE_MAP = {
 }  # yapf: disable
 
 
-class Tensor(BaseABC):
+class TFLiteObject(TFLiteObjectBase):
+    def __init__(self, model, graph, index):
+        TFLiteObjectBase.__init__(self, model, graph, index)
+        self.tensor = graph.Tensors(index)
 
-    class TFLiteObject:
-        def __init__(self, model, graph, index):
-            self.model = model
-            self.graph = graph
-            self.index = index
-            self.tensor = graph.Tensors(index)
+
+class Tensor(T2OBase):
 
     def __init__(self, model, graph, index):
-        BaseABC.__init__(self)
-        self.tflite = self.TFLiteObject(model, graph, index)
+        T2OBase.__init__(self)
+        self.tflite = TFLiteObject(model, graph, index)
         tft = self.tflite.tensor
         self.name = tft.Name().decode('utf-8')
         logger.debug("Converting %s...", self.name)
