@@ -5,6 +5,7 @@ from .softmax import Softmax
 from .binary import Binary
 from .pooling import AveragePool
 from .transpose import Transpose
+from .conv import Conv2D
 
 
 OP_CONVERTERS = {
@@ -13,6 +14,7 @@ OP_CONVERTERS = {
         tflite.BuiltinOperator.ADD      : Binary,       # noqa: E203
         tflite.BuiltinOperator.AVERAGE_POOL_2D      : AveragePool,       # noqa: E203
         tflite.BuiltinOperator.TRANSPOSE      : Transpose,       # noqa: E203
+        tflite.BuiltinOperator.CONV_2D      : Conv2D,       # noqa: E203
 }
 
 
@@ -23,7 +25,7 @@ def convert(model, graph, op):
 
     op_converter = OP_CONVERTERS[opcode]
 
-    if opcode == tflite.BuiltinOperator.AVERAGE_POOL_2D:
+    if opcode in [tflite.BuiltinOperator.AVERAGE_POOL_2D, tflite.BuiltinOperator.CONV_2D]:
         cvt = op_converter(model, graph, op)
         return cvt.convert(model, graph, op)
     else:

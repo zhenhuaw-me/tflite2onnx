@@ -11,6 +11,7 @@ OP_LIST = (
         'avgpooling.float32',
         'transpose.float32',
         'softmax.float32',
+        'conv.float32',
         )
 
 

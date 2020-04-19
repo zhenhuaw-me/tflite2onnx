@@ -11,6 +11,7 @@ class Graph(BaseABC):
         self.ops = []
         self.inputs = []
         self.outputs = []
+        self.initializers = []
         logger.debug("Converting...")
         self.tflite = graph
         tensor.Registery.clear()
@@ -22,6 +23,8 @@ class Graph(BaseABC):
             ops = convert(model, graph, op_tflite)
             ops = ops if isinstance(ops, list) else [ops]
             self.ops += ops
+            for op in ops:
+                self.initializers += op.weights
 
         # inputs
         logger.debug("Converting inputs...")
@@ -40,5 +43,7 @@ class Graph(BaseABC):
         onodes = [n.onnx for n in self.ops]
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]
+        initializer = [t.onnx for t in self.initializers]
 
-        self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs)
+        self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
+                                      initializer=initializer)

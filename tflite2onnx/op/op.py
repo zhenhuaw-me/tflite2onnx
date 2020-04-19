@@ -7,3 +7,4 @@ class Operator(BaseABC):
         self.type = None
         self.inputs = []
         self.outputs = []
+        self.weights = []  # there could be overlap between inputs and weights

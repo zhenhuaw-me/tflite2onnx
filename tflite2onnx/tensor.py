@@ -1,4 +1,5 @@
 import numpy as np
+import onnx
 import tflite
 from onnx import helper, TensorProto
 
@@ -17,7 +18,7 @@ DTYPE_MAP = {
 
 class Tensor(BaseABC):
 
-    def __init__(self, model, graph, index):
+    def __init__(self, model, graph, index, isVar=True):
         self.tflite = graph.Tensors(index)
         self.name = self.tflite.Name().decode('utf-8')
         logger.debug("Converting %s...", self.name)
@@ -25,11 +26,15 @@ class Tensor(BaseABC):
 
         assert(self.tflite.Type() in DTYPE_MAP)
         self.dtype = DTYPE_MAP[self.tflite.Type()]
-        # data_buf = model.Buffers(self.tflite.Buffer())
-        # return helper.make_tensor(self.name, self.dtype, self.dims, data_buf, True)
 
-        self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.dims)
-        # onnx.checker.check_tensor(self.onnx)
+        logger.debug("Tensor <%s> isVariable: %s", self.name, self.tflite.IsVariable())
+
+        if isVar:
+            self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.dims)
+        else:
+            vals = getData(model, graph, index, np.float32)  # FIXME map dtype
+            self.onnx = helper.make_tensor(self.name, self.dtype, self.dims, vals)
+            onnx.checker.check_tensor(self.onnx)
 
 
 # The Registery holds all tensors in a SubGraph of TFLite
@@ -38,9 +43,9 @@ class Tensor(BaseABC):
 Registery = {}
 
 
-def convert(model, graph, index):
+def convert(model, graph, index, isVar=True):
     if index not in Registery:
-        Registery[index] = Tensor(model, graph, index)
+        Registery[index] = Tensor(model, graph, index, isVar)
     return Registery[index]
 
 
@@ -50,7 +55,7 @@ def createTransposeTensor(model, graph, index, ilayout, olayout):
     import copy
     t = copy.copy(ref)
     t.tflite = None
-    t.name = t.name + '_' + ilayout + '_to_' + ilayout
+    t.name = t.name + '_' + ilayout + '_to_' + olayout
     t.dims = transform(t.dims, ilayout, olayout)
     t.onnx = helper.make_tensor_value_info(t.name, t.dtype, t.dims)
     return t
@@ -66,13 +71,13 @@ def transform(input, ilayout: str, olayout: str):
 
 
 def getData(model, graph, index, dtype):
-    assert(dtype == np.int32)
+    assert(dtype in [np.int32, np.float32])
     assert(index < graph.TensorsLength())
     t = graph.Tensors(index)
     bi = t.Buffer()
     assert(bi < model.BuffersLength())
     raw = model.Buffers(bi).DataAsNumpy()
-    data = np.frombuffer(raw, dtype=np.int32)
+    data = np.frombuffer(raw, dtype=dtype)
     return data
 
 
