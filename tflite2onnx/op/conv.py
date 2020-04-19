@@ -50,7 +50,7 @@ class Conv2D(Operator):
         option = tflite.Conv2DOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
 
-        kshape = wt.dims[1:3]
+        kshape = wt.shape[1:3]
         dilations = [option.DilationHFactor(), option.DilationWFactor()]
         group = 1
         padding = option.Padding()

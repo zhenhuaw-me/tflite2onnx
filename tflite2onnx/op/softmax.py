@@ -29,14 +29,14 @@ class Softmax(Operator):
 
         # TFLite Softmax ALWAYS softmax on `-1` axis, while ONNX on `1` by default.
         # And, we transform NHWC to NCHW for 4D tensor.
-        # axis = 1 if len(to.dims) == 4 else -1
-        # if len(to.dims) == 4:
+        # axis = 1 if len(to.shape) == 4 else -1
+        # if len(to.shape) == 4:
         #     axis = 1
-        # elif len(to.dims) == 2:
+        # elif len(to.shape) == 2:
         #     axis = -1
         # else:
         #     axis = -1
-        #     logger.warning("Softmax has input shape %s.", str(to.dims))
+        #     logger.warning("Softmax has input shape %s.", str(to.shape))
         axis = -1
 
         ti = op.Outputs(0)

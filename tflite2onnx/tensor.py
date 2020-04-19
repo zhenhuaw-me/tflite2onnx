@@ -23,7 +23,7 @@ class Tensor(BaseABC):
         self.tflite = graph.Tensors(index)
         self.name = self.tflite.Name().decode('utf-8')
         logger.debug("Converting %s...", self.name)
-        self.dims = [int(i) for i in self.tflite.ShapeAsNumpy()]
+        self.shape = [int(i) for i in self.tflite.ShapeAsNumpy()]
 
         assert(self.tflite.Type() in DTYPE_MAP)
         self.dtype = DTYPE_MAP[self.tflite.Type()]
@@ -31,10 +31,10 @@ class Tensor(BaseABC):
         logger.debug("Tensor <%s> isVariable: %s", self.name, self.tflite.IsVariable())
 
         if isVar:
-            self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.dims)
+            self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
         else:
             vals = getData(model, graph, index, np.float32)  # FIXME map dtype
-            self.onnx = helper.make_tensor(self.name, self.dtype, self.dims, vals)
+            self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, vals)
             onnx.checker.check_tensor(self.onnx)
 
 
@@ -57,8 +57,8 @@ def createTransposeTensor(model, graph, index, ilayout, olayout):
     t = copy.copy(ref)
     t.tflite = None
     t.name = t.name + '_' + ilayout + '_to_' + olayout
-    t.dims = layout.transform(t.dims, ilayout, olayout)
-    t.onnx = helper.make_tensor_value_info(t.name, t.dtype, t.dims)
+    t.shape = layout.transform(t.shape, ilayout, olayout)
+    t.onnx = helper.make_tensor_value_info(t.name, t.dtype, t.shape)
     return t
 
 
