@@ -13,11 +13,12 @@ OpTypeMapping = {
 
 
 class Conv2D(Operator):
-    def __init__(self, model, graph, op):
+    def __init__(self, model, graph, index):
         Operator.__init__(self)
 
-    def convert(self, model, graph, op):
+    def convert(self, model, graph, index):
         logger.debug("Converting...")
+        op = graph.Operators(index)
         self.tflite = op
         opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in OpTypeMapping)

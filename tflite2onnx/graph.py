@@ -20,8 +20,7 @@ class Graph(T2OBase):
         # operators
         for i in range(graph.OperatorsLength()):
             logger.debug("Converting operator: {}".format(i))
-            op_tflite = graph.Operators(i)
-            ops = convert(model, graph, op_tflite)
+            ops = convert(model, graph, i)
             ops = ops if isinstance(ops, list) else [ops]
             self.ops += ops
             for op in ops:

@@ -18,7 +18,8 @@ OP_CONVERTERS = {
 }
 
 
-def convert(model, graph, op):
+def convert(model, graph, index):
+    op = graph.Operators(index)
     opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
     if opcode not in OP_CONVERTERS:
         raise NotImplementedError("Unsupported TFLite OP: {}".format(opcode))
@@ -26,7 +27,7 @@ def convert(model, graph, op):
     op_converter = OP_CONVERTERS[opcode]
 
     if opcode in [tflite.BuiltinOperator.AVERAGE_POOL_2D, tflite.BuiltinOperator.CONV_2D]:
-        cvt = op_converter(model, graph, op)
-        return cvt.convert(model, graph, op)
+        cvt = op_converter(model, graph, index)
+        return cvt.convert(model, graph, index)
     else:
-        return op_converter(model, graph, op)
+        return op_converter(model, graph, index)
