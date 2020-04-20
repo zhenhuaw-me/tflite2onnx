@@ -14,13 +14,12 @@ OpTypeMapping = {
 
 class Conv2D(Operator):
     def __init__(self, model, graph, index):
-        Operator.__init__(self)
+        super().__init__(model, graph, index)
 
-    def convert(self, model, graph, index):
+    def convert(self):
         logger.debug("Converting...")
-        op = graph.Operators(index)
-        self.tflite = op
-        opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        op = self.tflite
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in OpTypeMapping)
         self.type = OpTypeMapping[opcode]
 
@@ -29,20 +28,20 @@ class Conv2D(Operator):
 
         # input
         ii = op.Inputs(0)
-        tensor.convert(model, graph, ii)
-        inputTranspose = TransposeHelper(model, graph, op, 'NHWC', 'NCHW', iIndex=ii)
+        tensor.convert(self.model, self.graph, ii)
+        inputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NHWC', 'NCHW', iIndex=ii)
         self.inputs.append(inputTranspose.outputs[0])
 
         # weight
         wi = op.Inputs(1)
-        wt = tensor.convert(model, graph, wi, False)
-        weightTranspose = TransposeHelper(model, graph, op, 'OHWI', 'OIHW', iIndex=wi)
+        wt = tensor.convert(self.model, self.graph, wi, False)
+        weightTranspose = TransposeHelper(self.model, self.graph, self.index, 'OHWI', 'OIHW', iIndex=wi)
         self.inputs.append(weightTranspose.outputs[0])
         self.weights.append(weightTranspose.inputs[0])
 
         # bias
         bi = op.Inputs(2)
-        bt = tensor.convert(model, graph, bi, False)
+        bt = tensor.convert(self.model, self.graph, bi, False)
         self.inputs.append(bt)
         self.weights.append(bt)
 
@@ -63,8 +62,8 @@ class Conv2D(Operator):
 
         # output
         oi = op.Outputs(0)
-        tensor.convert(model, graph, oi)
-        outputTranspose = TransposeHelper(model, graph, op, 'NCHW', 'NHWC', oIndex=oi)
+        tensor.convert(self.model, self.graph, oi)
+        outputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NCHW', 'NHWC', oIndex=oi)
         self.outputs.append(outputTranspose.inputs[0])
 
         inames = [t.name for t in self.inputs]

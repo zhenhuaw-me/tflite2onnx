@@ -13,10 +13,9 @@ OpTypeMapping = {
 
 class Unary(Operator):
     def __init__(self, model, graph, index):
-        Operator.__init__(self)
+        super().__init__(model, graph, index)
         logger.debug("Converting...")
-        op = graph.Operators(index)
-        self.tflite = op
+        op = self.tflite
         opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in OpTypeMapping)
         self.type = OpTypeMapping[opcode]

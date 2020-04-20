@@ -15,10 +15,9 @@ OpTypeMapping = {
 
 class Transpose(Operator):
     def __init__(self, model, graph, index):
-        Operator.__init__(self)
+        super().__init__(model, graph, index)
         logger.debug("Converting...")
-        op = graph.Operators(index)
-        self.tflite = op
+        op = self.tflite
         opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in OpTypeMapping)
         self.type = OpTypeMapping[opcode]
@@ -44,10 +43,10 @@ class Transpose(Operator):
 
 
 class TransposeHelper(Operator):
-    def __init__(self, model, graph, op, ilayout, olayout, iIndex=None, oIndex=None):
-        Operator.__init__(self)
+    def __init__(self, model, graph, index, ilayout, olayout, iIndex=None, oIndex=None):
+        super().__init__(model, graph, index)
         logger.debug("Converting...")
-        # op = graph.Operators(index)
+        op = graph.Operators(index)
         self.tflite = op  # the tflite operator that Transpose helps for.
         assert((iIndex is None) != (oIndex is None)), "One of this IO needs to be empty"
         opcode = tflite.BuiltinOperator.TRANSPOSE

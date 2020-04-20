@@ -14,13 +14,12 @@ OpTypeMapping = {
 
 class AveragePool(Operator):
     def __init__(self, model, graph, index):
-        Operator.__init__(self)
+        super().__init__(model, graph, index)
 
-    def convert(self, model, graph, index):
+    def convert(self):
         logger.debug("Converting...")
-        op = graph.Operators(index)
-        self.tflite = op
-        opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        op = self.tflite
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in OpTypeMapping)
         self.type = OpTypeMapping[opcode]
 
@@ -28,10 +27,10 @@ class AveragePool(Operator):
         assert(op.OutputsLength() == 1)
 
         ti = op.Inputs(0)
-        tensor.convert(model, graph, ti)
+        tensor.convert(self.model, self.graph, ti)
 
         # NHWC -> Transpose -> NCHW
-        inputTranspose = TransposeHelper(model, graph, op, 'NHWC', 'NCHW', iIndex=ti)
+        inputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NHWC', 'NCHW', iIndex=ti)
 
         # use output of inputTranspose as op input
         self.inputs.append(inputTranspose.outputs[0])
@@ -46,10 +45,10 @@ class AveragePool(Operator):
         strides = [option.StrideH(), option.StrideW()]
 
         ti = op.Outputs(0)
-        tensor.convert(model, graph, ti)
+        tensor.convert(self.model, self.graph, ti)
 
         # NCHW -> Transpose -> NHWC
-        outputTranspose = TransposeHelper(model, graph, op, 'NCHW', 'NHWC', oIndex=ti)
+        outputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NCHW', 'NHWC', oIndex=ti)
 
         # use input of outputTranspose as op output
         self.outputs.append(outputTranspose.inputs[0])
