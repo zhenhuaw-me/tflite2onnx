@@ -8,6 +8,7 @@ from .op import convert
 
 class Graph(T2OBase):
     def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
+        super().__init__(model, graph)
         self.ops = []
         self.inputs = []
         self.outputs = []

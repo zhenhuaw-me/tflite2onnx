@@ -3,8 +3,14 @@ import onnx
 import tflite
 from onnx import helper, TensorProto
 
-from .common import T2OBase, TFLiteObjectBase, logger
+from .common import T2OBase, logger
 from . import layout
+
+
+# The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map.
+# As Registery here is *global*, we need to manually clear it when new in a SubGraph
+# TODO: move the registery to Graph scope to save clear operation.
+registery = {}
 
 
 DTYPE_MAP = {
@@ -18,39 +24,26 @@ DTYPE_MAP = {
 }  # yapf: disable
 
 
-class TFLiteObject(TFLiteObjectBase):
-    def __init__(self, model, graph, index):
-        TFLiteObjectBase.__init__(self, model, graph, index)
-        self.tensor = graph.Tensors(index)
-
-
 class Tensor(T2OBase):
 
     def __init__(self, model, graph, index):
-        T2OBase.__init__(self)
-        self.tflite = TFLiteObject(model, graph, index)
-        tft = self.tflite.tensor
-        self.name = tft.Name().decode('utf-8')
+        super().__init__(model, graph, index)
+        self.tflite = graph.Tensors(index)
+        self.name = self.tflite.Name().decode('utf-8')
         logger.debug("Converting %s...", self.name)
-        self.shape = [int(i) for i in tft.ShapeAsNumpy()]
+        self.shape = [int(i) for i in self.tflite.ShapeAsNumpy()]
 
-        assert(tft.Type() in DTYPE_MAP)
-        self.dtype = DTYPE_MAP[tft.Type()]
+        assert(self.tflite.Type() in DTYPE_MAP)
+        self.dtype = DTYPE_MAP[self.tflite.Type()]
 
     def create(self, isVar):
         assert(self.onnx is None)
         if isVar:
             self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
         else:
-            vals = getData(self.tflite.model, self.tflite.graph, self.tflite.index, np.float32)
+            vals = getData(self.model, self.graph, self.index, np.float32)
             self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, vals)
             onnx.checker.check_tensor(self.onnx)
-
-
-# The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map.
-# As Registery here is *global*, we need to manually clear it when new in a SubGraph
-# TODO: move the registery to Graph scope to save clear operation.
-registery = {}
 
 
 def getName(graph, index):
