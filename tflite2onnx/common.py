@@ -6,12 +6,25 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Status(Enum):
+    # Before `__init__()` finishes.
     UNINITIALIZED = 0
+
+    # Basic TensorFlow Lite objects registed, Class-wise member allocated.
     INITIALIZED = 1
+
+    # Objects and any members have been parsed from TFLite model.
     PARSED = 2
+
+    # Graph structure has been built.
     GRAPH_BUILT = 3
+
+    # Everything that needs done in graph walking has been done.
     PROPAGATED = 4
+
+    # ONNX object has been created.
     CONVERTED = 5
+
+    # Reserved.
     INVALID = 10
 
 
