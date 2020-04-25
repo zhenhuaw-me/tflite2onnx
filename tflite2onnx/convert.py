@@ -14,7 +14,6 @@ def convert(tflite_path: str, onnx_path: str):
         im = tflite.Model.GetRootAsModel(buf, 0)
 
     model = Model(im)
-    model.parse()
     model.convert()
     model.save(onnx_path)
     logger.info("Converted ONNX model: %s", onnx_path)

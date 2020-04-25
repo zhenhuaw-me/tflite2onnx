@@ -9,7 +9,9 @@ class Status(Enum):
     UNINITIALIZED = 0
     INITIALIZED = 1
     PARSED = 2
-    CONVERTED = 3
+    GRAPH_BUILT = 3
+    PROPAGATED = 4
+    CONVERTED = 5
     INVALID = 10
 
 
@@ -40,11 +42,25 @@ class T2OBase(ABC):
         assert(self.status is Status.INITIALIZED)
         self.status = Status.PARSED
 
+    def buildGraph(self):
+        logger.warn("method buildGraph() is not overrided!")
+
+    def setGraphBuilt(self):
+        assert(self.status is Status.PARSED)
+        self.status = Status.GRAPH_BUILT
+
+    def propagate(self):
+        logger.warn("method propagate() is not overrided!")
+
+    def setPropagated(self):
+        assert(self.status is Status.GRAPH_BUILT)
+        self.status = Status.PROPAGATED
+
     def convert(self):
         logger.warn("method convert() is not overrided!")
 
     def setConverted(self):
-        assert(self.status is Status.PARSED)
+        assert(self.status is Status.PROPAGATED)
         self.status = Status.CONVERTED
 
     def setInvalid(self):

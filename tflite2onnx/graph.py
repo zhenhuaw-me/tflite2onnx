@@ -13,14 +13,26 @@ class Graph(T2OBase):
         self.inputs = []
         self.outputs = []
         self.initializers = []
-        logger.debug("Converting...")
         self.tflite = graph
         tensor.registery.clear()
+        self.setInited()
+
+    def parse(self):
+        self.setParsed()
+
+    def buildGraph(self):
+        self.setGraphBuilt()
+
+    def propagate(self):
+        self.setPropagated()
+
+    def convert(self):
+        logger.debug("Converting...")
 
         # operators
-        for i in range(graph.OperatorsLength()):
+        for i in range(self.graph.OperatorsLength()):
             logger.debug("Converting operator: {}".format(i))
-            ops = convert(model, graph, i)
+            ops = convert(self.model, self.graph, i)
             ops = ops if isinstance(ops, list) else [ops]
             self.ops += ops
             for op in ops:
@@ -28,15 +40,15 @@ class Graph(T2OBase):
 
         # inputs
         logger.debug("Converting inputs...")
-        for i in range(graph.InputsLength()):
-            index = graph.Inputs(i)
-            t = tensor.convert(model, graph, index)
+        for i in range(self.graph.InputsLength()):
+            index = self.graph.Inputs(i)
+            t = tensor.convert(self.model, self.graph, index)
             self.inputs.append(t)
 
         # outputs
-        for i in range(graph.OutputsLength()):
-            index = graph.Outputs(i)
-            t = tensor.convert(model, graph, index)
+        for i in range(self.graph.OutputsLength()):
+            index = self.graph.Outputs(i)
+            t = tensor.convert(self.model, self.graph, index)
             self.outputs.append(t)
 
         logger.debug("Making ONNX...")
@@ -47,3 +59,4 @@ class Graph(T2OBase):
 
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
                                       initializer=initializer)
+        self.setConverted()
