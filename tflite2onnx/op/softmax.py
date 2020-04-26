@@ -6,15 +6,12 @@ from ..common import logger
 from .op import Operator
 
 
-OpTypeMapping = {
-        tflite.BuiltinOperator.SOFTMAX : 'Softmax',     # noqa: E203
-}
-
-
 class Softmax(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
+
         self.axis = -1
+
         self.setInited()
 
     @property
