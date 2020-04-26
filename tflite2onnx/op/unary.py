@@ -1,7 +1,7 @@
 import tflite
 from onnx import helper
 
-from ..common import logger
+from ..common import logger, Status
 from .. import tensor
 from .op import Operator
 
@@ -14,16 +14,26 @@ OpTypeMapping = {
 class Unary(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
-        self.type = 'Unary'
         self.setInited()
 
+    @property
+    def type(self):
+        if (self.status is Status.UNINITIALIZED):
+            return 'Unary'
+        else:
+            op = self.tflite
+            opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+            assert(opcode in OpTypeMapping)
+            return OpTypeMapping[opcode]
+
+    @property
+    def sensitive(self):
+        return False
+
     def parse(self):
-        op = self.tflite
-        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode in OpTypeMapping)
-        self.type = OpTypeMapping[opcode]
         logger.debug("Parsing %s...", self.type)
 
+        op = self.tflite
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 

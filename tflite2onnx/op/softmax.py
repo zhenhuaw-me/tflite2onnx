@@ -14,8 +14,16 @@ OpTypeMapping = {
 class Softmax(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
-        self.type = 'Softmax'
+        self.axis = -1
         self.setInited()
+
+    @property
+    def type(self):
+        return 'Softmax'
+
+    @property
+    def sensitive(self):
+        return True
 
     def parse(self):
         logger.debug("Parsing %s...", self.type)
