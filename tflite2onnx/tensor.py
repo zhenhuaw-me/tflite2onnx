@@ -32,11 +32,12 @@ class Tensor(T2OBase):
         self.setInited()
 
     def parse(self):
-        self.name = self.tflite.Name().decode('utf-8')
+        tensor = self.tflite
+        self.name = tensor.Name().decode('utf-8')
         logger.debug("Parsing %s...", self.name)
-        self.shape = [int(i) for i in self.tflite.ShapeAsNumpy()]
-        assert(self.tflite.Type() in DTYPE_TFLITE2ONNX)
-        self.dtype = DTYPE_TFLITE2ONNX[self.tflite.Type()]
+        self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
+        assert(tensor.Type() in DTYPE_TFLITE2ONNX)
+        self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
         self.setParsed()
 
     def buildGraph(self):
@@ -49,6 +50,9 @@ class Tensor(T2OBase):
         self.setPropagated()
 
     def convert(self, isVar=True):
+        self.buildGraph()
+        self.propagate()
+
         logger.debug("Converting %s...", self.name)
         assert(self.onnx is None)
         if isVar:
@@ -58,19 +62,19 @@ class Tensor(T2OBase):
             self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, vals)
             onnx.checker.check_tensor(self.onnx)
 
+        self.setConverted()
 
-def getName(graph, index):
+
+def parseTensorName(graph, index):
     assert(index < graph.TensorsLength())
     t = graph.Tensors(index)
     return t.Name().decode('utf-8')
 
 
 def get(model, graph, index, isVar=True):
-    name = getName(graph, index)
+    name = parseTensorName(graph, index)
     if name not in registery:
         t = Tensor(model, graph, index)
-        # t.parse()
-        # t.create(isVar)
         registery[name] = t
     return registery[name]
 

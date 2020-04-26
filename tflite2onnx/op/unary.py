@@ -14,6 +14,7 @@ OpTypeMapping = {
 class Unary(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
+        self.type = 'Unary'
         self.setInited()
 
     def parse(self):
@@ -26,15 +27,15 @@ class Unary(Operator):
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
-        ti = op.Inputs(0)
-        to = tensor.get(self.model, self.graph, ti)
-        to.parse()
-        self.inputs.append(to)
+        ii = op.Inputs(0)
+        it = tensor.get(self.model, self.graph, ii)
+        it.parse()
+        self.inputs.append(it)
 
-        ti = op.Outputs(0)
-        to = tensor.get(self.model, self.graph, ti)
-        to.parse()
-        self.outputs.append(to)
+        oi = op.Outputs(0)
+        ot = tensor.get(self.model, self.graph, oi)
+        ot.parse()
+        self.outputs.append(ot)
 
         self.setParsed()
 

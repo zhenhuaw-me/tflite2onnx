@@ -27,10 +27,4 @@ def getOp(model, graph, index):
     op_converter = OP_CONVERTERS[opcode]
     return op_converter(model, graph, index)
 
-    # if opcode in [tflite.BuiltinOperator.AVERAGE_POOL_2D, tflite.BuiltinOperator.CONV_2D]:
-    #     cvt = op_converter(model, graph, index)
-    #     return cvt.convert()
-    # else:
-    #     return op_converter(model, graph, index)
-
 __all__ = [getOp, ]
