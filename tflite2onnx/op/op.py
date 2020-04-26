@@ -16,3 +16,13 @@ class Operator(T2OBase):
     @property
     def sensitive(self):
         raise NotImplementedError
+
+    @property
+    def str(self):
+        return '[' + self.name + ']' + '(' + str(self.type) + ')'
+
+    def __str__(self):
+        inames = str([t.name for t in self.inputs])
+        wnames = str([t.name for t in self.weights])
+        onames = str([t.name for t in self.outputs])
+        return self.str + ': ' + inames + ',' + wnames + ' -> ' + onames

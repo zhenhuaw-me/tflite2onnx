@@ -38,6 +38,7 @@ class AveragePool(Operator):
         ii = op.Inputs(0)
         it = tensor.get(self.model, self.graph, ii)
         it.parse()
+        it.addConsumer(self)
         self.inputs.append(it)
 
         # # NHWC -> Transpose -> NCHW
@@ -56,6 +57,7 @@ class AveragePool(Operator):
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
         ot.parse()
+        ot.addProducer(self)
         self.outputs.append(ot)
 
         # # NCHW -> Transpose -> NHWC
@@ -66,18 +68,13 @@ class AveragePool(Operator):
 
         self.setParsed()
 
-    def buildGraph(self):
-        logger.debug("Building graph in %s...", self.type)
-        self.setGraphBuilt()
-
     def propagate(self):
         logger.debug("Propagating %s...", self.type)
         self.setPropagated()
 
     def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self.buildGraph()
         self.propagate()
+        logger.debug("Converting %s...", self.type)
 
         self.inputs[0].convert()
         self.outputs[0].convert()

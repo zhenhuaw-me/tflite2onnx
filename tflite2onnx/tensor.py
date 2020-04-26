@@ -5,6 +5,7 @@ from onnx import helper, TensorProto
 
 from .common import T2OBase, logger
 from . import layout
+from .op import Operator
 
 
 # The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map.
@@ -29,7 +30,21 @@ class Tensor(T2OBase):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index)
+        self.dtype = None
+        self.shape = []
+        self.producers = []
+        self.consumers = []
         self.setInited()
+
+    def addProducer(self, op):
+        assert(isinstance(op, Operator))
+        if op not in self.producers:
+            self.producers.append(op)
+
+    def addConsumer(self, op):
+        assert(isinstance(op, Operator))
+        if op not in self.consumers:
+            self.consumers.append(op)
 
     def parse(self):
         tensor = self.tflite
@@ -38,11 +53,8 @@ class Tensor(T2OBase):
         self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
         assert(tensor.Type() in DTYPE_TFLITE2ONNX)
         self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
-        self.setParsed()
 
-    def buildGraph(self):
-        logger.debug("Building graph...")
-        self.setGraphBuilt()
+        self.setParsed()
 
     def propagate(self):
         logger.debug("Propagating...")
@@ -50,9 +62,7 @@ class Tensor(T2OBase):
         self.setPropagated()
 
     def convert(self, isVar=True):
-        self.buildGraph()
         self.propagate()
-
         logger.debug("Converting %s...", self.name)
         assert(self.onnx is None)
         if isVar:
@@ -63,6 +73,24 @@ class Tensor(T2OBase):
             onnx.checker.check_tensor(self.onnx)
 
         self.setConverted()
+
+    @property
+    def str(self):
+        DTYPE_NAME = {
+            TensorProto.BOOL     :  'bool',    # noqa: E203
+            TensorProto.FLOAT16  :  'float16',    # noqa: E203
+            TensorProto.FLOAT    :  'float(32)',    # noqa: E203
+            TensorProto.INT16    :  'int16',    # noqa: E203
+            TensorProto.INT32    :  'int32',    # noqa: E203
+            TensorProto.INT8     :  'int8',    # noqa: E203
+            TensorProto.UINT8    :  'uint',    # noqa: E203
+            }
+        return '<' + self.name + '>' + '(' + DTYPE_NAME[self.dtype] + ',' + str(self.shape) + ')'
+
+    def __str__(self):
+        producer_names = str([op.str for op in self.producers])
+        consumer_names = str([op.str for op in self.consumers])
+        return self.str + ': ' + producer_names + ' -> ' + consumer_names
 
 
 def parseTensorName(graph, index):

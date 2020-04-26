@@ -15,17 +15,19 @@ class Status(Enum):
     # Objects and any members have been parsed from TFLite model.
     PARSED = 2
 
-    # Graph structure has been built.
-    GRAPH_BUILT = 3
-
     # Everything that needs done in graph walking has been done.
-    PROPAGATED = 4
+    PROPAGATED = 3
 
     # ONNX object has been created.
-    CONVERTED = 5
+    CONVERTED = 4
 
     # Reserved.
     INVALID = 10
+
+class LayoutApproach(Enum):
+    DEFAULT = 1
+    TRANSPOSE = 1
+    PROPAGATION = 2
 
 
 class T2OBase(ABC):
@@ -55,18 +57,11 @@ class T2OBase(ABC):
         assert(self.status is Status.INITIALIZED)
         self.status = Status.PARSED
 
-    def buildGraph(self):
-        logger.warn("method buildGraph() is not overrided!")
-
-    def setGraphBuilt(self):
-        assert(self.status is Status.PARSED)
-        self.status = Status.GRAPH_BUILT
-
     def propagate(self):
         logger.warn("method propagate() is not overrided!")
 
     def setPropagated(self):
-        assert(self.status is Status.GRAPH_BUILT)
+        assert(self.status is Status.PARSED)
         self.status = Status.PROPAGATED
 
     def convert(self):

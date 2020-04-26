@@ -29,23 +29,16 @@ class Model(T2OBase):
 
         self.setParsed()
 
-    def buildGraph(self):
-        logger.debug("Building graph...")
-        for g in self.graphes:
-            g.buildGraph()
-        self.setGraphBuilt()
-
     def propagate(self):
+        self.parse()
         logger.debug("Propagating...")
         for g in self.graphes:
             g.propagate()
         self.setPropagated()
 
     def convert(self):
-        logger.debug("Converting...")
-        self.parse()
-        self.buildGraph()
         self.propagate()
+        logger.debug("Converting...")
         for g in self.graphes:
             g.convert()
         self.onnx = helper.make_model(self.graphes[0].onnx, producer_name='tflite2onnx')

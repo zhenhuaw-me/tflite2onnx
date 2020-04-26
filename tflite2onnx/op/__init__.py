@@ -1,5 +1,6 @@
 import tflite
 
+from .op import Operator
 from .unary import Unary
 from .softmax import Softmax
 from .binary import Binary

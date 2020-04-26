@@ -43,12 +43,16 @@ class Graph(T2OBase):
 
         self.setParsed()
 
-    def buildGraph(self):
-        logger.debug("Building graph...")
-        self.setGraphBuilt()
-
     def propagate(self):
         logger.debug("Propagating...")
+        for op in self.ops:
+            logger.debug("[OP] %s", str(op))
+        for t in self.inputs:
+            logger.debug("[Inputs] %s", str(t))
+        for t in self.initializer:
+            logger.debug("[Initializer] %s", str(t))
+        for t in self.outputs:
+            logger.debug("[Outputs] %s", str(t))
         self.setPropagated()
 
     def convert(self):
