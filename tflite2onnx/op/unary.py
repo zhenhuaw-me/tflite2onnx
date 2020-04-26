@@ -34,6 +34,9 @@ class Unary(Operator):
         logger.debug("Parsing %s...", self.type)
 
         op = self.tflite
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        assert(opcode in OpTypeMapping)
+
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
