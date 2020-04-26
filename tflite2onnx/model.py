@@ -15,6 +15,7 @@ class Model(T2OBase):
         self.setInited()
 
     def parse(self):
+        logger.debug("Parsing the Model...")
         graph_count = self.model.SubgraphsLength()
         if (graph_count != 1):
             raise NotImplementedError("ONNX supports one graph per model only, while TFLite has ",
@@ -29,16 +30,19 @@ class Model(T2OBase):
         self.setParsed()
 
     def buildGraph(self):
+        logger.debug("Building graph...")
         for g in self.graphes:
             g.buildGraph()
         self.setGraphBuilt()
 
     def propagate(self):
+        logger.debug("Propagating...")
         for g in self.graphes:
             g.propagate()
         self.setPropagated()
 
     def convert(self):
+        logger.debug("Converting...")
         self.parse()
         self.buildGraph()
         self.propagate()
@@ -50,6 +54,5 @@ class Model(T2OBase):
     def save(self, path: str):
         logger.debug("saving model as %s", path)
         assert(self.status is Status.CONVERTED)
-        assert(self.onnx is not None)
         onnx.checker.check_model(self.onnx)
         onnx.save(self.onnx, path)

@@ -13,7 +13,7 @@ from . import layout
 registery = {}
 
 
-DTYPE_MAP = {
+DTYPE_TFLITE2ONNX = {
         tflite.TensorType.BOOL    : TensorProto.BOOL   ,    # noqa: E203
         tflite.TensorType.FLOAT16 : TensorProto.FLOAT16,    # noqa: E203
         tflite.TensorType.FLOAT32 : TensorProto.FLOAT  ,    # noqa: E203
@@ -29,14 +29,27 @@ class Tensor(T2OBase):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index)
+        self.setInited()
+
+    def parse(self):
         self.name = self.tflite.Name().decode('utf-8')
-        logger.debug("Converting %s...", self.name)
+        logger.debug("Parsing %s...", self.name)
         self.shape = [int(i) for i in self.tflite.ShapeAsNumpy()]
+        assert(self.tflite.Type() in DTYPE_TFLITE2ONNX)
+        self.dtype = DTYPE_TFLITE2ONNX[self.tflite.Type()]
+        self.setParsed()
 
-        assert(self.tflite.Type() in DTYPE_MAP)
-        self.dtype = DTYPE_MAP[self.tflite.Type()]
+    def buildGraph(self):
+        logger.debug("Building graph...")
+        self.setGraphBuilt()
 
-    def create(self, isVar):
+    def propagate(self):
+        logger.debug("Propagating...")
+        # TODO: handle layout issue.
+        self.setPropagated()
+
+    def convert(self, isVar=True):
+        logger.debug("Converting %s...", self.name)
         assert(self.onnx is None)
         if isVar:
             self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
@@ -52,11 +65,12 @@ def getName(graph, index):
     return t.Name().decode('utf-8')
 
 
-def convert(model, graph, index, isVar=True):
+def get(model, graph, index, isVar=True):
     name = getName(graph, index)
     if name not in registery:
         t = Tensor(model, graph, index)
-        t.create(isVar)
+        # t.parse()
+        # t.create(isVar)
         registery[name] = t
     return registery[name]
 
@@ -74,7 +88,7 @@ def getData(model, graph, index, dtype):
 
 def createTransposeTensor(model, graph, index, ilayout, olayout):
     """Help to convert [NHWC -> Transpose -> NCHW -> OP -> NCHW -> Transpose -> NHWC]."""
-    ref = convert(model, graph, index)
+    ref = get(model, graph, index)
     import copy
     t = copy.copy(ref)
     t.tflite = None
