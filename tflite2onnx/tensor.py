@@ -27,13 +27,17 @@ DTYPE_TFLITE2ONNX = {
 
 class Tensor(T2OBase):
 
-    def __init__(self, model, graph, index):
+    def __init__(self, model, graph, index, layout=None, is_weight=False):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index)
+        self.is_weight = is_weight
         self.dtype = None
         self.shape = []
+
+        self.layout = layout
         self.producers = []
         self.consumers = []
+
         self.setInited()
 
     def addProducer(self, op):
@@ -61,16 +65,15 @@ class Tensor(T2OBase):
         # TODO: handle layout issue.
         self.setPropagated()
 
-    def convert(self, isVar=True):
+    def convert(self):
         self.propagate()
         logger.debug("Converting %s...", self.name)
-        assert(self.onnx is None)
-        if isVar:
-            self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
-        else:
+        if self.is_weight:
             vals = getData(self.model, self.graph, self.index, np.float32)
             self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, vals)
             onnx.checker.check_tensor(self.onnx)
+        else:
+            self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
 
         self.setConverted()
 

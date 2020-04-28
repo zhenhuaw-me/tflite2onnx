@@ -32,3 +32,6 @@ class Layout:
         output = transform(input, self.source, self.target)
         self.current = target
         return output
+
+    def match(self):
+        return self.current == self.target

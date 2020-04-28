@@ -12,8 +12,8 @@ class Graph(T2OBase):
         self.ops = []
         self.inputs = []
         self.outputs = []
-        self.initializer = []
-        self.value_info = []
+        self.initializer = dict()
+        self.value_info = dict()
         self.tflite = graph
         tensor.registery.clear()
         self.setInited()
@@ -41,10 +41,17 @@ class Graph(T2OBase):
             t = tensor.get(self.model, self.graph, index)
             self.outputs.append(t)
 
+        for op in self.ops:
+            pass
+
+
         self.setParsed()
 
     def propagate(self):
         logger.debug("Propagating...")
+
+
+
         for op in self.ops:
             logger.debug("[OP] %s", str(op))
         for t in self.inputs:
@@ -65,8 +72,8 @@ class Graph(T2OBase):
         onodes = [n.onnx for n in self.ops]
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]
-        initializer = [t.onnx for t in self.initializer]
-        value_info = [t.onnx for t in self.value_info]
+        initializer = [t.onnx for n,t in self.initializer.items()]
+        value_info = [t.onnx for n,t in self.value_info.items()]
 
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
                                       initializer=initializer, value_info=value_info)

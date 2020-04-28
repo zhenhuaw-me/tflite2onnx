@@ -34,14 +34,14 @@ class Conv2D(Operator):
 
         # weight
         wi = op.Inputs(1)
-        wt = tensor.convert(self.model, self.graph, wi, False)
+        wt = tensor.convert(self.model, self.graph, wi)
         weightTranspose = TransposeHelper(self.model, self.graph, self.index, 'OHWI', 'OIHW', iIndex=wi)
         self.inputs.append(weightTranspose.outputs[0])
         self.weights.append(weightTranspose.inputs[0])
 
         # bias
         bi = op.Inputs(2)
-        bt = tensor.convert(self.model, self.graph, bi, False)
+        bt = tensor.convert(self.model, self.graph, bi)
         self.inputs.append(bt)
         self.weights.append(bt)
 
