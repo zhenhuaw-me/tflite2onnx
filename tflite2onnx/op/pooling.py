@@ -5,6 +5,7 @@ from .. import tensor
 from ..common import logger
 from .op import Operator
 from .transpose import TransposeHelper
+from ..layout import Layout
 
 
 class AveragePool(Operator):
@@ -36,7 +37,8 @@ class AveragePool(Operator):
         assert(op.OutputsLength() == 1)
 
         ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
+        ilayout = Layout('NHWC', 'NCHW')
+        it = tensor.get(self.model, self.graph, ii, ilayout)
         it.parse()
         it.addConsumer(self)
         self.inputs.append(it)
@@ -55,7 +57,8 @@ class AveragePool(Operator):
         self.strides = [option.StrideH(), option.StrideW()]
 
         oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
+        olayout = Layout('NCHW', 'NHWC')
+        ot = tensor.get(self.model, self.graph, oi, olayout)
         ot.parse()
         ot.addProducer(self)
         self.outputs.append(ot)

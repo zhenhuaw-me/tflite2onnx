@@ -50,6 +50,13 @@ class Tensor(T2OBase):
         if op not in self.consumers:
             self.consumers.append(op)
 
+    @property
+    def layoutMatch(self):
+        if self.layout is None:
+            return True
+        else:
+            return self.layout.match
+
     def parse(self):
         tensor = self.tflite
         self.name = tensor.Name().decode('utf-8')
@@ -102,10 +109,10 @@ def parseTensorName(graph, index):
     return t.Name().decode('utf-8')
 
 
-def get(model, graph, index, isVar=True):
+def get(model, graph, index, layout=None):
     name = parseTensorName(graph, index)
     if name not in registery:
-        t = Tensor(model, graph, index)
+        t = Tensor(model, graph, index, layout)
         registery[name] = t
     return registery[name]
 

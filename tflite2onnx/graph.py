@@ -43,11 +43,14 @@ class Graph(T2OBase):
 
         # collect tensors
         for op in self.ops:
+            uniqueInDict = lambda t, d : (t.name not in d) or (d[t.name] == t)
             tensors = op.inputs + op.outputs
             for t in tensors:
                 if t.is_weight:
+                    assert(uniqueInDict(t, self.initializer))
                     self.initializer[t.name] = t
                 else:
+                    assert(uniqueInDict(t, self.value_info))
                     self.value_info[t.name] = t
 
         self.setParsed()
@@ -55,7 +58,28 @@ class Graph(T2OBase):
     def propagate(self):
         logger.debug("Propagating...")
 
-        
+        all_tensors = {**self.initializer, **self.value_info}
+        for _, t in all_tensors.items():
+            if t.layoutMatch:
+                continue
+            logger.debug("<%s> layout not match", t.name)
+            def hasSensitiveNode(ln):
+                if (len(ln) == 0):
+                    return False
+                else:
+                    for n in ln:
+                        if n.sensitive:
+                            return True
+
+                return False
+
+            if hasSensitiveNode(t.producers):
+                logger.debug("<%s> transposing producers...", t.name)
+
+
+            if hasSensitiveNode(t.consumers):
+                logger.debug("<%s> transposing consumers...", t.name)
+
 
 
         for op in self.ops:

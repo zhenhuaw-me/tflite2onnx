@@ -33,5 +33,9 @@ class Layout:
         self.current = target
         return output
 
+    @property
     def match(self):
         return self.current == self.target
+
+    def __str__(self):
+        return self.current + '(' + self.source + '->' + self.target + ')'
