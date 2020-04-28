@@ -41,23 +41,31 @@ class Graph(T2OBase):
             t = tensor.get(self.model, self.graph, index)
             self.outputs.append(t)
 
+        # collect tensors
         for op in self.ops:
-            pass
-
+            tensors = op.inputs + op.outputs
+            for t in tensors:
+                if t.is_weight:
+                    self.initializer[t.name] = t
+                else:
+                    self.value_info[t.name] = t
 
         self.setParsed()
 
     def propagate(self):
         logger.debug("Propagating...")
 
+        
 
 
         for op in self.ops:
             logger.debug("[OP] %s", str(op))
         for t in self.inputs:
             logger.debug("[Inputs] %s", str(t))
-        for t in self.initializer:
+        for _,t in self.initializer.items():
             logger.debug("[Initializer] %s", str(t))
+        for _,t in self.value_info.items():
+            logger.debug("[Value Info] %s", str(t))
         for t in self.outputs:
             logger.debug("[Outputs] %s", str(t))
         self.setPropagated()
