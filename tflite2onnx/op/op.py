@@ -22,7 +22,7 @@ class Operator(T2OBase):
         return '[' + self.name + ']' + '(' + str(self.type) + ')'
 
     def replaceInput(self, original, new):
-        logger.debug("Replacing input <%s> with <%s>", original.name, new.name)
+        logger.debug("Replacing [%s] input <%s> with <%s>", self.type, original.name, new.name)
         for index, item in enumerate(self.inputs):
             if item is original:
                 self.inputs[index] = new

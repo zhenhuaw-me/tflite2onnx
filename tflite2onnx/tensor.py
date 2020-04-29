@@ -136,8 +136,13 @@ def getData(model, graph, index, dtype):
     return data
 
 
-def createTransposeTensor(ref, ilayout, olayout):
+def createTransposeTensor(ref, upstream):
     assert(ref.name in registery)
+    if upstream:
+        ilayout, olayout = ref.layout.source, ref.layout.target
+    else:
+        olayout, ilayout = ref.layout.source, ref.layout.target
+
     name = ref.name + '_' + ilayout + '_to_' + olayout
     if name in registery:
         assert(ref.layout.match)
@@ -148,11 +153,13 @@ def createTransposeTensor(ref, ilayout, olayout):
     t.tflite = None
     t.asVar()
     t.name = name
-    t.shape = layout.transform(t.shape, olayout, ilayout)
+    # t.shape = layout.transform(t.shape, olayout, ilayout)
+    t.shape = t.layout.transform(t.shape)
     t.producers.clear()
     t.consumers.clear()
     assert(t.onnx is None)
-    t.layout.markDone()
+    # t.layout.markDone()
+    ref.layout.markDone()
     # t.setPropagated()  # FIXME
     registery[name] = t
     return t
