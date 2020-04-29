@@ -1,4 +1,4 @@
-from ..common import T2OBase
+from ..common import T2OBase, logger
 
 
 class Operator(T2OBase):
@@ -20,6 +20,22 @@ class Operator(T2OBase):
     @property
     def str(self):
         return '[' + self.name + ']' + '(' + str(self.type) + ')'
+
+    def replaceInput(self, original, new):
+        logger.debug("Replacing input <%s> with <%s>", original.name, new.name)
+        for index, item in enumerate(self.inputs):
+            if item is original:
+                self.inputs[index] = new
+                return
+        assert(False)
+
+    def replaceOutput(self, original, new):
+        logger.debug("Replacing [%s] output <%s> with <%s>", self.type, original.name, new.name)
+        for index, item in enumerate(self.outputs):
+            if item is original:
+                self.outputs[index] = new
+                return
+        assert(False)
 
     def __str__(self):
         inames = str([t.name for t in self.inputs])

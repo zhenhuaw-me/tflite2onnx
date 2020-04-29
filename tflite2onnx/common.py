@@ -24,6 +24,10 @@ class Status(Enum):
     # Reserved.
     INVALID = 10
 
+    @property
+    def converted(self):
+        return self == self.CONVERTED
+
 class LayoutApproach(Enum):
     DEFAULT = 1
     TRANSPOSE = 1

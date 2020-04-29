@@ -4,7 +4,6 @@ from onnx import helper
 from .. import tensor
 from ..common import logger
 from .op import Operator
-from .transpose import TransposeHelper
 from ..layout import Layout
 
 

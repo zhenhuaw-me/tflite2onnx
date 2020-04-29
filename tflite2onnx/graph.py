@@ -4,6 +4,7 @@ from onnx import helper
 from .common import T2OBase, logger
 from . import tensor
 from .op import getOp
+from .op.transpose import createTransposeHelper
 
 
 class Graph(T2OBase):
@@ -75,7 +76,13 @@ class Graph(T2OBase):
 
             if hasSensitiveNode(t.producers):
                 logger.debug("<%s> transposing producers...", t.name)
-
+                t2 = tensor.createTransposeTensor(t, t.layout.source, t.layout.target)
+                self.value_info[t2.name] = t2
+                transOp = createTransposeHelper(t2, t)
+                self.ops.append(transOp)
+                for op in t.producers:
+                    if op is not transOp:
+                        op.replaceOutput(t, t2)
 
             if hasSensitiveNode(t.consumers):
                 logger.debug("<%s> transposing consumers...", t.name)

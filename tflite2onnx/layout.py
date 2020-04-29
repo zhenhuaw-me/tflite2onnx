@@ -26,6 +26,10 @@ class Layout:
         self.target = target
         self.current = source
 
+    def markDone(self):
+        assert(self.current != self.target)
+        self.current = self.target
+
     def transform(self, input):
         logger.debug("Transforming from %s to %s...", selfsource, self.target)
         assert(self.current is not self.target)

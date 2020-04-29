@@ -4,7 +4,7 @@ from onnx import helper
 from .. import tensor
 from ..common import logger
 from .op import Operator
-from .transpose import TransposeHelper
+# from .transpose import TransposeHelper
 
 
 OpTypeMapping = {
@@ -29,15 +29,15 @@ class Conv2D(Operator):
         # input
         ii = op.Inputs(0)
         tensor.convert(self.model, self.graph, ii)
-        inputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NHWC', 'NCHW', iIndex=ii)
-        self.inputs.append(inputTranspose.outputs[0])
+        # inputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NHWC', 'NCHW', iIndex=ii)
+        # self.inputs.append(inputTranspose.outputs[0])
 
         # weight
         wi = op.Inputs(1)
         wt = tensor.convert(self.model, self.graph, wi)
-        weightTranspose = TransposeHelper(self.model, self.graph, self.index, 'OHWI', 'OIHW', iIndex=wi)
-        self.inputs.append(weightTranspose.outputs[0])
-        self.weights.append(weightTranspose.inputs[0])
+        # weightTranspose = TransposeHelper(self.model, self.graph, self.index, 'OHWI', 'OIHW', iIndex=wi)
+        # self.inputs.append(weightTranspose.outputs[0])
+        # self.weights.append(weightTranspose.inputs[0])
 
         # bias
         bi = op.Inputs(2)
@@ -63,8 +63,8 @@ class Conv2D(Operator):
         # output
         oi = op.Outputs(0)
         tensor.convert(self.model, self.graph, oi)
-        outputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NCHW', 'NHWC', oIndex=oi)
-        self.outputs.append(outputTranspose.inputs[0])
+        # outputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NCHW', 'NHWC', oIndex=oi)
+        # self.outputs.append(outputTranspose.inputs[0])
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]
@@ -73,4 +73,4 @@ class Conv2D(Operator):
                                      strides=strides, auto_pad=auto_pad, dilations=dilations,
                                      group=group)
 
-        return [inputTranspose, weightTranspose, self, outputTranspose]
+        # return [inputTranspose, weightTranspose, self, outputTranspose]

@@ -33,12 +33,18 @@ class Tensor(T2OBase):
         self.is_weight = is_weight
         self.dtype = None
         self.shape = []
+        self.data = None
 
         self.layout = layout
         self.producers = []
         self.consumers = []
 
         self.setInited()
+
+    def asVar(self):
+        if (self.is_weight):
+            self.is_weight = False
+            self.data = None
 
     def addProducer(self, op):
         assert(isinstance(op, Operator))
@@ -73,6 +79,8 @@ class Tensor(T2OBase):
         self.setPropagated()
 
     def convert(self):
+        if self.status.converted:
+            return
         self.propagate()
         logger.debug("Converting %s...", self.name)
         if self.is_weight:
@@ -128,14 +136,23 @@ def getData(model, graph, index, dtype):
     return data
 
 
-def createTransposeTensor(model, graph, index, ilayout, olayout):
-    """Help to convert [NHWC -> Transpose -> NCHW -> OP -> NCHW -> Transpose -> NHWC]."""
-    ref = get(model, graph, index)
+def createTransposeTensor(ref, ilayout, olayout):
+    assert(ref.name in registery)
+    name = ref.name + '_' + ilayout + '_to_' + olayout
+    if name in registery:
+        assert(ref.layout.match)
+        return registery[name]
     import copy
-    t = copy.copy(ref)
+    t = copy.deepcopy(ref)
+    t.index = -1
     t.tflite = None
-    t.name = t.name + '_' + ilayout + '_to_' + olayout
-    t.shape = layout.transform(t.shape, ilayout, olayout)
-    t.onnx = None
-    t.create(True)
+    t.asVar()
+    t.name = name
+    t.shape = layout.transform(t.shape, olayout, ilayout)
+    t.producers.clear()
+    t.consumers.clear()
+    assert(t.onnx is None)
+    t.layout.markDone()
+    # t.setPropagated()  # FIXME
+    registery[name] = t
     return t

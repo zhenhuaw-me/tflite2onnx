@@ -72,32 +72,18 @@ class Transpose(Operator):
         self.onnx = helper.make_node(self.type, inames, onames, perm=self.perm)
 
 
-class TransposeHelper(Operator):
-    def __init__(self, model, graph, index, ilayout, olayout, iIndex=None, oIndex=None):
-        super().__init__(model, graph, index)
-        logger.debug("Converting...")
-        op = graph.Operators(index)
-        self.tflite = op  # the tflite operator that Transpose helps for.
-        assert((iIndex is None) != (oIndex is None)), "One of this IO needs to be empty"
-        opcode = tflite.BuiltinOperator.TRANSPOSE
-        assert(opcode in OpTypeMapping)
-        self.type = OpTypeMapping[opcode]
+def createTransposeHelper(input, output):
+    logger.debug("Creating Transpose helper for <%s> -> <%s>", input.name, output.name)
+    op = Transpose(input.model, input.graph, 0)
+    op.index = -1
+    op.tflite = None
+    op.name = 'Layout Transpose Helper Op'
+    op.inputs.append(input)
+    op.outputs.append(output)
+    op.perm = layout.getPerm(input.layout.current, output.layout.current)
+    op.setParsed()
 
-        if iIndex is None:
-            iTensor = tensor.createTransposeTensor(model, graph, oIndex, ilayout, olayout)
-        else:
-            iTensor = tensor.convert(model, graph, iIndex)
-        self.inputs.append(iTensor)
+    input.addConsumer(op)
+    output.addProducer(op)
 
-        if oIndex is None:
-            oTensor = tensor.createTransposeTensor(model, graph, iIndex, ilayout, olayout)
-        else:
-            oTensor = tensor.convert(model, graph, oIndex)
-        self.outputs.append(oTensor)
-
-        perm = layout.getPerm(ilayout, olayout)
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        logger.debug("Making ONNX...")
-        self.onnx = helper.make_node(self.type, inames, onames, perm=perm)
+    return op
