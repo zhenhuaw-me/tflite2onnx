@@ -94,19 +94,7 @@ class Graph(T2OBase):
                 for op in t.consumers:
                     if op is not transOp:
                         op.replaceInput(t, t2)
-
-
-
-        for op in self.ops:
-            logger.debug("[OP] %s", str(op))
-        for t in self.inputs:
-            logger.debug("[Inputs] %s", str(t))
-        for _,t in self.initializer.items():
-            logger.debug("[Initializer] %s", str(t))
-        for _,t in self.value_info.items():
-            logger.debug("[Value Info] %s", str(t))
-        for t in self.outputs:
-            logger.debug("[Outputs] %s", str(t))
+        logger.debug("Graph:\n%s", str(self))
         self.setPropagated()
 
     def convert(self):
@@ -125,3 +113,17 @@ class Graph(T2OBase):
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
                                       initializer=initializer, value_info=value_info)
         self.setConverted()
+
+    def __str__(self):
+        string = str()
+        for op in self.ops:
+            string += '[OP] ' + str(op) + '\n'
+        for t in self.inputs:
+            string += '[Inputs] ' + str(t) + '\n'
+        for _,t in self.initializer.items():
+            string += '[Initializer] ' + str(t) + '\n'
+        for _,t in self.value_info.items():
+            string += '[Value Info] ' + str(t) + '\n'
+        for t in self.outputs:
+            string += '[Outputs] ' + str(t) + '\n'
+        return string

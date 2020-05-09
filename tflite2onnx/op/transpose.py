@@ -71,6 +71,9 @@ class Transpose(Operator):
         logger.debug("Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames, perm=self.perm)
 
+    def __str__(self):
+        return super().__str__() + ', perm: ' + str(self.perm)
+
 
 def createTransposeHelper(input, output, upstream):
     logger.debug("Creating layout helper for <%s> -> <%s>", input.name, output.name)
