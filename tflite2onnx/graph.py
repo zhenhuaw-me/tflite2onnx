@@ -140,7 +140,7 @@ class Graph(T2OBase):
                     if op is not transOp:
                         op.replaceInput(t, t2)
 
-        sorted(op2insertIndex, key=lambda k: k[1], reverse=True)
+        op2insertIndex = sorted(op2insertIndex, key=lambda k: k[1], reverse=True)
         for op, index in op2insertIndex:
             self.ops.insert(index, op)
 
