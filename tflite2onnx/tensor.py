@@ -29,7 +29,7 @@ class Tensor(T2OBase):
 
     def __init__(self, model, graph, index, layout=None, is_weight=False):
         super().__init__(model, graph, index)
-        self.tflite = graph.Tensors(index)
+        self.tflite = graph.Tensors(index) if index >= 0 else None
         self.is_weight = is_weight
         self.dtype = None
         self.shape = []
@@ -40,11 +40,6 @@ class Tensor(T2OBase):
         self.consumers = []
 
         self.setInited()
-
-    def asVar(self):
-        if (self.is_weight):
-            self.is_weight = False
-            self.data = None
 
     def addProducer(self, op):
         assert(isinstance(op, Operator))
@@ -150,20 +145,13 @@ def createTransposeTensor(ref, upstream):
     if name in registery:
         assert(ref.layout.match)
         return registery[name]
-    import copy
-    t = copy.deepcopy(ref)
-    t.index = -1
-    t.tflite = None
-    t.asVar()
+
+    assert(ref.onnx is None)
+    t = Tensor(ref.model, ref.graph, -1, thisLayout, False)
     t.name = name
-    # t.shape = layout.transform(t.shape, olayout, ilayout)
-    t.layout = thisLayout
-    t.shape = ref.layout.transform(t.shape)
-    t.producers.clear()
-    t.consumers.clear()
-    assert(t.onnx is None)
-    # t.layout.markDone()
-    # ref.layout.markDone()
-    # t.setPropagated()  # FIXME
+    t.dtype = ref.dtype
+    t.shape = ref.layout.transform(ref.shape)
+    t.setParsed()
+    # ref.layout.markDone() # FIXME
     registery[name] = t
     return t
