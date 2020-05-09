@@ -27,5 +27,3 @@ def getOp(model, graph, index):
 
     op_converter = OP_CONVERTERS[opcode]
     return op_converter(model, graph, index)
-
-__all__ = [getOp, ]

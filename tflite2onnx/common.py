@@ -28,6 +28,7 @@ class Status(Enum):
     def converted(self):
         return self == self.CONVERTED
 
+
 class LayoutApproach(Enum):
     DEFAULT = 1
     TRANSPOSE = 1

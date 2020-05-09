@@ -42,12 +42,6 @@ class AveragePool(Operator):
         it.addConsumer(self)
         self.inputs.append(it)
 
-        # # NHWC -> Transpose -> NCHW
-        # inputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NHWC', 'NCHW', iIndex=ti)
-
-        # # use output of inputTranspose as op input
-        # self.inputs.append(inputTranspose.outputs[0])
-
         op_opt = op.BuiltinOptions()
         option = tflite.Pool2DOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
@@ -61,12 +55,6 @@ class AveragePool(Operator):
         ot.parse()
         ot.addProducer(self)
         self.outputs.append(ot)
-
-        # # NCHW -> Transpose -> NHWC
-        # outputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NCHW', 'NHWC', oIndex=ti)
-
-        # # use input of outputTranspose as op output
-        # self.outputs.append(outputTranspose.inputs[0])
 
         self.setParsed()
 

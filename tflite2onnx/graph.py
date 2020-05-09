@@ -45,7 +45,10 @@ class Graph(T2OBase):
 
         # collect tensors
         for op in self.ops:
-            uniqueInDict = lambda t, d : (t.name not in d) or (d[t.name] == t)
+
+            def uniqueInDict(t, d):
+                return (t.name not in d) or (d[t.name] == t)
+
             tensors = op.inputs + op.outputs
             for t in tensors:
                 if t.is_weight:
@@ -75,8 +78,8 @@ class Graph(T2OBase):
         onodes = [n.onnx for n in self.ops]
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]
-        initializer = [t.onnx for n,t in self.initializer.items()]
-        value_info = [t.onnx for n,t in self.value_info.items()]
+        initializer = [t.onnx for n, t in self.initializer.items()]
+        value_info = [t.onnx for n, t in self.value_info.items()]
 
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
                                       initializer=initializer, value_info=value_info)
@@ -87,12 +90,14 @@ class Graph(T2OBase):
         op2index = dict()
         for index, op in enumerate(self.ops):
             op2index[op] = index
+
         def getMinIndex(ops, skip):
             ret = sys.maxsize
             for op in ops:
                 if op is not skip:
                     ret = min(ret, op2index[op])
             return ret
+
         def getMaxIndex(ops, skip):
             ret = -1
             for op in ops:
@@ -107,7 +112,9 @@ class Graph(T2OBase):
             if t.layoutMatch:
                 continue
             logger.debug("<%s> layout not match", t.name)
-            hasSensitiveNode = lambda ln: any(n.sensitive for n in ln)
+
+            def hasSensitiveNode(ln):
+                return any(n.sensitive for n in ln)
 
             if hasSensitiveNode(t.producers):
                 logger.debug("<%s> transposing producers...", t.name)
@@ -140,9 +147,9 @@ class Graph(T2OBase):
             string += '[OP] ' + str(op) + '\n'
         for t in self.inputs:
             string += '[Inputs] ' + str(t) + '\n'
-        for _,t in self.initializer.items():
+        for _, t in self.initializer.items():
             string += '[Initializer] ' + str(t) + '\n'
-        for _,t in self.value_info.items():
+        for _, t in self.value_info.items():
             string += '[Value Info] ' + str(t) + '\n'
         for t in self.outputs:
             string += '[Outputs] ' + str(t) + '\n'

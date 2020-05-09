@@ -1,5 +1,6 @@
 from .common import logger
 
+
 def transform(input, ilayout: str, olayout: str):
     if (ilayout == olayout):
         return input
@@ -19,7 +20,6 @@ def getPerm(ilayout: str, olayout: str):
     return perm
 
 
-
 class Layout:
     def __init__(self, source: str, target: str):
         self.source = source
@@ -36,10 +36,6 @@ class Layout:
         output = transform(input, self.source, self.target)
         self.current = self.target
         return output
-
-    @property
-    def nameSuffix(self):
-        return '_' + self.source + '_to_' + self.target
 
     @property
     def match(self):
