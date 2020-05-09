@@ -60,6 +60,30 @@ class Graph(T2OBase):
     def propagate(self):
         logger.debug("Propagating...")
 
+        self._propagateTranspose()
+
+        logger.debug("Graph:\n%s", str(self))
+        self.setPropagated()
+
+    def convert(self):
+        logger.debug("Converting...")
+
+        for op in self.ops:
+            op.convert()
+
+        logger.debug("Making ONNX...")
+        onodes = [n.onnx for n in self.ops]
+        oinputs = [t.onnx for t in self.inputs]
+        ooutputs = [t.onnx for t in self.outputs]
+        initializer = [t.onnx for n,t in self.initializer.items()]
+        value_info = [t.onnx for n,t in self.value_info.items()]
+
+        self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
+                                      initializer=initializer, value_info=value_info)
+        self.setConverted()
+
+    def _propagateTranspose(self):
+
         op2index = dict()
         for index, op in enumerate(self.ops):
             op2index[op] = index
@@ -119,26 +143,6 @@ class Graph(T2OBase):
         sorted(op2insertIndex, key=lambda k: k[1], reverse=True)
         for op, index in op2insertIndex:
             self.ops.insert(index, op)
-
-        logger.debug("Graph:\n%s", str(self))
-        self.setPropagated()
-
-    def convert(self):
-        logger.debug("Converting...")
-
-        for op in self.ops:
-            op.convert()
-
-        logger.debug("Making ONNX...")
-        onodes = [n.onnx for n in self.ops]
-        oinputs = [t.onnx for t in self.inputs]
-        ooutputs = [t.onnx for t in self.outputs]
-        initializer = [t.onnx for n,t in self.initializer.items()]
-        value_info = [t.onnx for n,t in self.value_info.items()]
-
-        self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
-                                      initializer=initializer, value_info=value_info)
-        self.setConverted()
 
     def __str__(self):
         string = str()
