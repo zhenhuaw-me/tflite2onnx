@@ -38,6 +38,10 @@ class Layout:
         return output
 
     @property
+    def nameSuffix(self):
+        return '_' + self.source + '_to_' + self.target
+
+    @property
     def match(self):
         return self.current == self.target
 

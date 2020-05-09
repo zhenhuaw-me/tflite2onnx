@@ -56,7 +56,7 @@ class AveragePool(Operator):
         self.strides = [option.StrideH(), option.StrideW()]
 
         oi = op.Outputs(0)
-        olayout = Layout('NCHW', 'NHWC')
+        olayout = Layout('NHWC', 'NCHW')
         ot = tensor.get(self.model, self.graph, oi, olayout)
         ot.parse()
         ot.addProducer(self)

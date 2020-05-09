@@ -137,13 +137,16 @@ def getData(model, graph, index, dtype):
 
 
 def createTransposeTensor(ref, upstream):
+    # upstream: whether the transpose tensor is upstream of the ref tensor
     assert(ref.name in registery)
     if upstream:
-        ilayout, olayout = ref.layout.source, ref.layout.target
+        l = layout.Layout(ref.layout.target, ref.layout.source)
+        thisLayout = layout.Layout(ref.layout.target, ref.layout.target)
     else:
-        olayout, ilayout = ref.layout.source, ref.layout.target
+        l = layout.Layout(ref.layout.source, ref.layout.target)
+        thisLayout = layout.Layout(ref.layout.source, ref.layout.source)
 
-    name = ref.name + '_' + ilayout + '_to_' + olayout
+    name = ref.name + l.nameSuffix
     if name in registery:
         assert(ref.layout.match)
         return registery[name]
@@ -154,12 +157,13 @@ def createTransposeTensor(ref, upstream):
     t.asVar()
     t.name = name
     # t.shape = layout.transform(t.shape, olayout, ilayout)
-    t.shape = t.layout.transform(t.shape)
+    t.layout = thisLayout
+    t.shape = ref.layout.transform(t.shape)
     t.producers.clear()
     t.consumers.clear()
     assert(t.onnx is None)
     # t.layout.markDone()
-    ref.layout.markDone()
+    # ref.layout.markDone()
     # t.setPropagated()  # FIXME
     registery[name] = t
     return t

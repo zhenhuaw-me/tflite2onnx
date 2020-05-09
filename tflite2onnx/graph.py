@@ -78,7 +78,7 @@ class Graph(T2OBase):
                 logger.debug("<%s> transposing producers...", t.name)
                 t2 = tensor.createTransposeTensor(t, True)
                 self.value_info[t2.name] = t2
-                transOp = createTransposeHelper(t2, t)
+                transOp = createTransposeHelper(t2, t, True)
                 self.ops.append(transOp)
                 for op in t.producers:
                     if op is not transOp:
@@ -86,9 +86,9 @@ class Graph(T2OBase):
 
             if hasSensitiveNode(t.consumers):
                 logger.debug("<%s> transposing consumers...", t.name)
-                t2 = tensor.createTransposeTensor(t, True)
+                t2 = tensor.createTransposeTensor(t, False)
                 self.value_info[t2.name] = t2
-                transOp = createTransposeHelper(t, t2)
+                transOp = createTransposeHelper(t, t2, False)
                 self.ops.insert(0, transOp)
                 # self.ops.append(transOp)
                 for op in t.consumers:

@@ -72,18 +72,24 @@ class Transpose(Operator):
         self.onnx = helper.make_node(self.type, inames, onames, perm=self.perm)
 
 
-def createTransposeHelper(input, output):
-    logger.debug("Creating Transpose helper for <%s> -> <%s>", input.name, output.name)
+def createTransposeHelper(input, output, upstream):
+    logger.debug("Creating layout helper for <%s> -> <%s>", input.name, output.name)
     op = Transpose(input.model, input.graph, 0)
     op.index = -1
     op.tflite = None
-    op.name = 'Layout Transpose Helper Op'
+    op.name = 'Layout Helper'
     op.inputs.append(input)
     op.outputs.append(output)
-    op.perm = layout.getPerm(input.layout.current, output.layout.current)
+    if upstream:
+        l = output.layout
+        op.perm = layout.getPerm(l.target, l.source)
+    else:
+        l = input.layout
+        op.perm = layout.getPerm(l.source, l.target)
     op.setParsed()
 
     input.addConsumer(op)
     output.addProducer(op)
 
     return op
+
