@@ -21,13 +21,14 @@ def test_ops():
     tflm_dir = os.path.abspath(cur_dir + '/../assets/tests')
     for op in OP_LIST:
         tflm_name = op + '.tflite'
+        onnx_name = op + '.onnx'
         tflm_path = os.path.join(tflm_dir, tflm_name)
-        t2o.convert(tflm_path, op + '.onnx')
+        t2o.convert(tflm_path, onnx_name)
 
         m = shrub.tflite.parse(tflm_path)
         m.genInput()
 
-        onnx_ret = shrub.onnx.run(op + '.onnx', m.inputs)
+        onnx_ret = shrub.onnx.run(onnx_name, m.inputs)
         tflite_ret = shrub.tflite.run(tflm_path, m.inputs)
         assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
 
