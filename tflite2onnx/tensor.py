@@ -4,7 +4,6 @@ import tflite
 from onnx import helper, TensorProto
 
 from .common import T2OBase, logger
-from . import layout
 from .op import Operator
 
 
@@ -129,29 +128,3 @@ def getData(model, graph, index, dtype):
     raw = model.Buffers(bi).DataAsNumpy()
     data = np.frombuffer(raw, dtype=dtype)
     return data
-
-
-def createTransposeTensor(ref, upstream):
-    # upstream: whether the transpose tensor is upstream of the ref tensor
-    assert(ref.name in registery)
-    if upstream:
-        l = layout.Layout(ref.layout.target, ref.layout.source)
-        thisLayout = layout.Layout(ref.layout.target, ref.layout.target)
-    else:
-        l = layout.Layout(ref.layout.source, ref.layout.target)
-        thisLayout = layout.Layout(ref.layout.source, ref.layout.source)
-
-    name = ref.name + l.nameSuffix
-    if name in registery:
-        assert(ref.layout.match)
-        return registery[name]
-
-    assert(ref.onnx is None)
-    t = Tensor(ref.model, ref.graph, -1, thisLayout, False)
-    t.name = name
-    t.dtype = ref.dtype
-    t.shape = ref.layout.transform(ref.shape)
-    t.setParsed()
-    # ref.layout.markDone() # FIXME
-    registery[name] = t
-    return t

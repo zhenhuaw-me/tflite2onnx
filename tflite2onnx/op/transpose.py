@@ -3,7 +3,6 @@ import tflite
 from onnx import helper
 
 from .. import tensor
-from .. import layout
 from ..common import logger
 from .op import Operator
 
@@ -73,26 +72,3 @@ class Transpose(Operator):
 
     def __str__(self):
         return super().__str__() + ', perm: ' + str(self.perm)
-
-
-def createTransposeHelper(input, output, upstream):
-    logger.debug("Creating layout helper for <%s> -> <%s>", input.name, output.name)
-    op = Transpose(input.model, input.graph, 0)
-    op.index = -1
-    op.tflite = None
-    op.name = 'Layout Helper'
-    op.inputs.append(input)
-    op.outputs.append(output)
-    if upstream:
-        l = output.layout
-        op.perm = layout.getPerm(l.target, l.source)
-    else:
-        l = input.layout
-        op.perm = layout.getPerm(l.source, l.target)
-    op.setParsed()
-
-    input.addConsumer(op)
-    output.addProducer(op)
-
-    return op
-

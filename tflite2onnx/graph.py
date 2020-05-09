@@ -5,7 +5,7 @@ from onnx import helper
 from .common import T2OBase, logger
 from . import tensor
 from .op import getOp
-from .op.transpose import createTransposeHelper
+from .transpose import createTransposeHelper, createTransposeTensor
 
 
 class Graph(T2OBase):
@@ -120,7 +120,7 @@ class Graph(T2OBase):
 
             if hasSensitiveNode(t.producers):
                 logger.debug("<%s> transposing producers...", t.name)
-                t2 = tensor.createTransposeTensor(t, True)
+                t2 = createTransposeTensor(t, True)
                 self.value_info[t2.name] = t2
                 transOp = createTransposeHelper(t2, t, True)
                 ii = getMaxIndex(t.producers, [transOp]) + 1
@@ -131,7 +131,7 @@ class Graph(T2OBase):
 
             if hasSensitiveNode(t.consumers):
                 logger.debug("<%s> transposing consumers...", t.name)
-                t2 = tensor.createTransposeTensor(t, False)
+                t2 = createTransposeTensor(t, False)
                 self.value_info[t2.name] = t2
                 transOp = createTransposeHelper(t, t2, False)
                 ii = getMinIndex(t.consumers, [transOp])

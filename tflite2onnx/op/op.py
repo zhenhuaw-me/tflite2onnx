@@ -4,7 +4,7 @@ from ..common import T2OBase, logger
 class Operator(T2OBase):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
-        self.tflite = graph.Operators(index)
+        self.tflite = graph.Operators(index) if index >= 0 else None
         self.inputs = []
         self.outputs = []
         self.weights = []  # there could be overlap between inputs and weights
