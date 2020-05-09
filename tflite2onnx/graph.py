@@ -1,3 +1,4 @@
+import sys
 import tflite
 from onnx import helper
 
@@ -59,6 +60,25 @@ class Graph(T2OBase):
     def propagate(self):
         logger.debug("Propagating...")
 
+        op2index = dict()
+        for index, op in enumerate(self.ops):
+            op2index[op] = index
+        def getMinIndex(ops, skip):
+            ret = sys.maxsize
+            for op in ops:
+                if op in skip:
+                    continue
+                ret = min(ret, op2index[op])
+            return ret
+        def getMaxIndex(ops, skip):
+            ret = -1
+            for op in ops:
+                if op in skip:
+                    continue
+                ret = max(ret, op2index[op])
+            return ret
+        op2insertIndex = list()
+
         all_tensors = {**self.initializer, **self.value_info}
         for _, t in all_tensors.items():
             if t.layoutMatch:
@@ -79,7 +99,8 @@ class Graph(T2OBase):
                 t2 = tensor.createTransposeTensor(t, True)
                 self.value_info[t2.name] = t2
                 transOp = createTransposeHelper(t2, t, True)
-                self.ops.append(transOp)
+                ii = getMaxIndex(t.producers, [transOp]) + 1
+                op2insertIndex.append((transOp, ii))
                 for op in t.producers:
                     if op is not transOp:
                         op.replaceOutput(t, t2)
@@ -89,11 +110,16 @@ class Graph(T2OBase):
                 t2 = tensor.createTransposeTensor(t, False)
                 self.value_info[t2.name] = t2
                 transOp = createTransposeHelper(t, t2, False)
-                self.ops.insert(0, transOp)
-                # self.ops.append(transOp)
+                ii = getMinIndex(t.consumers, [transOp])
+                op2insertIndex.append((transOp, ii))
                 for op in t.consumers:
                     if op is not transOp:
                         op.replaceInput(t, t2)
+
+        sorted(op2insertIndex, key=lambda k: k[1], reverse=True)
+        for op, index in op2insertIndex:
+            self.ops.insert(index, op)
+
         logger.debug("Graph:\n%s", str(self))
         self.setPropagated()
 
