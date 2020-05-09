@@ -60,7 +60,7 @@ class Graph(T2OBase):
     def propagate(self):
         logger.debug("Propagating...")
 
-        self._propagateTranspose()
+        self._insertLayoutTranpose()
 
         logger.debug("Graph:\n%s", str(self))
         self.setPropagated()
@@ -82,47 +82,38 @@ class Graph(T2OBase):
                                       initializer=initializer, value_info=value_info)
         self.setConverted()
 
-    def _propagateTranspose(self):
-
+    def _insertLayoutTranpose(self):
+        # prepare
         op2index = dict()
         for index, op in enumerate(self.ops):
             op2index[op] = index
         def getMinIndex(ops, skip):
             ret = sys.maxsize
             for op in ops:
-                if op in skip:
-                    continue
-                ret = min(ret, op2index[op])
+                if op is not skip:
+                    ret = min(ret, op2index[op])
             return ret
         def getMaxIndex(ops, skip):
             ret = -1
             for op in ops:
-                if op in skip:
-                    continue
-                ret = max(ret, op2index[op])
+                if op is not skip:
+                    ret = max(ret, op2index[op])
             return ret
-        op2insertIndex = list()
+        op2insertIndex = list()  # collect where to insert Transpose op
 
+        # walk and transpose all tensors
         all_tensors = {**self.initializer, **self.value_info}
         for _, t in all_tensors.items():
             if t.layoutMatch:
                 continue
             logger.debug("<%s> layout not match", t.name)
-            def hasSensitiveNode(ln):
-                if (len(ln) == 0):
-                    return False
-                else:
-                    for n in ln:
-                        if n.sensitive:
-                            return True
-
-                return False
+            hasSensitiveNode = lambda ln: any(n.sensitive for n in ln)
 
             if hasSensitiveNode(t.producers):
                 logger.debug("<%s> transposing producers...", t.name)
                 t2, transOp = createTransposeHelper(t, True)
                 self.value_info[t2.name] = t2
-                ii = getMaxIndex(t.producers, [transOp]) + 1
+                ii = getMaxIndex(t.producers, transOp) + 1
                 op2insertIndex.append((transOp, ii))
                 for op in t.producers:
                     if op is not transOp:
@@ -132,12 +123,13 @@ class Graph(T2OBase):
                 logger.debug("<%s> transposing consumers...", t.name)
                 t2, transOp = createTransposeHelper(t, False)
                 self.value_info[t2.name] = t2
-                ii = getMinIndex(t.consumers, [transOp])
+                ii = getMinIndex(t.consumers, transOp)
                 op2insertIndex.append((transOp, ii))
                 for op in t.consumers:
                     if op is not transOp:
                         op.replaceInput(t, t2)
 
+        # insert transpose op to graph
         op2insertIndex = sorted(op2insertIndex, key=lambda k: k[1], reverse=True)
         for op, index in op2insertIndex:
             self.ops.insert(index, op)
