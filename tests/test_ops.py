@@ -1,3 +1,4 @@
+import os
 import logging
 import shrub
 import tflite2onnx as t2o
@@ -16,8 +17,11 @@ OP_LIST = (
 
 
 def test_ops():
+    cur_dir = os.path.dirname(os.path.abspath(__file__))
+    tflm_dir = os.path.abspath(cur_dir + '/../assets/tests')
     for op in OP_LIST:
-        tflm_path = shrub.testing.download(op + '.tflite')
+        tflm_name = op + '.tflite'
+        tflm_path = os.path.join(tflm_dir, tflm_name)
         t2o.convert(tflm_path, op + '.onnx')
 
         m = shrub.tflite.parse(tflm_path)
