@@ -23,6 +23,16 @@ DTYPE_TFLITE2ONNX = {
         tflite.TensorType.UINT8   : TensorProto.UINT8  ,    # noqa: E203
 }  # yapf: disable
 
+DTYPE_NAME = {
+    TensorProto.BOOL     :  'bool',     # noqa: E203
+    TensorProto.FLOAT16  :  'float16',  # noqa: E203
+    TensorProto.FLOAT    :  'float32',  # noqa: E203
+    TensorProto.INT16    :  'int16',    # noqa: E203
+    TensorProto.INT32    :  'int32',    # noqa: E203
+    TensorProto.INT8     :  'int8',     # noqa: E203
+    TensorProto.UINT8    :  'uint8',    # noqa: E203
+}
+
 
 class Tensor(T2OBase):
 
@@ -64,6 +74,8 @@ class Tensor(T2OBase):
         self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
         assert(tensor.Type() in DTYPE_TFLITE2ONNX)
         self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
+        if self.is_initializer:
+            self.data = getData(self.model, self.graph, self.index, np.float32)
 
         self.setParsed()
 
@@ -72,8 +84,7 @@ class Tensor(T2OBase):
             return
         logger.debug("Converting %s...", self.name)
         if self.is_initializer:
-            vals = getData(self.model, self.graph, self.index, np.float32)
-            self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, vals)
+            self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, self.data)
             onnx.checker.check_tensor(self.onnx)
         else:
             self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
@@ -82,15 +93,6 @@ class Tensor(T2OBase):
 
     @property
     def str(self):
-        DTYPE_NAME = {
-            TensorProto.BOOL     :  'bool',    # noqa: E203
-            TensorProto.FLOAT16  :  'float16',    # noqa: E203
-            TensorProto.FLOAT    :  'float(32)',    # noqa: E203
-            TensorProto.INT16    :  'int16',    # noqa: E203
-            TensorProto.INT32    :  'int32',    # noqa: E203
-            TensorProto.INT8     :  'int8',    # noqa: E203
-            TensorProto.UINT8    :  'uint',    # noqa: E203
-            }
         return '<' + self.name + '>' + '(' + DTYPE_NAME[self.dtype] + ',' + str(self.shape) + ')'
 
     def __str__(self):
@@ -122,3 +124,15 @@ def getData(model, graph, index, dtype):
     raw = model.Buffers(bi).DataAsNumpy()
     data = np.frombuffer(raw, dtype=dtype)
     return data
+
+
+def createScalar(ref, value):
+    name = 'TFLITE2ONNX_Scalar_' + DTYPE_NAME[ref.dtype] + '_' + str(value)
+    if name not in registery:
+        t = Tensor(ref.model, ref.graph, -1, None, True)
+        t.name = name
+        t.dtype = ref.dtype
+        t.data = np.full((1), value, dtype=DTYPE_NAME[ref.dtype])
+        t.setParsed()
+        registery[name] = t
+    return registery[name]

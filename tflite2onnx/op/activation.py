@@ -7,7 +7,8 @@ from .op import Operator
 
 
 OpTypeMapping = {
-        tflite.BuiltinOperator.RELU : 'Relu',     # noqa: E203
+        tflite.BuiltinOperator.RELU     : 'Relu',     # noqa: E203
+        tflite.BuiltinOperator.RELU6    : 'Clip',     # noqa: E203
 }
 
 
@@ -19,7 +20,7 @@ class ReLU(Operator):
     @property
     def type(self):
         if self.status.uninitialized:
-            return 'Relu'
+            return 'Relu-all'
         else:
             op = self.tflite
             opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
@@ -46,6 +47,14 @@ class ReLU(Operator):
         it.addConsumer(self)
         self.inputs.append(it)
 
+        if opcode == tflite.BuiltinOperator.RELU6:
+            tmin = tensor.createScalar(it, 0)
+            tmin.addConsumer(self)
+            self.inputs.append(tmin)
+            tmax = tensor.createScalar(it, 6)
+            tmax.addConsumer(self)
+            self.inputs.append(tmax)
+
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
         ot.parse()
@@ -57,7 +66,8 @@ class ReLU(Operator):
     def convert(self):
         logger.debug("Converting %s...", self.type)
 
-        self.inputs[0].convert()
+        for t in self.inputs:
+            t.convert()
         self.outputs[0].convert()
 
         inames = [t.name for t in self.inputs]

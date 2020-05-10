@@ -14,6 +14,7 @@ OP_LIST = (
         'avgpooling.float32',
         'conv.float32',
         'relu.float32',
+        'relu6.float32',
         )
 
 

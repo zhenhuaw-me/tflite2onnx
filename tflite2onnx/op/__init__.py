@@ -18,6 +18,7 @@ OP_CONVERTERS = {
         tflite.BuiltinOperator.TRANSPOSE        : Transpose,    # noqa: E203
         tflite.BuiltinOperator.CONV_2D          : Conv2D,       # noqa: E203
         tflite.BuiltinOperator.RELU             : ReLU,         # noqa: E203
+        tflite.BuiltinOperator.RELU6            : ReLU,         # noqa: E203
 }
 
 
