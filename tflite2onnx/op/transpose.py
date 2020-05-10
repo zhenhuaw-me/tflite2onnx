@@ -1,4 +1,3 @@
-import numpy as np
 import tflite
 from onnx import helper
 
@@ -44,7 +43,7 @@ class Transpose(Operator):
         self.inputs.append(it)
 
         ii = op.Inputs(1)
-        self.perm = tensor.getData(self.model, self.graph, ii, np.int32)
+        self.perm = tensor.getData(self.model, self.graph, ii, 'int32')
 
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
