@@ -41,7 +41,16 @@ class Model(T2OBase):
         logger.debug("Converting...")
         for g in self.graphes:
             g.convert()
-        self.onnx = helper.make_model(self.graphes[0].onnx, producer_name='tflite2onnx')
+
+        # ONNX restrictions
+        opset = helper.make_operatorsetid(onnx.defs.ONNX_DOMAIN, 11)
+        attrs = {
+                'producer_name': 'tflite2onnx',
+                'ir_version': 6,
+                'opset_imports': [opset],
+                }
+
+        self.onnx = helper.make_model(self.graphes[0].onnx, **attrs)
         self.setConverted()
 
     def save(self, path: str):
