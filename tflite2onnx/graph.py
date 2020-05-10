@@ -85,7 +85,7 @@ class Graph(T2OBase):
                                       initializer=initializer, value_info=value_info)
         self.setConverted()
 
-    def _insertLayoutTranpose(self):
+    def _insertLayoutTranpose(self):        # noqa: C901
         # prepare
         op2index = dict()
         for index, op in enumerate(self.ops):

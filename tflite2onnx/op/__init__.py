@@ -1,6 +1,6 @@
 import tflite
 
-from .op import Operator
+from .op import Operator                # noqa: F401
 from .unary import Unary
 from .softmax import Softmax
 from .binary import Binary
