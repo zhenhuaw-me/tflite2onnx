@@ -67,15 +67,9 @@ class Tensor(T2OBase):
 
         self.setParsed()
 
-    def propagate(self):
-        logger.debug("Propagating...")
-        # TODO: handle layout issue.
-        self.setPropagated()
-
     def convert(self):
         if self.status.converted:
             return
-        self.propagate()
         logger.debug("Converting %s...", self.name)
         if self.is_initializer:
             vals = getData(self.model, self.graph, self.index, np.float32)

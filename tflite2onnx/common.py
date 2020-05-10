@@ -15,14 +15,19 @@ class Status(Enum):
     # Objects and any members have been parsed from TFLite model.
     PARSED = 2
 
-    # Everything that needs done in graph walking has been done.
-    PROPAGATED = 3
-
     # ONNX object has been created.
-    CONVERTED = 4
+    CONVERTED = 3
 
     # Reserved.
     INVALID = 10
+
+    @property
+    def initialized(self):
+        return self == self.INITIALIZED
+
+    @property
+    def parsed(self):
+        return self == self.PARSED
 
     @property
     def converted(self):
@@ -62,18 +67,11 @@ class T2OBase(ABC):
         assert(self.status is Status.INITIALIZED)
         self.status = Status.PARSED
 
-    def propagate(self):
-        logger.warn("method propagate() is not overrided!")
-
-    def setPropagated(self):
-        assert(self.status is Status.PARSED)
-        self.status = Status.PROPAGATED
-
     def convert(self):
         logger.warn("method convert() is not overrided!")
 
     def setConverted(self):
-        assert(self.status is Status.PROPAGATED)
+        assert(self.status is Status.PARSED)
         self.status = Status.CONVERTED
 
     def setInvalid(self):

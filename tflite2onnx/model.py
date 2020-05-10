@@ -2,7 +2,7 @@ import tflite
 import onnx
 from onnx import helper
 
-from .common import T2OBase, logger, Status
+from .common import T2OBase, logger
 from .graph import Graph
 
 
@@ -29,15 +29,8 @@ class Model(T2OBase):
 
         self.setParsed()
 
-    def propagate(self):
-        self.parse()
-        logger.debug("Propagating...")
-        for g in self.graphes:
-            g.propagate()
-        self.setPropagated()
-
     def convert(self):
-        self.propagate()
+        self.parse()
         logger.debug("Converting...")
         for g in self.graphes:
             g.convert()
@@ -55,6 +48,6 @@ class Model(T2OBase):
 
     def save(self, path: str):
         logger.debug("saving model as %s", path)
-        assert(self.status is Status.CONVERTED)
+        assert(self.status.converted)
         onnx.checker.check_model(self.onnx)
         onnx.save(self.onnx, path)

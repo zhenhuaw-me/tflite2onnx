@@ -41,10 +41,6 @@ class Operator(T2OBase):
         onames = str([t.name for t in self.outputs])
         return self.str + ': ' + inames + ' -> ' + onames
 
-    def propagate(self):
-        logger.debug("Propagating %s...", self.type)
-        self.setPropagated()
-
     def _convertTensors(self):
         for t in self.inputs:
             t.convert()

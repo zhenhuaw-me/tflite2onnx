@@ -55,7 +55,6 @@ class Transpose(Operator):
         self.setParsed()
 
     def convert(self):
-        self.propagate()
         logger.debug("Converting %s...", self.type)
 
         self.inputs[0].convert()

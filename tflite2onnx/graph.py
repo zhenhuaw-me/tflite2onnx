@@ -60,16 +60,12 @@ class Graph(T2OBase):
 
         self.setParsed()
 
-    def propagate(self):
-        logger.debug("Propagating...")
+    def convert(self):
+        logger.debug("Converting...")
 
         self._insertLayoutTranpose()
 
         logger.debug("Graph:\n%s", str(self))
-        self.setPropagated()
-
-    def convert(self):
-        logger.debug("Converting...")
 
         for op in self.ops:
             op.convert()
@@ -86,6 +82,7 @@ class Graph(T2OBase):
         self.setConverted()
 
     def _insertLayoutTranpose(self):        # noqa: C901
+        assert(self.status.parsed)
         # prepare
         op2index = dict()
         for index, op in enumerate(self.ops):

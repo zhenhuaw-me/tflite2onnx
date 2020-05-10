@@ -84,7 +84,6 @@ class Conv2D(Operator):
         self.setParsed()
 
     def convert(self):
-        self.propagate()
         logger.debug("Converting %s...", self.type)
 
         super()._convertTensors()
