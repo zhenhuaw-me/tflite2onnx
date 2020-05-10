@@ -7,7 +7,6 @@ class Operator(T2OBase):
         self.tflite = graph.Operators(index) if index >= 0 else None
         self.inputs = []
         self.outputs = []
-        self.weights = []  # there could be overlap between inputs and weights
 
     @property
     def type(self):
@@ -39,9 +38,8 @@ class Operator(T2OBase):
 
     def __str__(self):
         inames = str([t.name for t in self.inputs])
-        wnames = str([t.name for t in self.weights])
         onames = str([t.name for t in self.outputs])
-        return self.str + ': ' + inames + ',' + wnames + ' -> ' + onames
+        return self.str + ': ' + inames + ' -> ' + onames
 
     def propagate(self):
         logger.debug("Propagating %s...", self.type)
