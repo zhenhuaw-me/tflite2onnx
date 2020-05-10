@@ -106,7 +106,8 @@ class Tensor(T2OBase):
 
     @property
     def str(self):
-        return '<' + self.name + '>' + '(' + DTYPE_ONNX2NAME[self.dtype] + ',' + str(self.shape) + ')'
+        return '<' + self.name + '>' + \
+               '(' + DTYPE_ONNX2NAME[self.dtype] + ',' + str(self.shape) + ')'
 
     def __str__(self):
         producer_names = str([op.str for op in self.producers])
