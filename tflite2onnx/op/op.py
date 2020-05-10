@@ -42,3 +42,9 @@ class Operator(T2OBase):
         wnames = str([t.name for t in self.weights])
         onames = str([t.name for t in self.outputs])
         return self.str + ': ' + inames + ',' + wnames + ' -> ' + onames
+
+    def _convertTensors(self):
+        for t in self.inputs:
+            t.convert()
+        for t in self.outputs:
+            t.convert()

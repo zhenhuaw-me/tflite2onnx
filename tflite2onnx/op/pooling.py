@@ -74,5 +74,3 @@ class AveragePool(Operator):
         logger.debug("Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=self.kshape,
                                      strides=self.strides, auto_pad=self.auto_pad)
-
-        # return [inputTranspose, self, outputTranspose]

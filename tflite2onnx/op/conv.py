@@ -4,73 +4,98 @@ from onnx import helper
 from .. import tensor
 from ..common import logger
 from .op import Operator
-# from .transpose import TransposeHelper
-
-
-OpTypeMapping = {
-        tflite.BuiltinOperator.CONV_2D : 'Conv',     # noqa: E203
-}
+from ..layout import Layout
 
 
 class Conv2D(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-    def convert(self):
-        logger.debug("Converting...")
+        self.auto_pad = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
+        self.dilations = []
+        self.group = -1
+        self.kshape = []
+        self.strides = []
+        # pads #  This attribute cannot be used simultaneously with auto_pad attribute.
+
+        self.setInited()
+
+    @property
+    def type(self):
+        return 'Conv'
+
+    @property
+    def sensitive(self):
+        return True
+
+    def parse(self):
+        logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode in OpTypeMapping)
-        self.type = OpTypeMapping[opcode]
+        assert(opcode is tflite.BuiltinOperator.CONV_2D)
 
         assert(op.InputsLength() == 3)
         assert(op.OutputsLength() == 1)
 
         # input
         ii = op.Inputs(0)
-        tensor.convert(self.model, self.graph, ii)
-        # inputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NHWC', 'NCHW', iIndex=ii)
-        # self.inputs.append(inputTranspose.outputs[0])
+        ilayout = Layout('NHWC', 'NCHW')
+        it = tensor.get(self.model, self.graph, ii, ilayout)
+        it.parse()
+        it.addConsumer(self)
+        self.inputs.append(it)
 
         # weight
         wi = op.Inputs(1)
-        wt = tensor.convert(self.model, self.graph, wi)
-        # weightTranspose = TransposeHelper(self.model, self.graph, self.index, 'OHWI', 'OIHW', iIndex=wi)
-        # self.inputs.append(weightTranspose.outputs[0])
-        # self.weights.append(weightTranspose.inputs[0])
+        wlayout = Layout('OHWI', 'OIHW')
+        wt = tensor.get(self.model, self.graph, wi, wlayout, True)
+        wt.parse()
+        wt.addConsumer(self)
+        self.inputs.append(wt)
 
         # bias
         bi = op.Inputs(2)
-        bt = tensor.convert(self.model, self.graph, bi)
+        bt = tensor.get(self.model, self.graph, bi, None, True)
+        bt.parse()
+        bt.addConsumer(self)
         self.inputs.append(bt)
-        self.weights.append(bt)
 
         # options
         op_opt = op.BuiltinOptions()
         option = tflite.Conv2DOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
 
-        kshape = wt.shape[1:3]
-        dilations = [option.DilationHFactor(), option.DilationWFactor()]
-        group = 1
-        padding = option.Padding()
-        strides = [option.StrideH(), option.StrideW()]
+        self.dilations = [option.DilationHFactor(), option.DilationWFactor()]
+        self.group = 1
+        self.kshape = wt.shape[1:3]
+        self.strides = [option.StrideH(), option.StrideW()]
         # option.FusedActivationFunction()
+        padding = option.Padding()
         assert(padding == tflite.Padding.SAME)  # TODO: enable VALID padding
-        auto_pad = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
-        # pads #  This attribute cannot be used simultaneously with auto_pad attribute.
 
         # output
         oi = op.Outputs(0)
-        tensor.convert(self.model, self.graph, oi)
-        # outputTranspose = TransposeHelper(self.model, self.graph, self.index, 'NCHW', 'NHWC', oIndex=oi)
-        # self.outputs.append(outputTranspose.inputs[0])
+        olayout = Layout('NHWC', 'NCHW')
+        ot = tensor.get(self.model, self.graph, oi, olayout)
+        ot.parse()
+        ot.addProducer(self)
+        self.outputs.append(ot)
+
+        self.setParsed()
+
+    def propagate(self):
+        logger.debug("Propagating %s...", self.type)
+        self.setPropagated()
+
+    def convert(self):
+        self.propagate()
+        logger.debug("Converting %s...", self.type)
+
+        super()._convertTensors()
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]
         logger.debug("Making ONNX...")
-        self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=kshape,
-                                     strides=strides, auto_pad=auto_pad, dilations=dilations,
-                                     group=group)
-
-        # return [inputTranspose, weightTranspose, self, outputTranspose]
+        self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=self.kshape,
+                                     strides=self.strides, auto_pad=self.auto_pad,
+                                     dilations=self.dilations, group=self.group)

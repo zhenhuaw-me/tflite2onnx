@@ -26,10 +26,10 @@ DTYPE_TFLITE2ONNX = {
 
 class Tensor(T2OBase):
 
-    def __init__(self, model, graph, index, layout=None, is_weight=False):
+    def __init__(self, model, graph, index, layout=None, is_initializer=False):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None
-        self.is_weight = is_weight
+        self.is_initializer = is_initializer
         self.dtype = None
         self.shape = []
         self.data = None
@@ -77,7 +77,7 @@ class Tensor(T2OBase):
             return
         self.propagate()
         logger.debug("Converting %s...", self.name)
-        if self.is_weight:
+        if self.is_initializer:
             vals = getData(self.model, self.graph, self.index, np.float32)
             self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, vals)
             onnx.checker.check_tensor(self.onnx)
@@ -111,10 +111,10 @@ def parseTensorName(graph, index):
     return t.Name().decode('utf-8')
 
 
-def get(model, graph, index, layout=None):
+def get(model, graph, index, layout=None, is_initializer=False):
     name = parseTensorName(graph, index)
     if name not in registery:
-        t = Tensor(model, graph, index, layout)
+        t = Tensor(model, graph, index, layout, is_initializer)
         registery[name] = t
     return registery[name]
 

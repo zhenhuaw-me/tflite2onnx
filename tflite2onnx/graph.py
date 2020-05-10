@@ -51,7 +51,7 @@ class Graph(T2OBase):
 
             tensors = op.inputs + op.outputs
             for t in tensors:
-                if t.is_weight:
+                if t.is_initializer:
                     assert(uniqueInDict(t, self.initializer))
                     self.initializer[t.name] = t
                 else:
