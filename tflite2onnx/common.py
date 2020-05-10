@@ -22,6 +22,10 @@ class Status(Enum):
     INVALID = 10
 
     @property
+    def uninitialized(self):
+        return self == self.UNINITIALIZED
+
+    @property
     def initialized(self):
         return self == self.INITIALIZED
 
@@ -57,21 +61,21 @@ class T2OBase(ABC):
         self.onnx = None
 
     def setInited(self):
-        assert(self.status is Status.UNINITIALIZED)
+        assert(self.status.uninitialized)
         self.status = Status.INITIALIZED
 
     def parse(self):
         logger.warn("method parse() is not overrided!")
 
     def setParsed(self):
-        assert(self.status is Status.INITIALIZED)
+        assert(self.status.initialized)
         self.status = Status.PARSED
 
     def convert(self):
         logger.warn("method convert() is not overrided!")
 
     def setConverted(self):
-        assert(self.status is Status.PARSED)
+        assert(self.status.parsed)
         self.status = Status.CONVERTED
 
     def setInvalid(self):

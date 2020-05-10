@@ -1,7 +1,7 @@
 import tflite
 from onnx import helper
 
-from ..common import logger, Status
+from ..common import logger
 from .. import tensor
 from .op import Operator
 
@@ -18,7 +18,7 @@ class Unary(Operator):
 
     @property
     def type(self):
-        if (self.status is Status.UNINITIALIZED):
+        if self.status.uninitialized:
             return 'Unary'
         else:
             op = self.tflite

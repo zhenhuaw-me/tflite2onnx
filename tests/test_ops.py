@@ -13,6 +13,7 @@ OP_LIST = (
         'transpose.float32',
         'avgpooling.float32',
         'conv.float32',
+        'relu.float32',
         )
 
 

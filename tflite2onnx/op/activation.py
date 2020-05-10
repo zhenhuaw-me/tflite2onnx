@@ -1,26 +1,25 @@
 import tflite
 from onnx import helper
 
-from .. import tensor
 from ..common import logger
+from .. import tensor
 from .op import Operator
 
 
 OpTypeMapping = {
-        tflite.BuiltinOperator.ADD : 'Add',     # noqa: E203
+        tflite.BuiltinOperator.RELU : 'Relu',     # noqa: E203
 }
 
 
-class Binary(Operator):
+class ReLU(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
-        logger.debug("Converting...")
         self.setInited()
 
     @property
     def type(self):
         if self.status.uninitialized:
-            return 'Binary'
+            return 'Relu'
         else:
             op = self.tflite
             opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
@@ -38,15 +37,14 @@ class Binary(Operator):
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in OpTypeMapping)
 
-        assert(op.InputsLength() == 2)
+        assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
-        for i in range(op.InputsLength()):
-            ii = op.Inputs(i)
-            it = tensor.get(self.model, self.graph, ii)
-            it.parse()
-            it.addConsumer(self)
-            self.inputs.append(it)
+        ii = op.Inputs(0)
+        it = tensor.get(self.model, self.graph, ii)
+        it.parse()
+        it.addConsumer(self)
+        self.inputs.append(it)
 
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
@@ -59,8 +57,7 @@ class Binary(Operator):
     def convert(self):
         logger.debug("Converting %s...", self.type)
 
-        for t in self.inputs:
-            t.convert()
+        self.inputs[0].convert()
         self.outputs[0].convert()
 
         inames = [t.name for t in self.inputs]
