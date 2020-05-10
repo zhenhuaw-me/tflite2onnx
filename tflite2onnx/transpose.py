@@ -1,5 +1,5 @@
 from .common import logger
-from .op.transpose import Transpose
+from .op import Transpose
 from . import layout
 from . import tensor
 

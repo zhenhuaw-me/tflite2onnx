@@ -54,10 +54,6 @@ class Transpose(Operator):
 
         self.setParsed()
 
-    def propagate(self):
-        logger.debug("Propagating %s...", self.type)
-        self.setPropagated()
-
     def convert(self):
         self.propagate()
         logger.debug("Converting %s...", self.type)
