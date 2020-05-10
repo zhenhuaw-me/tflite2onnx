@@ -8,6 +8,7 @@ from .pooling import AveragePool
 from .transpose import Transpose
 from .conv import Conv2D
 from .activation import ReLU
+from .reshape import Reshape
 
 
 OP_CONVERTERS = {
@@ -19,6 +20,7 @@ OP_CONVERTERS = {
         tflite.BuiltinOperator.CONV_2D          : Conv2D,       # noqa: E203
         tflite.BuiltinOperator.RELU             : ReLU,         # noqa: E203
         tflite.BuiltinOperator.RELU6            : ReLU,         # noqa: E203
+        tflite.BuiltinOperator.RESHAPE          : Reshape,         # noqa: E203
 }
 
 

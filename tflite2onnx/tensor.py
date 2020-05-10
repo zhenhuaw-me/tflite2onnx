@@ -23,24 +23,36 @@ DTYPE_TFLITE2ONNX = {
         tflite.TensorType.UINT8   : TensorProto.UINT8  ,    # noqa: E203
 }  # yapf: disable
 
-DTYPE_NAME = {
-    TensorProto.BOOL     :  'bool',     # noqa: E203
+DTYPE_ONNX2NAME = {
+    TensorProto.BOOL     :  'bool'   ,  # noqa: E203
     TensorProto.FLOAT16  :  'float16',  # noqa: E203
     TensorProto.FLOAT    :  'float32',  # noqa: E203
-    TensorProto.INT16    :  'int16',    # noqa: E203
-    TensorProto.INT32    :  'int32',    # noqa: E203
-    TensorProto.INT8     :  'int8',     # noqa: E203
-    TensorProto.UINT8    :  'uint8',    # noqa: E203
+    TensorProto.INT16    :  'int16'  ,  # noqa: E203
+    TensorProto.INT32    :  'int32'  ,  # noqa: E203
+    TensorProto.INT64    :  'int64'  ,  # noqa: E203
+    TensorProto.INT8     :  'int8'   ,  # noqa: E203
+    TensorProto.UINT8    :  'uint8'  ,  # noqa: E203
+}
+
+DTYPE_NAME2ONNX = {
+    'bool'     :  TensorProto.BOOL   ,  # noqa: E203
+    'float16'  :  TensorProto.FLOAT16,  # noqa: E203
+    'float32'  :  TensorProto.FLOAT  ,  # noqa: E203
+    'int16'    :  TensorProto.INT16  ,  # noqa: E203
+    'int32'    :  TensorProto.INT32  ,  # noqa: E203
+    'int64'    :  TensorProto.INT64  ,  # noqa: E203
+    'int8'     :  TensorProto.INT8   ,  # noqa: E203
+    'uint8'    :  TensorProto.UINT8  ,  # noqa: E203
 }
 
 
 class Tensor(T2OBase):
 
-    def __init__(self, model, graph, index, layout=None, is_initializer=False):
+    def __init__(self, model, graph, index, layout=None, is_initializer=False, dtype=None):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None
         self.is_initializer = is_initializer
-        self.dtype = None
+        self.dtype = None if dtype is None else DTYPE_NAME2ONNX[dtype]
         self.shape = []
         self.data = None
 
@@ -72,10 +84,11 @@ class Tensor(T2OBase):
         self.name = tensor.Name().decode('utf-8')
         logger.debug("Parsing %s...", self.name)
         self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
-        assert(tensor.Type() in DTYPE_TFLITE2ONNX)
-        self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
+        if self.dtype is None:
+            assert(tensor.Type() in DTYPE_TFLITE2ONNX)
+            self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
         if self.is_initializer:
-            self.data = getData(self.model, self.graph, self.index, np.float32)
+            self.data = getData(self.model, self.graph, self.index, DTYPE_ONNX2NAME[self.dtype])
 
         self.setParsed()
 
@@ -93,7 +106,7 @@ class Tensor(T2OBase):
 
     @property
     def str(self):
-        return '<' + self.name + '>' + '(' + DTYPE_NAME[self.dtype] + ',' + str(self.shape) + ')'
+        return '<' + self.name + '>' + '(' + DTYPE_ONNX2NAME[self.dtype] + ',' + str(self.shape) + ')'
 
     def __str__(self):
         producer_names = str([op.str for op in self.producers])
@@ -116,7 +129,7 @@ def get(model, graph, index, layout=None, is_initializer=False):
 
 
 def getData(model, graph, index, dtype):
-    assert(dtype in [np.int32, np.float32])
+    assert(dtype in ['int32', 'float32'])
     assert(index < graph.TensorsLength())
     t = graph.Tensors(index)
     bi = t.Buffer()
@@ -127,12 +140,12 @@ def getData(model, graph, index, dtype):
 
 
 def createScalar(ref, value):
-    name = 'TFLITE2ONNX_Scalar_' + DTYPE_NAME[ref.dtype] + '_' + str(value)
+    name = 'TFLITE2ONNX_Scalar_' + DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
     if name not in registery:
         t = Tensor(ref.model, ref.graph, -1, None, True)
         t.name = name
         t.dtype = ref.dtype
-        t.data = np.full((1), value, dtype=DTYPE_NAME[ref.dtype])
+        t.data = np.full((1), value, dtype=DTYPE_ONNX2NAME[ref.dtype])
         t.setParsed()
         registery[name] = t
     return registery[name]
