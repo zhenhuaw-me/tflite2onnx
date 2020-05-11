@@ -3,8 +3,8 @@ import onnx
 import tflite
 from onnx import helper, TensorProto
 
-from .common import T2OBase, logger
-from .op import Operator
+from tflite2onnx.common import T2OBase, logger
+from tflite2onnx.op import Operator
 
 
 # The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map.

@@ -2,10 +2,10 @@ import sys
 import tflite
 from onnx import helper
 
-from .common import T2OBase, logger
-from . import tensor
-from .op import getOp
-from .transpose import createTransposeHelper
+from tflite2onnx.common import T2OBase, logger
+from tflite2onnx import tensor
+from tflite2onnx.op import getOp
+from tflite2onnx.transpose import createTransposeHelper
 
 
 class Graph(T2OBase):

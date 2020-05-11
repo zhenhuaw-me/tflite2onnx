@@ -1,14 +1,14 @@
 import tflite
 
-from .op import Operator                # noqa: F401
-from .unary import Unary
-from .softmax import Softmax
-from .binary import Binary
-from .pooling import AveragePool
-from .transpose import Transpose
-from .conv import Conv2D
-from .activation import ReLU
-from .reshape import Reshape
+from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.unary import Unary
+from tflite2onnx.op.softmax import Softmax
+from tflite2onnx.op.binary import Binary
+from tflite2onnx.op.pooling import AveragePool
+from tflite2onnx.op.transpose import Transpose
+from tflite2onnx.op.conv import Conv2D
+from tflite2onnx.op.activation import ReLU
+from tflite2onnx.op.reshape import Reshape
 
 
 OP_CONVERTERS = {

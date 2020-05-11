@@ -1,7 +1,7 @@
 import tflite
 
-from .model import Model
-from .common import logger
+from tflite2onnx.model import Model
+from tflite2onnx.common import logger
 
 
 def convert(tflite_path: str, onnx_path: str):

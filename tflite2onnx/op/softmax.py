@@ -1,9 +1,9 @@
 import tflite
 from onnx import helper
 
-from .. import tensor
-from ..common import logger
-from .op import Operator
+from tflite2onnx.common import logger
+from tflite2onnx import tensor
+from tflite2onnx.op.operator import Operator
 
 
 class Softmax(Operator):

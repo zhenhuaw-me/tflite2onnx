@@ -1,7 +1,7 @@
-from .common import logger
-from .op import Transpose
-from . import layout
-from . import tensor
+from tflite2onnx.common import logger
+from tflite2onnx.op import Transpose
+from tflite2onnx import layout
+from tflite2onnx import tensor
 
 
 def createTransposeHelper(ref, create_as_upstream: bool):

@@ -2,8 +2,8 @@ import tflite
 import onnx
 from onnx import helper
 
-from .common import T2OBase, logger
-from .graph import Graph
+from tflite2onnx.common import T2OBase, logger
+from tflite2onnx.graph import Graph
 
 
 class Model(T2OBase):

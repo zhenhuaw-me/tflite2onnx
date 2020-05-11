@@ -1,4 +1,4 @@
-from ..common import T2OBase, logger
+from tflite2onnx.common import T2OBase, logger
 
 
 class Operator(T2OBase):
