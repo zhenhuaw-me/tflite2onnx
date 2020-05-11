@@ -14,35 +14,35 @@ registery = {}
 
 
 DTYPE_TFLITE2ONNX = {
-        tflite.TensorType.BOOL    : TensorProto.BOOL   ,    # noqa: E203
-        tflite.TensorType.FLOAT16 : TensorProto.FLOAT16,    # noqa: E203
-        tflite.TensorType.FLOAT32 : TensorProto.FLOAT  ,    # noqa: E203
-        tflite.TensorType.INT16   : TensorProto.INT16  ,    # noqa: E203
-        tflite.TensorType.INT32   : TensorProto.INT32  ,    # noqa: E203
-        tflite.TensorType.INT8    : TensorProto.INT8   ,    # noqa: E203
-        tflite.TensorType.UINT8   : TensorProto.UINT8  ,    # noqa: E203
-}  # yapf: disable
+    tflite.TensorType.BOOL: TensorProto.BOOL,
+    tflite.TensorType.FLOAT16: TensorProto.FLOAT16,
+    tflite.TensorType.FLOAT32: TensorProto.FLOAT,
+    tflite.TensorType.INT16: TensorProto.INT16,
+    tflite.TensorType.INT32: TensorProto.INT32,
+    tflite.TensorType.INT8: TensorProto.INT8,
+    tflite.TensorType.UINT8: TensorProto.UINT8,
+}
 
 DTYPE_ONNX2NAME = {
-    TensorProto.BOOL     :  'bool'   ,  # noqa: E203
-    TensorProto.FLOAT16  :  'float16',  # noqa: E203
-    TensorProto.FLOAT    :  'float32',  # noqa: E203
-    TensorProto.INT16    :  'int16'  ,  # noqa: E203
-    TensorProto.INT32    :  'int32'  ,  # noqa: E203
-    TensorProto.INT64    :  'int64'  ,  # noqa: E203
-    TensorProto.INT8     :  'int8'   ,  # noqa: E203
-    TensorProto.UINT8    :  'uint8'  ,  # noqa: E203
+    TensorProto.BOOL: 'bool',
+    TensorProto.FLOAT16: 'float16',
+    TensorProto.FLOAT: 'float32',
+    TensorProto.INT16: 'int16',
+    TensorProto.INT32: 'int32',
+    TensorProto.INT64: 'int64',
+    TensorProto.INT8: 'int8',
+    TensorProto.UINT8: 'uint8',
 }
 
 DTYPE_NAME2ONNX = {
-    'bool'     :  TensorProto.BOOL   ,  # noqa: E203
-    'float16'  :  TensorProto.FLOAT16,  # noqa: E203
-    'float32'  :  TensorProto.FLOAT  ,  # noqa: E203
-    'int16'    :  TensorProto.INT16  ,  # noqa: E203
-    'int32'    :  TensorProto.INT32  ,  # noqa: E203
-    'int64'    :  TensorProto.INT64  ,  # noqa: E203
-    'int8'     :  TensorProto.INT8   ,  # noqa: E203
-    'uint8'    :  TensorProto.UINT8  ,  # noqa: E203
+    'bool': TensorProto.BOOL,
+    'float16': TensorProto.FLOAT16,
+    'float32': TensorProto.FLOAT,
+    'int16': TensorProto.INT16,
+    'int32': TensorProto.INT32,
+    'int64': TensorProto.INT64,
+    'int8': TensorProto.INT8,
+    'uint8': TensorProto.UINT8,
 }
 
 
@@ -106,23 +106,17 @@ class Tensor(T2OBase):
 
     @property
     def str(self):
-        return '<' + self.name + '>' + \
-               '(' + DTYPE_ONNX2NAME[self.dtype] + ',' + str(self.shape) + ')'
+        return '<%s>(%s,%s)' % (self.name, DTYPE_ONNX2NAME[self.dtype], str(self.shape))
 
     def __str__(self):
         producer_names = str([op.str for op in self.producers])
         consumer_names = str([op.str for op in self.consumers])
-        return self.str + ': ' + producer_names + ' -> ' + consumer_names
-
-
-def parseTensorName(graph, index):
-    assert(index < graph.TensorsLength())
-    t = graph.Tensors(index)
-    return t.Name().decode('utf-8')
+        return '%s: %s -> %s' % (self.str, producer_names, consumer_names)
 
 
 def get(model, graph, index, layout=None, is_initializer=False):
-    name = parseTensorName(graph, index)
+    tft = graph.Tensors(index)
+    name = tft.Name().decode('utf-8')
     if name not in registery:
         t = Tensor(model, graph, index, layout, is_initializer)
         registery[name] = t

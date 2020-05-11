@@ -7,8 +7,8 @@ from tflite2onnx.op.operator import Operator
 
 
 OpTypeMapping = {
-        tflite.BuiltinOperator.RELU     : 'Relu',     # noqa: E203
-        tflite.BuiltinOperator.RELU6    : 'Clip',     # noqa: E203
+    tflite.BuiltinOperator.RELU: 'Relu',
+    tflite.BuiltinOperator.RELU6: 'Clip',
 }
 
 

@@ -20,7 +20,7 @@ def getPerm(ilayout: str, olayout: str):
     return perm
 
 
-class Layout:
+class Layout(object):
     def __init__(self, source: str, target: str):
         self.source = source
         self.target = target

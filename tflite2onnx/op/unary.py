@@ -7,7 +7,7 @@ from tflite2onnx.op.operator import Operator
 
 
 OpTypeMapping = {
-        tflite.BuiltinOperator.ABS : 'Abs',     # noqa: E203
+    tflite.BuiltinOperator.ABS: 'Abs',
 }
 
 
