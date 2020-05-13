@@ -16,6 +16,9 @@ OP_LIST = (
         'relu.float32',
         'relu6.float32',
         'reshape.float32',
+        'conv-stride.float32',
+        'depthwise-conv.float32',
+        'depthwise-conv-stride.float32',
         )
 
 

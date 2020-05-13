@@ -6,7 +6,7 @@ from tflite2onnx.op.softmax import Softmax
 from tflite2onnx.op.binary import Binary
 from tflite2onnx.op.pooling import AveragePool
 from tflite2onnx.op.transpose import Transpose
-from tflite2onnx.op.conv import Conv2D
+from tflite2onnx.op.conv import Conv
 from tflite2onnx.op.activation import ReLU
 from tflite2onnx.op.reshape import Reshape
 
@@ -17,10 +17,11 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.ADD: Binary,
     tflite.BuiltinOperator.AVERAGE_POOL_2D: AveragePool,
     tflite.BuiltinOperator.TRANSPOSE: Transpose,
-    tflite.BuiltinOperator.CONV_2D: Conv2D,
+    tflite.BuiltinOperator.CONV_2D: Conv,
     tflite.BuiltinOperator.RELU: ReLU,
     tflite.BuiltinOperator.RELU6: ReLU,
     tflite.BuiltinOperator.RESHAPE: Reshape,
+    tflite.BuiltinOperator.DEPTHWISE_CONV_2D: Conv,
 }
 
 
