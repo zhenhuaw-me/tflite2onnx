@@ -1,4 +1,6 @@
-from tflite2onnx.common import logger
+import logging
+
+logger = logging.getLogger('tflite2onnx')
 
 
 def transform(input, ilayout: str, olayout: str):

@@ -1,17 +1,18 @@
+import logging
 import numpy as np
 import onnx
 import tflite
 from onnx import helper, TensorProto
 
-from tflite2onnx.common import T2OBase, logger
+from tflite2onnx.common import T2OBase
 from tflite2onnx.op import Operator
 
+logger = logging.getLogger('tflite2onnx')
 
 # The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map.
 # As Registery here is *global*, we need to manually clear it when new in a SubGraph
 # TODO: move the registery to Graph scope to save clear operation.
 registery = {}
-
 
 DTYPE_TFLITE2ONNX = {
     tflite.TensorType.BOOL: TensorProto.BOOL,
@@ -47,7 +48,6 @@ DTYPE_NAME2ONNX = {
 
 
 class Tensor(T2OBase):
-
     def __init__(self, model, graph, index, layout=None, is_initializer=False, dtype=None):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None

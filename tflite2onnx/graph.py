@@ -1,11 +1,14 @@
 import sys
+import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx.common import T2OBase, logger
+from tflite2onnx.common import T2OBase
 from tflite2onnx import tensor
 from tflite2onnx.op import getOp
 from tflite2onnx.transpose import createTransposeHelper
+
+logger = logging.getLogger('tflite2onnx')
 
 
 class Graph(T2OBase):

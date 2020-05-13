@@ -1,10 +1,12 @@
+import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx.common import logger
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.layout import Layout
+
+logger = logging.getLogger('tflite2onnx')
 
 
 class Conv2D(Operator):

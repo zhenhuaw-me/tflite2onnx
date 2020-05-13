@@ -1,9 +1,11 @@
+import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx.common import logger
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
+
+logger = logging.getLogger('tflite2onnx')
 
 
 OpTypeMapping = {

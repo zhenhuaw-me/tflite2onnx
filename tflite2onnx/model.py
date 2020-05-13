@@ -1,9 +1,12 @@
+import logging
 import tflite
 import onnx
 from onnx import helper
 
-from tflite2onnx.common import T2OBase, logger
+from tflite2onnx.common import T2OBase
 from tflite2onnx.graph import Graph
+
+logger = logging.getLogger('tflite2onnx')
 
 
 class Model(T2OBase):

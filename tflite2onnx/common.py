@@ -1,8 +1,5 @@
-import logging
 from abc import ABC
 from enum import Enum
-
-logger = logging.getLogger('tflite2onnx')
 
 
 class Status(Enum):
@@ -65,14 +62,14 @@ class T2OBase(ABC):
         self.status = Status.INITIALIZED
 
     def parse(self):
-        logger.warn("method parse() is not overrided!")
+        raise NotImplementedError("method parse() is not overrided!")
 
     def setParsed(self):
         assert(self.status.initialized)
         self.status = Status.PARSED
 
     def convert(self):
-        logger.warn("method convert() is not overrided!")
+        raise NotImplementedError("method convert() is not overrided!")
 
     def setConverted(self):
         assert(self.status.parsed)

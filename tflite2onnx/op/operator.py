@@ -1,4 +1,8 @@
-from tflite2onnx.common import T2OBase, logger
+import logging
+
+from tflite2onnx.common import T2OBase
+
+logger = logging.getLogger('tflite2onnx')
 
 
 class Operator(T2OBase):

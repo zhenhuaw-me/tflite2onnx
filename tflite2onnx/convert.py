@@ -1,7 +1,9 @@
+import logging
 import tflite
 
 from tflite2onnx.model import Model
-from tflite2onnx.common import logger
+
+logger = logging.getLogger('tflite2onnx')
 
 
 def convert(tflite_path: str, onnx_path: str):
