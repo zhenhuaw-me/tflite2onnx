@@ -10,7 +10,7 @@ logger = logging.getLogger('tflite2onnx')
 
 FusedActFunc2OpType = {
     tflite.ActivationFunctionType.RELU6: tflite.BuiltinOperator.RELU6,
-    tflite.BuiltinOperator.RELU: tflite.BuiltinOperator.RELU,
+    tflite.ActivationFunctionType.RELU: tflite.BuiltinOperator.RELU,
 }
 
 OpTypeMapping = {
@@ -90,15 +90,28 @@ class ReLU(Operator):
         self.setConverted()
 
 
-def createFusedActivation(model, graph, actf, output):
-    assert(actf in FusedActFunc2OpType)
-    act_type = FusedActFunc2OpType[actf]
+def handleFusedActivation(master, option, output):
+    """Handle FusedActivationFunction for master node.
+
+    For master node such as Conv and FC, there could be FusedActivationFunction.
+    If there were, create a activation node `ActOp` and corresponding tensor `actTensor`,
+    and insert them into the original graph. E.g. for subgraph `Conv -> convTensor -> OP`
+    with `ReLU6`, we generate `Conv -> actTensor -> ActOp(ReLU6) -> convTensor -> OP`.
+    """
+    logger.debug("Handling FusedActivationFunction for %s", output.name)
+    faf = option.FusedActivationFunction()
+    if faf is tflite.ActivationFunctionType.NONE:
+        output.addProducer(master)
+        master.outputs.append(output)
+        return
+
+    assert(faf in FusedActFunc2OpType)
+    act_type = FusedActFunc2OpType[faf]
     assert(output.status.parsed)
-    act = ReLU(model, graph, -1, preset_opcode=act_type)
 
     # create tensor that from Conv/FC to Activation
-    input = tensor.Tensor(model, graph, -1)
-    input.name = 'input_of_%s_to_%s' % (OpTypeMapping[act_type], output.name)
+    input = tensor.Tensor(master.model, master.graph, -1)
+    input.name = 'FusedActivation_input_for_%s' % output.name
     input.dtype = output.dtype
     input.layout = copy.deepcopy(output.layout)
     input.shape = copy.deepcopy(output.shape)
@@ -106,20 +119,31 @@ def createFusedActivation(model, graph, actf, output):
     assert(input.name not in tensor.registery)
     tensor.registery[input.name] = input
 
-    input.addConsumer(act)
-    act.inputs.append(input)
+    # create the activation node, and let master node output to be its'.
+    if act_type in [tflite.BuiltinOperator.RELU6, tflite.BuiltinOperator.RELU6]:
+        act = ReLU(master.model, master.graph, -1, preset_opcode=act_type)
 
-    if act_type == tflite.BuiltinOperator.RELU6:
-        tmin = tensor.createScalar(input, 0)
-        tmin.addConsumer(act)
-        act.inputs.append(tmin)
-        tmax = tensor.createScalar(input, 6)
-        tmax.addConsumer(act)
-        act.inputs.append(tmax)
+        input.addConsumer(act)
+        act.inputs.append(input)
 
-    output.addProducer(act)
-    act.outputs.append(output)
+        if act_type == tflite.BuiltinOperator.RELU6:
+            tmin = tensor.createScalar(input, 0)
+            tmin.addConsumer(act)
+            act.inputs.append(tmin)
+            tmax = tensor.createScalar(input, 6)
+            tmax.addConsumer(act)
+            act.inputs.append(tmax)
 
-    act.setParsed()
+        output.addProducer(act)
+        act.outputs.append(output)
 
-    return act
+        act.setParsed()
+
+    else:
+        raise NotImplementedError("Unsupported fused ActivationFunctionType")
+
+    # attach activation node to output of master node
+    it_act = act.inputs[0]
+    it_act.addProducer(master)
+    master.outputs.append(it_act)
+    master.post.append(act)

@@ -5,7 +5,7 @@ from onnx import helper
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.padding import PaddingMapping
-from tflite2onnx.op.activation import createFusedActivation
+from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.layout import Layout
 
 logger = logging.getLogger('tflite2onnx')
@@ -89,18 +89,7 @@ class Conv(Operator):
         ot = tensor.get(self.model, self.graph, oi, olayout)
         ot.parse()
 
-        actf = option.FusedActivationFunction()
-        if actf is tflite.ActivationFunctionType.RELU6:
-            act = createFusedActivation(self.model, self.graph, actf, ot)
-            it_act = act.inputs[0]
-            it_act.addProducer(self)
-            self.outputs.append(it_act)
-            self.post.append(act)
-        elif actf is tflite.ActivationFunctionType.NONE:
-            ot.addProducer(self)
-            self.outputs.append(ot)
-        else:
-            raise NotImplementedError("Unsupported fused ActivationFunctionType")
+        handleFusedActivation(self, option, ot)
 
         self.setParsed()
 
