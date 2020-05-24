@@ -25,7 +25,8 @@ def createTransposeHelper(ref, create_as_upstream: bool):
     t.dtype = ref.dtype
     t.shape = ref.layout.transform(ref.shape)
     t.setParsed()
-    tensor.registery[name] = t
+    assert(t.name not in tensor.registery)
+    tensor.registery[t.name] = t
 
     # create Transpose op
     op = Transpose(ref.model, ref.graph, -1)

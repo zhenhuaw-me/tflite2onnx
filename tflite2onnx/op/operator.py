@@ -11,6 +11,8 @@ class Operator(T2OBase):
         self.tflite = graph.Operators(index) if index >= 0 else None
         self.inputs = []
         self.outputs = []
+        self.pre = []  # ops that before this op which to enable TFLite op
+        self.post = []  # ops that after this op which to enable TFLite op
 
     @property
     def type(self):

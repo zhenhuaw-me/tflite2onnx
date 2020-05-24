@@ -30,7 +30,9 @@ class Graph(T2OBase):
             logger.debug("Parsing operator: {}".format(i))
             op = getOp(self.model, self.graph, i)
             op.parse()
+            self.ops.extend(op.pre)
             self.ops.append(op)
+            self.ops.extend(op.post)
 
         # inputs
         logger.debug("Parsing inputs...")
