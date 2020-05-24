@@ -1,5 +1,5 @@
-Converting TensorFlow Lite models to ONNX models
-================================================
+Convert TensorFlow Lite models to ONNX
+======================================
 
 ![Continuous Integration](https://github.com/jackwish/tflite2onnx/workflows/Continuous%20Integration/badge.svg)
 
