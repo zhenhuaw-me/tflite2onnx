@@ -118,16 +118,6 @@ class Graph(T2OBase):
             def hasSensitiveNode(ln):
                 return any(n.sensitive for n in ln)
 
-            if hasSensitiveNode(t.producers):
-                logger.debug("<%s> transposing producers...", t.name)
-                t2, transOp = createTransposeHelper(t, True)
-                self.value_info[t2.name] = t2
-                ii = getMaxIndex(t.producers, transOp) + 1
-                op2insertIndex.append((transOp, ii))
-                for op in t.producers:
-                    if op is not transOp:
-                        op.replaceOutput(t, t2)
-
             if hasSensitiveNode(t.consumers):
                 logger.debug("<%s> transposing consumers...", t.name)
                 t2, transOp = createTransposeHelper(t, False)
@@ -137,6 +127,16 @@ class Graph(T2OBase):
                 for op in t.consumers:
                     if op is not transOp:
                         op.replaceInput(t, t2)
+
+            if hasSensitiveNode(t.producers):
+                logger.debug("<%s> transposing producers...", t.name)
+                t2, transOp = createTransposeHelper(t, True)
+                self.value_info[t2.name] = t2
+                ii = getMaxIndex(t.producers, transOp) + 1
+                op2insertIndex.append((transOp, ii))
+                for op in t.producers:
+                    if op is not transOp:
+                        op.replaceOutput(t, t2)
 
         # insert transpose op to graph
         op2insertIndex = sorted(op2insertIndex, key=lambda k: k[1], reverse=True)

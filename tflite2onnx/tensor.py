@@ -80,6 +80,8 @@ class Tensor(T2OBase):
             return self.layout.match
 
     def parse(self):
+        if self.status.parsed:
+            return
         tensor = self.tflite
         self.name = tensor.Name().decode('utf-8')
         logger.debug("Parsing %s...", self.name)

@@ -4,6 +4,7 @@ from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.padding import PaddingMapping
 from tflite2onnx.layout import Layout
 
 logger = logging.getLogger('tflite2onnx')
@@ -47,6 +48,7 @@ class AveragePool(Operator):
         op_opt = op.BuiltinOptions()
         option = tflite.Pool2DOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
+        self.auto_pad = PaddingMapping[option.Padding()]
 
         self.kshape = [option.FilterHeight(), option.FilterWidth()]
         self.strides = [option.StrideH(), option.StrideW()]

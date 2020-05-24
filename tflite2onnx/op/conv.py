@@ -4,6 +4,7 @@ from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.padding import PaddingMapping
 from tflite2onnx.op.activation import createFusedActivation
 from tflite2onnx.layout import Layout
 
@@ -78,8 +79,7 @@ class Conv(Operator):
         self.group = it.shape[3] if self.isDepthwise else 1
         self.kshape = wt.shape[1:3]
         self.strides = [option.StrideH(), option.StrideW()]
-        padding = option.Padding()
-        assert(padding == tflite.Padding.SAME)  # TODO: enable VALID padding
+        self.auto_pad = PaddingMapping[option.Padding()]
         if self.isDepthwise:
             assert(option.DepthMultiplier() == 1)
 

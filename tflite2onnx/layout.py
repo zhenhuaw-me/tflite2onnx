@@ -34,7 +34,7 @@ class Layout(object):
 
     def transform(self, input):
         logger.debug("Transforming from %s to %s...", self.source, self.target)
-        assert(self.current is not self.target)
+        # assert(self.current is not self.target)
         output = transform(input, self.source, self.target)
         self.current = self.target
         return output
