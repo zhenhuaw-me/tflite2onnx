@@ -9,11 +9,11 @@ with open(os.path.join(here, 'README.md'), 'r') as fh:
 
 setuptools.setup(
     name='tflite2onnx',
-    version='0.0.1',
+    version='0.1.0',
     description="Converting TensorFlow Lite models to ONNX models",
     packages=setuptools.find_packages(),
     classifiers=[
-        'Development Status :: 1 - Planning',
+        'Development Status :: 2 - Pre-Alpha',
 
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
