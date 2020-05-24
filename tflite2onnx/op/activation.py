@@ -1,3 +1,4 @@
+import copy
 import logging
 import tflite
 from onnx import helper
@@ -96,10 +97,11 @@ def createFusedActivation(model, graph, actf, output):
     act = ReLU(model, graph, -1, preset_opcode=act_type)
 
     # create tensor that from Conv/FC to Activation
-    input = tensor.Tensor(model, graph, -1, layout=output.layout)
+    input = tensor.Tensor(model, graph, -1)
     input.name = 'input_of_%s_to_%s' % (OpTypeMapping[act_type], output.name)
     input.dtype = output.dtype
-    input.shape = output.shape
+    input.layout = copy.deepcopy(output.layout)
+    input.shape = copy.deepcopy(output.shape)
     input.setParsed()
     assert(input.name not in tensor.registery)
     tensor.registery[input.name] = input
