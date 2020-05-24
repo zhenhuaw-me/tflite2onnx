@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Build and Test
 
 on: [push, pull_request]
 
@@ -29,21 +29,3 @@ jobs:
       run: pip install -U assets/dist/tflite2onnx-*.whl
     - name: Testing
       run: pytest
-
-  pychecker:
-    name: Check Python Style
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.8
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8
-    - name: Check Python Style
-      run: |
-        flake8 --count --show-source --max-complexity=10 --statistics --max-line-length=100 .
