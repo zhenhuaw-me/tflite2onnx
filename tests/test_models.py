@@ -24,20 +24,20 @@ def end2end_test(model_name):
 
 def test_ops():
     OP_LIST = (
-            'abs.float32',
-            'add.float32',
-            'avgpooling.float32',
-            'conv.float32',
-            'conv-stride.float32',
-            'depthwise-conv.float32',
-            'depthwise-conv-stride.float32',
-            'relu6.float32',
-            'relu.float32',
-            'reshape.float32',
-            'softmax.float32',
-            'transpose.float32',
-            'conv-relu6.float32',
-            )
+        'abs.float32',
+        'add.float32',
+        'avgpooling.float32',
+        'conv.float32',
+        'conv-relu6.float32',
+        'conv-stride.float32',
+        'depthwise-conv.float32',
+        'depthwise-conv-stride.float32',
+        'relu6.float32',
+        'relu.float32',
+        'reshape.float32',
+        'softmax.float32',
+        'transpose.float32',
+    )
 
     for op in OP_LIST:
         end2end_test(op)
@@ -45,8 +45,8 @@ def test_ops():
 
 def test_networks():
     NETWORK_LIST = (
-            'mobilenet_v1_0.25_128',
-            )
+        'mobilenet_v1_0.25_128',
+    )
 
     for net in NETWORK_LIST:
         end2end_test(net)
