@@ -24,8 +24,8 @@ def convert(tflite_path: str, onnx_path: str):
 
 def cmd_convert():
     parser = argparse.ArgumentParser(description="Convert TensorFlow Lite models to ONNX")
-    parser.add_argument('tflite_path',help="Path to the input TFLite mode" )
-    parser.add_argument('onnx_path',help="Path to save the converted ONNX mode" )
+    parser.add_argument('tflite_path', help="Path to the input TFLite mode")
+    parser.add_argument('onnx_path', help="Path to save the converted ONNX mode")
 
     args = parser.parse_args()
     convert(args.tflite_path, args.onnx_path)
