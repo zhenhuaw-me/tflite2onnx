@@ -10,19 +10,25 @@ TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`).
 ***This project is under early stage of development, contributions are welcome at [GitHub][github].***
 
 
-## Installation
+## Usage
+
+### Installation
 
 Simply install via [pip][pypi].
 This package requires `tflite`, `onnx` and `numpy` which should be installed automatically.
+An executable `tflite2onnx` will be installed also.
 
 ```sh
 pip install tflite2onnx
 ```
 
+If you'd like to convert a TensorFlow model (`*.pb`) to ONNX, you may try
+[`tf2onnx`](https://github.com/onnx/tensorflow-onnx). Or, you can firstly
+[convert][tf2tflite] TensorFlow model (`*.pb`)
+to TensorFlow Lite models (`*.tflite`), and then convert to ONNX using this tool.
 
-## Usage
 
-It's simple as below. Command line tool will be provided soon.
+### Python Interface
 
 ```py
 import tflite2onnx
@@ -31,14 +37,13 @@ tflite_path = '/path/to/original/tflite/model'
 onnx_path = '/path/to/save/converted/onnx/model'
 
 tflite2onnx.convert(tflite_path, onnx_path)
-
 ```
 
-If you'd like to convert a TensorFlow model (`*.pb`) to ONNX, you may try
-[`tf2onnx`](https://github.com/onnx/tensorflow-onnx). Or, you can firstly
-[convert][tf2tflite] TensorFlow model (`*.pb`)
-to TensorFlow Lite models (`*.tflite`), and then convert to ONNX using this tool.
+### Command Line Interface
 
+```sh
+tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
+```
 
 ## Resources
 
