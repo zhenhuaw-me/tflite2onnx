@@ -30,6 +30,12 @@ setuptools.setup(
     python_requires='>=3.5.*, <4',
     install_requires=['numpy', 'onnx', 'tflite'],
 
+    entry_points={
+        'console_scripts': [
+            "tflite2onnx = tflite2onnx.convert:cmd_convert"
+        ],
+    },
+
     author='王振华(Zhenhua WANG)',
     author_email='i@jackwish.net',
     long_description=long_description,
