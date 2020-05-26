@@ -2,6 +2,7 @@ import argparse
 import logging
 import tflite
 
+import tflite2onnx
 from tflite2onnx.model import Model
 
 logger = logging.getLogger('tflite2onnx')
@@ -23,7 +24,7 @@ def convert(tflite_path: str, onnx_path: str):
 
 
 def cmd_convert():
-    parser = argparse.ArgumentParser(description="Convert TensorFlow Lite models to ONNX")
+    parser = argparse.ArgumentParser(description=tflite2onnx.DESCRIPTION)
     parser.add_argument('tflite_path', help="Path to the input TFLite mode")
     parser.add_argument('onnx_path', help="Path to save the converted ONNX mode")
 
