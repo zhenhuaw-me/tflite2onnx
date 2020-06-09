@@ -7,7 +7,7 @@ Convert TensorFlow Lite models to ONNX
 This [`tflite2onnx` package][pypi] converts
 TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`).
 
-***This project is under early stage of development, contributions are welcome at [GitHub][github].***
+***This project is under early stage of development, [contributions are welcome](#contributing).***
 
 
 ## Usage
@@ -44,6 +44,16 @@ tflite2onnx.convert(tflite_path, onnx_path)
 ```sh
 tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 ```
+
+## Contributing
+
+Any contributing are welcome to this tool.
+
+* **Report bugs**: If you think that something is wrong, please using the [bug report](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=) issue template.
+* **Request operator support**: If you find that some operators are not supported yet, you may comment on [Operator Support Status](https://github.com/jackwish/tflite2onnx/issues/3) with TensorFlow Lite model (which contains that operator only) attached.
+* **Enable new operator**: It would be great if you can help to enable new operators, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
+* **Others**: Please feel free to open discussions if you have any great idea to improve this tool.
+
 
 ## Resources
 
