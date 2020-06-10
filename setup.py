@@ -1,9 +1,5 @@
-import os
 import setuptools
-
 import tflite2onnx
-
-here = os.path.abspath(os.path.dirname(__file__))
 
 setuptools.setup(
     name=tflite2onnx.NAME,
