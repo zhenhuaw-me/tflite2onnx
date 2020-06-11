@@ -18,7 +18,7 @@ def end2end_test(model_name):
     m = shrub.tflite.parse(tflm_path)
     m.genInput()
 
-    onnx_ret = shrub.onnx.run(onnx_name, m.inputs)
+    onnx_ret = shrub.onnx.run(onnx_name, m.inputs, layout='NHWC')
     tflite_ret = shrub.tflite.run(tflm_path, m.inputs)
     assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
 
