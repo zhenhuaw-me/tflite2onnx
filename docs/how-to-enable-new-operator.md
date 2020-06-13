@@ -161,7 +161,7 @@ modifications.
 * In `Operator.__init__()`, it collects the TFLite objects and initializes attributes of the operator. You can take [ONNX Operator Schemas][onnx-op] as reference. When it's done, the object switches to status `INITIALIZED`.
 * `Operator.type` is the operator type of ONNX. It's a string which you can find in operator examples in [ONNX Operator Schemas][onnx-op] - usually simply the operator type name, e.g. `Concat` in our example.
 * `Operator.sensitive` describes whether this operator is sensitive to layout. This is a bit tricky, please look into [Data layout semantic and converting procedure][layout-handling].
-* `Operator.parse()` parses the tensors used by the operator, attributes of the operator. Let's left it *to be done* in next section.
+* `Operator.parse()` parses the tensors used by the operator, attributes of the operator. Let's left it *to be done* in next section. After finished, set object to status `PARSED`. Mostly, an object should not been parsed multiple times.
 * `Operator.convert()` collects the tensors (names actually), attributes that have been parsed, and creates the ONNX operator object, which can be laterly used to create ONNX graph.
 
 Now, let's integrate the operator converter class into framework. This is simple (as we are trying to make it easy to extend :) ).
@@ -219,6 +219,102 @@ KeyError: None
 
 
 ## Make the operator converter work
+
+### Understand operator semantic difference
+
+TFLite and ONNX operator semantic are sometimes different. Make sure to review
+[TFLite API documentation](https://jackwish.net/tflite/docs/) for operator option,
+and [ONNX documents][onnx-op] for operator attributes. To be noted, some operator
+option or attribute of one, could be described by input tensor in another.
+
+For this `Concat` example, it accepts several inputs and generate one output in both
+TFLite and [ONNX](https://github.com/onnx/onnx/blob/master/docs/Operators.md#Concat).
+Unfortuanately, TFLite doesn't provide rich documents about operators, we may check
+[Compatible operations of TensorFlow and TFLite](https://www.tensorflow.org/lite/guide/ops_compatibility#compatible_operations)
+and sometimes even the [source code](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/kernels/internal/reference/concatenation.h).
+
+For options or attributes, we can check the
+[*OperatorOption* of TFLite](https://jackwish.net/tflite/docs/ConcatenationOptions.m.html#tflite.ConcatenationOptions.ConcatenationOptions).
+In our `Concat` example, it has two:
+* `Axis` indicates concatenating on which dimension. This attribute is sensitive to how we handle layout issue. For example, if TFLite concatenates on axis `-1` and has a `NHWC` data layout - which means it's concatenating on `C` dimension. While ONNX uses layout `NCHW`, ONNX version needs to concatenates on axis `1` for it's dimension `C` in ONNX. This is needed when `Concat` feeds to a `Conv`. The interesting part is, if the model contains no `Conv`, for example has only one `Concat` in our case, we'd better keep it unchanged. We will discuss this more in dedicated document.
+* `FusedActivationFunction` describes which [activation function](https://jackwish.net/tflite/docs/ActivationFunctionType.m.html) has been fused into this operator. This is commen in operators like `Conv` and `FullyConnected`.
+
+
+### Parse the tensors
+
+Parsing input and output tensors is simple.
+
+In our case, `Concat` may has multiple inputs, so we parse them one by one. For a tensor:
+1. Get the tensor index (regarding the TFLite graph).
+2. Create the tensor object `tflite2onnx.Tensor` and parse it. Sometimes the tensor has been created already, in which case simply obtain the object.
+3. Add it into the graph.
+
+```py
+for i in range(op.InputsLength()):
+    ii = op.Inputs(i)
+    it = tensor.get(self.model, self.graph, ii)
+    it.parse()
+    it.addConsumer(self)
+    self.inputs.append(it)
+```
+
+Output is similar.
+
+```py
+oi = op.Outputs(0)
+ot = tensor.get(self.model, self.graph, oi)
+ot.parse()
+ot.addConsumer(self)
+self.outputs.append(ot)
+```
+
+Now, if you invoke the test, you may see that it completes without erros.
+You may also catch the tensors and graph log:
+
+```sh
+user@Mac[✓]tflite2onnx.git (master*) $ python tests/test_models.py
+2020-06-13 09:00:25,018 D [tflite2onnx][convert.py:14] tflite: /Users/user/workspace/onnx/tflite2onnx.git/assets/tests/concat.float32.tflite
+2020-06-13 09:00:25,018 D [tflite2onnx][convert.py:15] onnx: concat.float32.onnx
+2020-06-13 09:00:25,018 D [tflite2onnx][model.py:21] Parsing the Model...
+2020-06-13 09:00:25,018 D [tflite2onnx][graph.py:27] Parsing the Graph...
+2020-06-13 09:00:25,018 D [tflite2onnx][graph.py:30] Parsing operator: 0
+# pasing the TFLite operator and tensors
+2020-06-13 09:00:25,018 D [tflite2onnx][concat.py:30] Parsing Concat...
+2020-06-13 09:00:25,019 D [tflite2onnx][tensor.py:87] Parsing a...
+2020-06-13 09:00:25,019 D [tflite2onnx][tensor.py:87] Parsing b...
+2020-06-13 09:00:25,019 D [tflite2onnx][tensor.py:87] Parsing c...
+2020-06-13 09:00:25,019 D [tflite2onnx][tensor.py:87] Parsing Identity...
+2020-06-13 09:00:25,019 D [tflite2onnx][graph.py:38] Parsing inputs...
+2020-06-13 09:00:25,019 D [tflite2onnx][model.py:37] Converting...
+2020-06-13 09:00:25,019 D [tflite2onnx][graph.py:69] Converting...
+# What the ONNX graph will have
+2020-06-13 09:00:25,020 D [tflite2onnx][graph.py:73] Graph:
+[OP] [Unintialized](Concat): ['a', 'b', 'c'] -> ['Identity']
+[Inputs] <a>(float32,[1, 1, 2, 3, 1]): [] -> ['[Unintialized](Concat)']
+[Inputs] <b>(float32,[1, 1, 2, 3, 2]): [] -> ['[Unintialized](Concat)']
+[Inputs] <c>(float32,[1, 1, 2, 3, 3]): [] -> ['[Unintialized](Concat)']
+[Value Info] <a>(float32,[1, 1, 2, 3, 1]): [] -> ['[Unintialized](Concat)']
+[Value Info] <b>(float32,[1, 1, 2, 3, 2]): [] -> ['[Unintialized](Concat)']
+[Value Info] <c>(float32,[1, 1, 2, 3, 3]): [] -> ['[Unintialized](Concat)']
+[Value Info] <Identity>(float32,[1, 1, 2, 3, 6]): [] -> ['[Unintialized](Concat)']
+[Outputs] <Identity>(float32,[1, 1, 2, 3, 6]): [] -> ['[Unintialized](Concat)']
+# creating the ONNX objects
+2020-06-13 09:00:25,020 D [tflite2onnx][concat.py:62] Converting Concat...
+2020-06-13 09:00:25,020 D [tflite2onnx][tensor.py:100] Converting a...
+2020-06-13 09:00:25,021 D [tflite2onnx][tensor.py:100] Converting b...
+2020-06-13 09:00:25,021 D [tflite2onnx][tensor.py:100] Converting c...
+2020-06-13 09:00:25,021 D [tflite2onnx][tensor.py:100] Converting Identity...
+2020-06-13 09:00:25,021 D [tflite2onnx][concat.py:70] Making ONNX...
+2020-06-13 09:00:25,022 D [tflite2onnx][graph.py:78] Making ONNX...
+2020-06-13 09:00:25,022 D [tflite2onnx][model.py:53] saving model as concat.float32.onnx
+2020-06-13 09:00:25,041 I [tflite2onnx][convert.py:23] Converted ONNX model: concat.float32.onnx
+```
+
+But, that's not the end necessarily, keep going!
+
+
+## Parse operator attributes
+
 
 
 

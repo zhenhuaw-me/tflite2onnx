@@ -35,22 +35,24 @@ class Concat(Operator):
         assert(op.InputsLength() >= 1)
         assert(op.OutputsLength() == 1)
 
-        # ii = op.Inputs(0)
-        # ilayout = Layout('NHWC', 'NCHW')
-        # it = tensor.get(self.model, self.graph, ii, ilayout)
-        # it.parse()
-        # it.addConsumer(self)
-        # self.inputs.append(it)
+        for i in range(op.InputsLength()):
+            ii = op.Inputs(i)
+            it = tensor.get(self.model, self.graph, ii)
+            it.parse()
+            it.addConsumer(self)
+            self.inputs.append(it)
 
         # op_opt = op.BuiltinOptions()
         # option = tflite.Pool2DOptions()
         # option.Init(op_opt.Bytes, op_opt.Pos)
         # self.axis = option.Padding()]
 
-        # oi = op.Outputs(0)
-        # olayout = Layout('NHWC', 'NCHW')
-        # ot = tensor.get(self.model, self.graph, oi, olayout)
-        # ot.parse()
+
+        oi = op.Outputs(0)
+        ot = tensor.get(self.model, self.graph, oi)
+        ot.parse()
+        ot.addConsumer(self)
+        self.outputs.append(ot)
 
         # handleFusedActivation(self, option, ot)
 
