@@ -9,6 +9,7 @@ from tflite2onnx.op.transpose import Transpose
 from tflite2onnx.op.conv import Conv
 from tflite2onnx.op.activation import ReLU
 from tflite2onnx.op.reshape import Reshape
+from tflite2onnx.op.concat import Concat
 
 
 OP_CONVERTERS = {
@@ -22,6 +23,7 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.RELU6: ReLU,
     tflite.BuiltinOperator.RESHAPE: Reshape,
     tflite.BuiltinOperator.DEPTHWISE_CONV_2D: Conv,
+    tflite.BuiltinOperator.CONCATENATION: Concat,
 }
 
 

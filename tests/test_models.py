@@ -38,6 +38,7 @@ def test_ops():
         'reshape.float32',
         'softmax.float32',
         'transpose.float32',
+        'concat.float32',
     )
 
     for op in OP_LIST:
@@ -55,4 +56,4 @@ def test_networks():
 
 if __name__ == '__main__':
     test_ops()
-    test_networks()
+    # test_networks()
