@@ -38,8 +38,8 @@ to TensorFlow Lite models (`*.tflite`), and then convert to ONNX using this tool
 
 Any contributing are welcome to this tool.
 
-* **Report bugs**: If you think that something is wrong, please using the [bug report](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=) issue template.
-* **Request operator support**: If you find that some operators are not supported yet, you may comment on [Operator Support Status](https://github.com/jackwish/tflite2onnx/issues/3) with TensorFlow Lite model (which contains that operator only) attached.
+* **Report bugs**: If you think that something is wrong, please use the [bug report](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=) issue template.
+* **Request operator support**: If you find that some operators are not supported yet, you may [Operator Support Status](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A) issue template.
 * **Enable new operator**: It would be great if you can help to enable new operators, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
 * **Others**: Please feel free to open discussions if you have any great idea to improve this tool.
 

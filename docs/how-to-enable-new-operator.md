@@ -223,7 +223,7 @@ KeyError: None
 ### Understand operator semantic difference
 
 TFLite and ONNX operator semantic are sometimes different. Make sure to review
-[TFLite API documentation](https://jackwish.net/tflite/docs/) for operator option,
+[TFLite API documentation][tflite-api] for operator option,
 and [ONNX documents][onnx-op] for operator attributes. To be noted, some operator
 option or attribute of one, could be described by input tensor in another.
 
@@ -315,9 +315,56 @@ But, that's not the end necessarily, keep going!
 
 ## Parse operator attributes
 
+TFLite model stores *operator option* with dedicated class per operator,
+which needs to be handled seperately.
+
+Taking `Concat` example, the options are aviable to obtain after a option
+object has *init* from memory. See below.
+
+```py
+op_opt = op.BuiltinOptions()
+option = tflite.ConcatenationOptions()
+option.Init(op_opt.Bytes, op_opt.Pos)
+self.axis = option.Axis()
+```
+
+Each operator option has a funtion to extract the information, please refer
+to the [TFLite parser API][tflite-api].
+
+A TFLite operator option doesn't necessarily have a peer ONNX operator
+attribute, vice verse. A TFLite operator option may become ONNX operator input,
+or implict ONNX operator semantic. Please do take care consideration for these
+functionalities. If you are not sure, take existing operator converter as
+reference, or open issue to ask.
+
+Among all the options, *fused activation function* is one special, for which
+we need to add one more ONNX operator to the graph. But, don't worry, it can be
+handled by simply calling `handleFusedActivation(self, option, ot)`, if that
+operator has a `FusedActivationFunction()`
+([`Concat` example](https://jackwish.net/tflite/docs/ConcatenationOptions.m.html#tflite.ConcatenationOptions.ConcatenationOptions.FusedActivationFunction))
+method of its option class. If that is the case, please don't add output tensor
+of the operator directly, but do something like below.
+
+```py
+oi = op.Outputs(0)
+ot = tensor.get(self.model, self.graph, oi)
+ot.parse()
+# ot.addConsumer(self)      # skip this when have FusedActivationFunction()
+# self.outputs.append(ot)   # skip this when have FusedActivationFunction()
+
+handleFusedActivation(self, option, ot)
+```
+
+Do remeber to initialize ONNX attributes in `Operator.__init__()`.
+And do NOT miss any when creating ONNX operator.
+
+
+## Handle the layout semantic divergence
+
 
 
 
 [onnx-op]: https://github.com/onnx/onnx/blob/master/docs/Operators.md
 [layout-handling]: https://github.com/jackwish/tflite2onnx/issues/2
+[tflite-api]: https://jackwish.net/tflite/docs
 

@@ -42,19 +42,16 @@ class Concat(Operator):
             it.addConsumer(self)
             self.inputs.append(it)
 
-        # op_opt = op.BuiltinOptions()
-        # option = tflite.Pool2DOptions()
-        # option.Init(op_opt.Bytes, op_opt.Pos)
-        # self.axis = option.Padding()]
-
+        op_opt = op.BuiltinOptions()
+        option = tflite.ConcatenationOptions()
+        option.Init(op_opt.Bytes, op_opt.Pos)
+        self.axis = option.Axis()
 
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
         ot.parse()
-        ot.addConsumer(self)
-        self.outputs.append(ot)
 
-        # handleFusedActivation(self, option, ot)
+        handleFusedActivation(self, option, ot)
 
         self.setParsed()
 
