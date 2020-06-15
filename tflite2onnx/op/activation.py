@@ -42,7 +42,7 @@ class ReLU(Operator):
             return OpTypeMapping[opcode]
 
     @property
-    def implcitLayout(self):
+    def implictLayout(self):
         return False
 
     def parse(self):
