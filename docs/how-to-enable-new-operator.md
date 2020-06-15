@@ -8,7 +8,11 @@ e.g. not included in [Operator Support Status](how-to-enable-new-operator.md).
 
 ## Prepare development environment
 
-TBD.
+This is retty simple:
+
+```sh
+pip install -r requirements.txt
+```
 
 
 ## Generate TensorFlow Lite model
@@ -359,9 +363,18 @@ Do remeber to initialize ONNX attributes in `Operator.__init__()`.
 And do NOT miss any when creating ONNX operator.
 
 
-## Handle the layout semantic divergence
+## Going further
 
+So far, we have walked the basic routine of enabling a new operator in
+`tflite2onnx`. We have not coverted the layout handling in this example.
+And, we are not going to have one, because it is sort complicated. If
+you met such scenario, you may find a way out, or open discussion. The
+important thing is that, this is really the most significant issue for
+`tflite2onnx`.
 
+If everthing looks all good. Please update the [Operator Support Status](how-to-enable-new-operator.md), and open pull request.
+
+Thank you for contributing to this project!
 
 
 [onnx-op]: https://github.com/onnx/onnx/blob/master/docs/Operators.md

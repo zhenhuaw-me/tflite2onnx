@@ -5,6 +5,7 @@ Please add in A-Z style.
 
 - [x] Abs
 - [x] AveragePooling
+- [x] Concat
 - [ ] Convolution
     - [x] Trival support
     - [x] Strides
