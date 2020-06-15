@@ -137,7 +137,7 @@ def get(model, graph, index, layout=None, is_initializer=False):
     #             assert(t.layout.source == layout.source)
     #             assert(t.layout.target == layout.target)
 
-    return t
+    return registery[name]
 
 
 def getData(model, graph, index, dtype):
