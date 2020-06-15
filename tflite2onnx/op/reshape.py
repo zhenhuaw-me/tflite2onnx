@@ -18,7 +18,7 @@ class Reshape(Operator):
         return 'Reshape'
 
     @property
-    def sensitive(self):
+    def implictLayout(self):
         return True
 
     def parse(self):

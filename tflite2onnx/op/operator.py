@@ -19,7 +19,8 @@ class Operator(T2OBase):
         raise NotImplementedError
 
     @property
-    def sensitive(self):
+    def implictLayout(self):
+        """Whether the operator assumes implact layout of tensors"""
         raise NotImplementedError
 
     @property

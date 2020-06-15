@@ -29,7 +29,7 @@ class Conv(Operator):
         return 'Conv'
 
     @property
-    def sensitive(self):
+    def implictLayout(self):
         return True
 
     @property

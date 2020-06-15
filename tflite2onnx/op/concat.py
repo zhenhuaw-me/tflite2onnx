@@ -5,7 +5,6 @@ from onnx import helper
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.activation import handleFusedActivation
-from tflite2onnx.layout import Layout
 
 logger = logging.getLogger('tflite2onnx')
 
@@ -23,8 +22,8 @@ class Concat(Operator):
         return 'Concat'
 
     @property
-    def sensitive(self):
-        return True
+    def implictLayout(self):
+        return False
 
     def parse(self):
         logger.debug("Parsing %s...", self.type)

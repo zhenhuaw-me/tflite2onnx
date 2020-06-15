@@ -27,7 +27,7 @@ class AveragePool(Operator):
         return 'AveragePool'
 
     @property
-    def sensitive(self):
+    def implictLayout(self):
         return True
 
     def parse(self):

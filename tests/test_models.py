@@ -28,6 +28,8 @@ def test_ops():
         'abs.float32',
         'add.float32',
         'avgpooling.float32',
+        'avgpool-concat.float32',
+        'concat.float32',
         'conv.float32',
         'conv-relu6.float32',
         'conv-stride.float32',
@@ -38,7 +40,6 @@ def test_ops():
         'reshape.float32',
         'softmax.float32',
         'transpose.float32',
-        'concat.float32',
     )
 
     for op in OP_LIST:

@@ -30,7 +30,7 @@ class Binary(Operator):
             return OpTypeMapping[opcode]
 
     @property
-    def sensitive(self):
+    def implictLayout(self):
         return False
 
     def parse(self):

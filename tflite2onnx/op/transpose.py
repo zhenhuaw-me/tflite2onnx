@@ -21,7 +21,7 @@ class Transpose(Operator):
         return 'Transpose'
 
     @property
-    def sensitive(self):
+    def implictLayout(self):
         return True
 
     def parse(self):

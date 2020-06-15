@@ -115,10 +115,10 @@ class Graph(T2OBase):
                 continue
             logger.debug("<%s> layout not match", t.name)
 
-            def hasSensitiveNode(ln):
-                return any(n.sensitive for n in ln)
+            def hasImplictLayoutNode(ln):
+                return any(n.implictLayout for n in ln)
 
-            if hasSensitiveNode(t.consumers):
+            if hasImplictLayoutNode(t.consumers):
                 logger.debug("<%s> transposing consumers...", t.name)
                 t2, transOp = createTransposeHelper(t, False)
                 self.value_info[t2.name] = t2
@@ -128,7 +128,7 @@ class Graph(T2OBase):
                     if op is not transOp:
                         op.replaceInput(t, t2)
 
-            if hasSensitiveNode(t.producers):
+            if hasImplictLayoutNode(t.producers):
                 logger.debug("<%s> transposing producers...", t.name)
                 t2, transOp = createTransposeHelper(t, True)
                 self.value_info[t2.name] = t2
