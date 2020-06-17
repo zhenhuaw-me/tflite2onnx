@@ -32,11 +32,11 @@ class Model(T2OBase):
 
         self.setParsed()
 
-    def convert(self):
+    def convert(self, layout_approach):
         self.parse()
         logger.debug("Converting...")
         for g in self.graphes:
-            g.convert()
+            g.convert(layout_approach)
 
         # ONNX restrictions
         opset = helper.make_operatorsetid(onnx.defs.ONNX_DOMAIN, 11)

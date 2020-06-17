@@ -3,7 +3,7 @@ import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx.common import T2OBase
+from tflite2onnx.common import T2OBase, LayoutApproach
 from tflite2onnx import tensor
 from tflite2onnx.op import getOp
 from tflite2onnx.transpose import createTransposeHelper
@@ -65,10 +65,15 @@ class Graph(T2OBase):
 
         self.setParsed()
 
-    def convert(self):
+    def convert(self, layout_approach):
         logger.debug("Converting...")
 
-        self._insertLayoutTranpose()
+        if layout_approach is LayoutApproach.TRANSPOSE:
+            self._insertLayoutTranpose()
+        elif layout_approach is LayoutApproach.PROPAGATION:
+            self._propagateLayout()
+        else:
+            assert(False), "Unkown LayoutApproach!"
 
         logger.debug("Graph:\n%s", str(self))
 
@@ -87,6 +92,7 @@ class Graph(T2OBase):
         self.setConverted()
 
     def _insertLayoutTranpose(self):        # noqa: C901
+        logger.debug("Inserting Transpose to layout divergence node...")
         assert(self.status.parsed)
         # prepare
         op2index = dict()
@@ -142,6 +148,47 @@ class Graph(T2OBase):
         op2insertIndex = sorted(op2insertIndex, key=lambda k: k[1], reverse=True)
         for op, index in op2insertIndex:
             self.ops.insert(index, op)
+
+    def _propagateLayout(self):
+        logger.debug("Propragating layout across graph...")
+
+        # collect tensors
+        T_toWalk = set()
+        T_wild = set()
+        T_walked = set()
+        for t in self.value_info + self.initializer:
+            if t.layout is None:
+                T_wild.add(t)
+            else:
+                T_toWalk.add(t)
+
+        # propagrate layout across graph
+        while len(T_toWalk) is not 0:
+            T = T_toWalk.pop()
+            Nodes = T.producers + T.consumers
+            for N in Nodes:
+                if N.implictLayout:
+                    continue
+                else:
+                    for t in N.inputs + N.outputs + N.initializer:
+                        if t in T_wild:
+                            assert(t.layout is None)
+                            t.layout = copy(T.layout)
+                            T_wild.remove(t)
+                            T_toWalk.add(t)
+            T_walked.add(T)
+        assert(len(T_toWalk) == 0)
+        assert(len(T_wild) == 0)
+        assert(len(T_walked) == len(self.value_info + self.initializer))
+
+        # update tensor shape and value
+        # for t in T_walked:
+        #     t.transform() # TODO
+
+        # # update operator attribute
+        # for op in self.ops:
+        #     op.transform() # TODO
+
 
     def __str__(self):
         string = str()
