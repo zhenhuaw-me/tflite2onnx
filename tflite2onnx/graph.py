@@ -157,34 +157,36 @@ class Graph(T2OBase):
         T_toWalk = set()
         T_wild = set()
         T_walked = set()
-        for t in self.value_info + self.initializer:
+        tensor_count = len(self.value_info) + len(self.initializer)
+        for t in self.value_info | self.initializer:
             if t.layout is None:
                 T_wild.add(t)
             else:
                 T_toWalk.add(t)
+        logger.debug("There are %d tensors, %d to walk, %d at wild" % \
+                     (tensor_count, len(T_toWalk), len(T_wild)))
 
         # propagrate layout across graph
-        while len(T_toWalk) is not 0:
+        while (len(T_toWalk) != 0):
             T = T_toWalk.pop()
-            Nodes = T.producers + T.consumers
-            for N in Nodes:
-                if N.implictLayout:
+            for n in T.producers + T.consumers:
+                if n.implictLayout:
                     continue
                 else:
-                    for t in N.inputs + N.outputs + N.initializer:
+                    for t in n.inputs + n.outputs + n.initializer:
                         if t in T_wild:
                             assert(t.layout is None)
-                            t.layout = copy(T.layout)
                             T_wild.remove(t)
+                            t.layout = copy(T.layout) # FIXME
                             T_toWalk.add(t)
             T_walked.add(T)
         assert(len(T_toWalk) == 0)
         assert(len(T_wild) == 0)
-        assert(len(T_walked) == len(self.value_info + self.initializer))
+        assert(len(T_walked) == tensor_count)
 
         # update tensor shape and value
-        # for t in T_walked:
-        #     t.transform() # TODO
+        for t in T_walked:
+            t.transform() # TODO
 
         # # update operator attribute
         # for op in self.ops:
