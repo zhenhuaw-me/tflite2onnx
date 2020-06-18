@@ -61,5 +61,8 @@ class Transpose(Operator):
         logger.debug("Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames, perm=self.perm)
 
+    def transform(self):
+        logger.warning("Transforming %d, doing nothing now...", self.type)
+
     def __str__(self):
         return super().__str__() + ', perm: ' + str(self.perm)
