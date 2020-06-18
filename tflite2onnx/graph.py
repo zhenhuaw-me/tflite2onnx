@@ -151,7 +151,7 @@ class Graph(T2OBase):
         for op, index in op2insertIndex:
             self.ops.insert(index, op)
 
-    def _propagateLayout(self):
+    def _propagateLayout(self):        # noqa: C901
         logger.debug("Propragating layout across graph...")
 
         # collect tensors
@@ -163,7 +163,7 @@ class Graph(T2OBase):
                 T_wild.add(t)
             else:
                 T_toWalk.add(t)
-        logger.debug("Propagation: %d tensors in total, %d to walk, %d at wild" % \
+        logger.debug("Propagation: %d tensors in total, %d to walk, %d at wild" %
                      (tensor_count, len(T_toWalk), len(T_wild)))
 
         # propagrate layout across graph
@@ -187,21 +187,17 @@ class Graph(T2OBase):
                             if t.isScalar:
                                 T_ignored.add(t)
                             else:
-                                t.layout = copy.deepcopy(T.layout) # FIXME
+                                t.layout = copy.deepcopy(T.layout)
                                 T_toWalk.add(t)
             T_walked.add(T)
-        logger.debug("Propagation: wild tensors %d, ignored tensors %d" % \
+        logger.debug("Propagation: wild tensors %d, ignored tensors %d" %
                      (len(T_wild), len(T_ignored)))
 
-        # update tensor shape and value
+        # update tensor and operator
         for t in T_walked:
             t.transform()
-
-        # # update operator attribute
         for op in self.ops:
-            print(op)
-            op.transform() # TODO
-
+            op.transform()
 
     def __str__(self):
         string = str()

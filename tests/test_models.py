@@ -22,6 +22,7 @@ def end2end_test(model_name, layout_approach, use_layout):
     tflite_ret = shrub.tflite.run(tflm_path, m.inputs)
     assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
 
+
 def test_ops():
     OP_LIST_IMPLICIT_LAYOUT = (
         'avgpooling.float32',
@@ -50,6 +51,7 @@ def test_ops():
 
     for op in OP_LIST_LAYOUT_TRANSPARENT:
         end2end_test(op, t2o.LayoutApproach.DEFAULT, 'NHWC')
+
 
 def test_networks():
     NETWORK_LIST = (

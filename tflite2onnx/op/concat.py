@@ -59,7 +59,7 @@ class Concat(Operator):
         if layout is None:
             return
         else:
-            axis = self.axis if self.axis >= 0 else self.axis + len(perm)
+            axis = self.axis if self.axis >= 0 else (self.axis + len(layout.perm))
             self.axis = layout.perm.index(axis)
 
     def convert(self):
