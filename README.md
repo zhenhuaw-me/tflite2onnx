@@ -18,7 +18,8 @@ to TensorFlow Lite models (`*.tflite`), and then convert to ONNX using this tool
 
 Install via [pip][pypi] `pip install tflite2onnx`.
 After installation, you may either try either.
-* Python interface
+
+**Python interface**
 ```py
 import tflite2onnx
 
@@ -27,7 +28,8 @@ onnx_path = '/path/to/save/converted/onnx/model'
 
 tflite2onnx.convert(tflite_path, onnx_path)
 ```
-* Command line
+
+**Command line**
 ```sh
 tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 ```
@@ -37,9 +39,9 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 
 Any contribution is welcome to this tool.
 
-* If you think something is wrong, [**report bugs**](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
-* If you find that some operators are not supported yet, you may [**request new operator**](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
-* It would be great if you can help to **enable new operators**, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
+* If you think something is wrong, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
+* If you find that some operators are not supported yet, you may [request new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
+* It would be great if you can help to enable new operators, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
 * Feel free to open discussions if you have any great idea to improve this tool.
 
 
