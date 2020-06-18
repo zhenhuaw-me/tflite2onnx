@@ -180,13 +180,11 @@ class Graph(T2OBase):
                             t.layout = copy(T.layout) # FIXME
                             T_toWalk.add(t)
             T_walked.add(T)
-        assert(len(T_toWalk) == 0)
-        assert(len(T_wild) == 0)
-        assert(len(T_walked) == tensor_count)
+        logger.debug("There are %d tensors whose layout at wild still" % len(T_wild))
 
         # update tensor shape and value
         for t in T_walked:
-            t.transform() # TODO
+            t.transform()
 
         # # update operator attribute
         # for op in self.ops:

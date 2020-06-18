@@ -43,5 +43,9 @@ class Layout(object):
     def match(self):
         return self.current == self.target
 
+    @property
+    def perm(self):
+        return getPerm(self.source, self.target)
+
     def __str__(self):
         return self.current + '(' + self.source + '->' + self.target + ')'

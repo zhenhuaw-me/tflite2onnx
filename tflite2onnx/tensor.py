@@ -97,8 +97,13 @@ class Tensor(T2OBase):
     def transform(self):
         assert(self.status.parsed)
         assert(self.layout is not None)
-        self.shape = self.layout.transform(self.shape)
-        # if self.is_initializer:
+        if self.is_initializer:
+            data = self.data.reshape(self.shape)
+            self.shape = self.layout.transform(self.shape)
+            data = data.transpose(self.layout.perm)
+            self.data = data.flatten()
+        else:
+            self.shape = self.layout.transform(self.shape)
 
     def convert(self):
         if self.status.converted:
