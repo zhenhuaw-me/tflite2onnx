@@ -58,6 +58,9 @@ class Binary(Operator):
 
         self.setParsed()
 
+    def transform(self):
+        pass
+
     def convert(self):
         logger.debug("Converting %s...", self.type)
 

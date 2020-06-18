@@ -61,10 +61,10 @@ class AveragePool(Operator):
 
         handleFusedActivation(self, option, ot)
 
-        # ot.addProducer(self)
-        # self.outputs.append(ot)
-
         self.setParsed()
+
+    def transform(self):
+        pass
 
     def convert(self):
         logger.debug("Converting %s...", self.type)

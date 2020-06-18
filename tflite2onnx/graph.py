@@ -198,8 +198,9 @@ class Graph(T2OBase):
             t.transform()
 
         # # update operator attribute
-        # for op in self.ops:
-        #     op.transform() # TODO
+        for op in self.ops:
+            print(op)
+            op.transform() # TODO
 
 
     def __str__(self):

@@ -16,12 +16,15 @@ class Operator(T2OBase):
 
     @property
     def type(self):
-        raise NotImplementedError
+        raise NotImplementedError("Method Operator.type() must be overrided!")
 
     @property
     def implictLayout(self):
         """Whether the operator assumes implact layout of tensors"""
-        raise NotImplementedError
+        raise NotImplementedError("Method Operator.implictLayout() must be overrided!")
+
+    def transform(self):
+        raise NotImplementedError("Method Operator.transform() must be overrided!")
 
     @property
     def str(self):

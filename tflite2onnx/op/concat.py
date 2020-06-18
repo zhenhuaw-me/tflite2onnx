@@ -54,6 +54,14 @@ class Concat(Operator):
 
         self.setParsed()
 
+    def transform(self):
+        layout = self.outputs[0].layout
+        if layout is None:
+            return
+        else:
+            axis = self.axis if self.axis >= 0 else self.axis + len(perm)
+            self.axis = layout.perm.index(axis)
+
     def convert(self):
         logger.debug("Converting %s...", self.type)
 
