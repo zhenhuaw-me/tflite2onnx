@@ -17,8 +17,8 @@ class Graph(T2OBase):
         self.ops = []
         self.inputs = []
         self.outputs = []
-        self.initializer = dict()
-        self.value_info = dict()
+        self.initializer = set()
+        self.value_info = set()
         self.tflite = graph
         tensor.registery.clear()
         self.setInited()
@@ -54,14 +54,16 @@ class Graph(T2OBase):
             def uniqueInDict(t, d):
                 return (t.name not in d) or (d[t.name] == t)
 
+            initializer = set()
+            value_info = set()
             tensors = op.inputs + op.outputs
             for t in tensors:
                 if t.is_initializer:
-                    assert(uniqueInDict(t, self.initializer))
-                    self.initializer[t.name] = t
+                    assert(t not in initializer)
+                    self.initializer.add(t)
                 else:
-                    assert(uniqueInDict(t, self.value_info))
-                    self.value_info[t.name] = t
+                    assert(t not in value_info)
+                    self.value_info.add(t)
 
         self.setParsed()
 
@@ -84,8 +86,8 @@ class Graph(T2OBase):
         onodes = [n.onnx for n in self.ops]
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]
-        initializer = [t.onnx for n, t in self.initializer.items()]
-        value_info = [t.onnx for n, t in self.value_info.items()]
+        initializer = [t.onnx for t in self.initializer]
+        value_info = [t.onnx for t in self.value_info]
 
         self.onnx = helper.make_graph(onodes, 'pre-alpha', oinputs, ooutputs,
                                       initializer=initializer, value_info=value_info)
@@ -115,8 +117,7 @@ class Graph(T2OBase):
         op2insertIndex = list()  # collect where to insert Transpose op
 
         # walk and transpose all tensors
-        all_tensors = {**self.initializer, **self.value_info}
-        for _, t in all_tensors.items():
+        for t in self.initializer | self.value_info:
             if t.layoutMatch:
                 continue
             logger.debug("<%s> layout not match", t.name)
@@ -127,7 +128,7 @@ class Graph(T2OBase):
             if hasImplictLayoutNode(t.consumers):
                 logger.debug("<%s> transposing consumers...", t.name)
                 t2, transOp = createTransposeHelper(t, False)
-                self.value_info[t2.name] = t2
+                self.value_info.add(t2)
                 ii = getMinIndex(t.consumers, transOp)
                 op2insertIndex.append((transOp, ii))
                 for op in t.consumers:
@@ -137,7 +138,7 @@ class Graph(T2OBase):
             if hasImplictLayoutNode(t.producers):
                 logger.debug("<%s> transposing producers...", t.name)
                 t2, transOp = createTransposeHelper(t, True)
-                self.value_info[t2.name] = t2
+                self.value_info.add(t2)
                 ii = getMaxIndex(t.producers, transOp) + 1
                 op2insertIndex.append((transOp, ii))
                 for op in t.producers:
@@ -196,9 +197,9 @@ class Graph(T2OBase):
             string += '[OP] ' + str(op) + '\n'
         for t in self.inputs:
             string += '[Inputs] ' + str(t) + '\n'
-        for _, t in self.initializer.items():
+        for t in self.initializer:
             string += '[Initializer] ' + str(t) + '\n'
-        for _, t in self.value_info.items():
+        for t in self.value_info:
             string += '[Value Info] ' + str(t) + '\n'
         for t in self.outputs:
             string += '[Outputs] ' + str(t) + '\n'
