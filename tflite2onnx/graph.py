@@ -123,10 +123,10 @@ class Graph(T2OBase):
                 continue
             logger.debug("<%s> layout not match", t.name)
 
-            def hasImplictLayoutNode(ln):
-                return any(n.implictLayout for n in ln)
+            def hasImplicitLayoutNode(ln):
+                return any(n.implicitLayout for n in ln)
 
-            if hasImplictLayoutNode(t.consumers):
+            if hasImplicitLayoutNode(t.consumers):
                 logger.debug("<%s> transposing consumers...", t.name)
                 t2, transOp = createTransposeHelper(t, False)
                 self.value_info.add(t2)
@@ -136,7 +136,7 @@ class Graph(T2OBase):
                     if op is not transOp:
                         op.replaceInput(t, t2)
 
-            if hasImplictLayoutNode(t.producers):
+            if hasImplicitLayoutNode(t.producers):
                 logger.debug("<%s> transposing producers...", t.name)
                 t2, transOp = createTransposeHelper(t, True)
                 self.value_info.add(t2)
@@ -172,7 +172,7 @@ class Graph(T2OBase):
         while (len(T_toWalk) != 0):
             T = T_toWalk.pop()
             for n in T.producers + T.consumers:
-                if n.implictLayout:
+                if n.implicitLayout:
                     for t in n.inputs + n.outputs:
                         # Bias has no layout information, and unneed to handle
                         if t in T_wild:

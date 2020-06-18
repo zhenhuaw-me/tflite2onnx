@@ -21,7 +21,7 @@ class Softmax(Operator):
         return 'Softmax'
 
     @property
-    def implictLayout(self):
+    def implicitLayout(self):
         return True
 
     def parse(self):

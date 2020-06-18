@@ -29,7 +29,7 @@ class Unary(Operator):
             return OpTypeMapping[opcode]
 
     @property
-    def implictLayout(self):
+    def implicitLayout(self):
         return False
 
     def parse(self):

@@ -22,7 +22,7 @@ class Concat(Operator):
         return 'Concat'
 
     @property
-    def implictLayout(self):
+    def implicitLayout(self):
         return False
 
     def parse(self):

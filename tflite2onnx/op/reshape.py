@@ -18,7 +18,7 @@ class Reshape(Operator):
         return 'Reshape'
 
     @property
-    def implictLayout(self):
+    def implicitLayout(self):
         return True
 
     def parse(self):

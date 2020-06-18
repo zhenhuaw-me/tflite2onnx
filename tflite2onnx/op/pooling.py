@@ -27,7 +27,7 @@ class AveragePool(Operator):
         return 'AveragePool'
 
     @property
-    def implictLayout(self):
+    def implicitLayout(self):
         return True
 
     def parse(self):

@@ -29,7 +29,7 @@ class Conv(Operator):
         return 'Conv'
 
     @property
-    def implictLayout(self):
+    def implicitLayout(self):
         return True
 
     @property

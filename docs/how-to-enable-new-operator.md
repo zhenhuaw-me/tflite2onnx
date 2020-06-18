@@ -131,7 +131,7 @@ class Concat(Operator):
         return 'Concat'
 
     @property
-    def implictLayout(self):
+    def implicitLayout(self):
         return False
 
     def parse(self):
@@ -164,7 +164,7 @@ This can be done by copying an existing similar operator, and make several
 modifications.
 * In `Operator.__init__()`, it collects the TFLite objects and initializes attributes of the operator. You can take [ONNX Operator Schemas][onnx-op] as reference. When it's done, the object switches to status `INITIALIZED`.
 * `Operator.type` is the operator type of ONNX. It's a string which you can find in operator examples in [ONNX Operator Schemas][onnx-op] - usually simply the operator type name, e.g. `Concat` in our example.
-* `Operator.implictLayout` describes whether this operator assumes layout of tensors. This is a bit tricky, please look into [Data layout semantic and converting procedure][layout-handling].
+* `Operator.implicitLayout` describes whether this operator assumes layout of tensors. This is a bit tricky, please look into [Data layout semantic and converting procedure][layout-handling].
 * `Operator.parse()` parses the tensors used by the operator, attributes of the operator. Let's left it *to be done* in next section. After finished, set object to status `PARSED`. Mostly, an object should not been parsed multiple times.
 * `Operator.convert()` collects the tensors (names actually), attributes that have been parsed, and creates the ONNX operator object, which can be laterly used to create ONNX graph.
 
@@ -337,7 +337,7 @@ to the [TFLite parser API][tflite-api].
 
 A TFLite operator option doesn't necessarily have a peer ONNX operator
 attribute, vice verse. A TFLite operator option may become ONNX operator input,
-or implict ONNX operator semantic. Please do take care consideration for these
+or implicit ONNX operator semantic. Please do take care consideration for these
 functionalities. If you are not sure, take existing operator converter as
 reference, or open issue to ask.
 
