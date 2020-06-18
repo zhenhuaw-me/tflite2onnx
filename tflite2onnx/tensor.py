@@ -79,6 +79,10 @@ class Tensor(T2OBase):
         else:
             return self.layout.match
 
+    @property
+    def isScalar(self):
+        return (self.layout is None) and (len(self.shape) == 0) and (len(self.data) == 1)
+
     def parse(self):
         if self.status.parsed:
             return

@@ -1,3 +1,4 @@
+import copy
 import sys
 import logging
 import tflite
@@ -156,31 +157,41 @@ class Graph(T2OBase):
         # collect tensors
         T_toWalk = set()
         T_wild = set()
-        T_walked = set()
         tensor_count = len(self.value_info) + len(self.initializer)
         for t in self.value_info | self.initializer:
             if t.layout is None:
                 T_wild.add(t)
             else:
                 T_toWalk.add(t)
-        logger.debug("There are %d tensors, %d to walk, %d at wild" % \
+        logger.debug("Propagation: %d tensors in total, %d to walk, %d at wild" % \
                      (tensor_count, len(T_toWalk), len(T_wild)))
 
         # propagrate layout across graph
+        T_ignored = set()
+        T_walked = set()
         while (len(T_toWalk) != 0):
             T = T_toWalk.pop()
             for n in T.producers + T.consumers:
                 if n.implictLayout:
-                    continue
+                    for t in n.inputs + n.outputs:
+                        # Bias has no layout information, and unneed to handle
+                        if t in T_wild:
+                            T_wild.remove(t)
+                            T_ignored.add(t)
                 else:
-                    for t in n.inputs + n.outputs + n.initializer:
+                    for t in n.inputs + n.outputs:
+                        logger.debug("Propagation: processing %s" % str(t))
                         if t in T_wild:
                             assert(t.layout is None)
                             T_wild.remove(t)
-                            t.layout = copy(T.layout) # FIXME
-                            T_toWalk.add(t)
+                            if t.isScalar:
+                                T_ignored.add(t)
+                            else:
+                                t.layout = copy.deepcopy(T.layout) # FIXME
+                                T_toWalk.add(t)
             T_walked.add(T)
-        logger.debug("There are %d tensors whose layout at wild still" % len(T_wild))
+        logger.debug("Propagation: wild tensors %d, ignored tensors %d" % \
+                     (len(T_wild), len(T_ignored)))
 
         # update tensor shape and value
         for t in T_walked:
