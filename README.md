@@ -1,47 +1,46 @@
-Convert TensorFlow Lite models to ONNX
-======================================
+Converting TensorFlow Lite models to ONNX
+=========================================
 
 ![Build and Test](https://github.com/jackwish/tflite2onnx/workflows/Build%20and%20Test/badge.svg)
 ![Sanity](https://github.com/jackwish/tflite2onnx/workflows/Sanity/badge.svg)
 
-This [`tflite2onnx` package][pypi] converts
-TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`).
+`tflite2onnx` converts TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`).
 
 ***This project is under early stage of development, [contributions are welcome](#contributing).***
 
 
 ## Usage
 
-If you'd like to convert a TensorFlow model (`*.pb`) to ONNX, you may try
+> If you'd like to convert a TensorFlow model (`*.pb`) to ONNX, you may try
 [`tf2onnx`](https://github.com/onnx/tensorflow-onnx). Or, you can firstly
 [convert][tf2tflite] TensorFlow model (`*.pb`)
 to TensorFlow Lite models (`*.tflite`), and then convert to ONNX using this tool.
 
-1. Simply install via [pip][pypi] `pip install tflite2onnx`.
-2. After installation, you may either try either.
-    1. Python interface
-    ```py
-    import tflite2onnx
+Install via [pip][pypi] `pip install tflite2onnx`.
+After installation, you may either try either.
+* Python interface
+```py
+import tflite2onnx
 
-    tflite_path = '/path/to/original/tflite/model'
-    onnx_path = '/path/to/save/converted/onnx/model'
+tflite_path = '/path/to/original/tflite/model'
+onnx_path = '/path/to/save/converted/onnx/model'
 
-    tflite2onnx.convert(tflite_path, onnx_path)
-    ```
-    2. Command line
-    ```sh
-    tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
-    ```
+tflite2onnx.convert(tflite_path, onnx_path)
+```
+* Command line
+```sh
+tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
+```
 
 
 ## Contributing
 
-Any contributing are welcome to this tool.
+Any contribution is welcome to this tool.
 
-* **Report bugs**: If you think that something is wrong, please use the [bug report](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=) issue template.
-* **Request operator support**: If you find that some operators are not supported yet, you may [Operator Support Status](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A) issue template.
-* **Enable new operator**: It would be great if you can help to enable new operators, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
-* **Others**: Please feel free to open discussions if you have any great idea to improve this tool.
+* If you think something is wrong, [**report bugs**](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
+* If you find that some operators are not supported yet, you may [**request new operator**](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
+* It would be great if you can help to **enable new operators**, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
+* Feel free to open discussions if you have any great idea to improve this tool.
 
 
 ## Resources
