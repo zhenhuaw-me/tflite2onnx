@@ -23,7 +23,7 @@ def end2end_test(model_name, layout_approach, use_layout):
     assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
 
 
-def test_ops():
+def test_ops_implicit_layout():
     OP_LIST_IMPLICIT_LAYOUT = (
         'avgpooling.float32',
         'avgpool-concat.float32',
@@ -38,6 +38,8 @@ def test_ops():
         end2end_test(op, t2o.LayoutApproach.TRANSPOSE, 'NHWC')
         end2end_test(op, t2o.LayoutApproach.PROPAGATION, 'NCHW')
 
+
+def test_ops_layout_transparent():
     OP_LIST_LAYOUT_TRANSPARENT = (
         'abs.float32',
         'add.float32',
@@ -64,5 +66,6 @@ def test_networks():
 
 
 if __name__ == '__main__':
-    test_ops()
+    test_ops_implicit_layout()
+    test_ops_layout_transparent()
     test_networks()

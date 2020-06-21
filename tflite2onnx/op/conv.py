@@ -4,7 +4,7 @@ from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
-from tflite2onnx.op.padding import PaddingMapping
+from tflite2onnx.op.padding import PaddingMapping, computePaddingSize
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.layout import Layout
 
@@ -20,7 +20,12 @@ class Conv(Operator):
         self.group = -1
         self.kshape = []
         self.strides = []
-        # pads #  This attribute cannot be used simultaneously with auto_pad attribute.
+
+        # ONNX: This attribute cannot be used simultaneously with `auto_pad` attribute.
+        # re-initialize during self.parse(), as it needs the shape of input.
+        # We prefer `auto_pad`, however ONNXRuntime doesn't support
+        # `dilation` + `auto_pad`, such that we use `pads` to workaround it.
+        self.pads = [0, 0, 0, 0]
 
         self.setInited()
 
@@ -82,6 +87,8 @@ class Conv(Operator):
         self.auto_pad = PaddingMapping[option.Padding()]
         if self.isDepthwise:
             assert(option.DepthMultiplier() == 1)
+        self.pads = computePaddingSize(option.Padding(), it.shape[1:3], self.kshape,
+                                       self.strides, self.dilations)
 
         # output
         oi = op.Outputs(0)
@@ -105,7 +112,8 @@ class Conv(Operator):
         onames = [t.name for t in self.outputs]
         logger.debug("Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=self.kshape,
-                                     strides=self.strides, auto_pad=self.auto_pad,
+                                     strides=self.strides, pads=self.pads,
+                                     # strides=self.strides, auto_pad=self.auto_pad,
                                      dilations=self.dilations, group=self.group)
 
     def __str__(self):

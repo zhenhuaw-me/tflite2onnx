@@ -23,6 +23,7 @@ def computePaddingSize(padding_mode, input_size, kernel_size, stride, dilation):
         oshape = np.divide(np.subtract(np.add(input_size, stride), effective_filter_size), stride)
     else:
         raise ValueError("Unknown padding mode!")
+    oshape = oshape.astype('int')
 
     # infer the padding
     total_padding = np.add(np.multiply(np.subtract(oshape, ones), stride),
@@ -35,4 +36,4 @@ def computePaddingSize(padding_mode, input_size, kernel_size, stride, dilation):
     post_padding = np.subtract(total_padding, pre_padding)
     padding = np.concatenate((pre_padding, post_padding))
 
-    return tuple(padding.flatten())
+    return padding.flatten()
