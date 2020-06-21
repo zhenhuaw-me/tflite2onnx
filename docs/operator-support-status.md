@@ -10,7 +10,7 @@ Please add in A-Z style.
     - [x] Trival support
     - [x] Strides
     - [x] Group (Depthwise dedicated in TFLite)
-    - [ ] Dilation
+    - [x] Dilation
     - [x] Padding
     - [ ] Fused Activations
         - [x] ReLU6
