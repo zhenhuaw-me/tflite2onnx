@@ -11,10 +11,9 @@ Converting TensorFlow Lite models to ONNX
 
 ## Usage
 
-> If you'd like to convert a TensorFlow model (`*.pb`) to ONNX, you may try
-[`tf2onnx`](https://github.com/onnx/tensorflow-onnx). Or, you can firstly
-[convert][tf2tflite] TensorFlow model (`*.pb`)
-to TensorFlow Lite models (`*.tflite`), and then convert to ONNX using this tool.
+> If you'd like to convert a TensorFlow model to ONNX, try
+[`tf2onnx`](https://github.com/onnx/tensorflow-onnx). Or, you can firstly [convert][tf2tflite]
+it to TFLite (`*.tflite`), and then convert TFLite model to ONNX.
 
 Install via [pip][pypi] `pip install tflite2onnx`.
 After installation, you may either try either.
@@ -39,8 +38,8 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 
 Any contribution is welcome to this tool.
 
-* If you think something is wrong, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
-* If you find that some operators are not supported yet, you may [request new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
+* If something is wrong to you, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
+* If some operators are not supported yet, you may [request new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * It would be great if you can help to enable new operators, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
 * Feel free to open discussions if you have any great idea to improve this tool.
 
@@ -56,6 +55,6 @@ Any contribution is welcome to this tool.
 
 Apache License Version 2.0.
 
-[pypi]: https://pypi.org/project/tflite2onnx/
+[pypi]: https://pypi.org/project/tflite2onnx
 [github]: https://github.com/jackwish/tflite2onnx
 [tf2tflite]: https://www.tensorflow.org/lite/convert
