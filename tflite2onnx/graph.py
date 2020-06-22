@@ -8,6 +8,7 @@ from tflite2onnx.common import T2OBase, LayoutApproach
 from tflite2onnx import tensor
 from tflite2onnx.op import getOp
 from tflite2onnx.transpose import createTransposeHelper
+from tflite2onnx.layout import Layout
 
 logger = logging.getLogger('tflite2onnx')
 
@@ -24,7 +25,7 @@ class Graph(T2OBase):
         tensor.registery.clear()
         self.setInited()
 
-    def parse(self):
+    def parse(self, explicit_layouts):
         logger.debug("Parsing the Graph...")
         # operators
         for i in range(self.graph.OperatorsLength()):
@@ -51,14 +52,15 @@ class Graph(T2OBase):
 
         # collect tensors
         for op in self.ops:
-
-            def uniqueInDict(t, d):
-                return (t.name not in d) or (d[t.name] == t)
-
             initializer = set()
             value_info = set()
             tensors = op.inputs + op.outputs
             for t in tensors:
+                if t.name in explicit_layouts:
+                    assert(t.layout is None)
+                    layouts = explicit_layouts[t.name]
+                    assert(len(layouts) == 2)
+                    t.layout = Layout(layouts[0], layouts[1])
                 if t.is_initializer:
                     assert(t not in initializer)
                     self.initializer.add(t)

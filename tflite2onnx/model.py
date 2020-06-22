@@ -17,7 +17,7 @@ class Model(T2OBase):
         self.graphes = []
         self.setInited()
 
-    def parse(self):
+    def parse(self, explicit_layouts):
         logger.debug("Parsing the Model...")
         graph_count = self.model.SubgraphsLength()
         if (graph_count != 1):
@@ -28,12 +28,12 @@ class Model(T2OBase):
         self.graphes.append(graph)
 
         for g in self.graphes:
-            g.parse()
+            g.parse(explicit_layouts)
 
         self.setParsed()
 
-    def convert(self, layout_approach):
-        self.parse()
+    def convert(self, layout_approach, explicit_layouts):
+        self.parse(explicit_layouts)
         logger.debug("Converting...")
         for g in self.graphes:
             g.convert(layout_approach)

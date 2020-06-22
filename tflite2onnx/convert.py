@@ -11,11 +11,20 @@ logger = logging.getLogger('tflite2onnx')
 
 
 def convert(tflite_path: str, onnx_path: str,
-            layout_approach=LayoutApproach.DEFAULT):
+            layout_approach=LayoutApproach.DEFAULT,
+            explicit_layouts=None):
     """Converting TensorFlow Lite models (*tflite) to ONNX models"""
 
     if not os.path.exists(tflite_path):
         raise ValueError("Invalid TFLite model path (%s)!" % tflite_path)
+
+    if explicit_layouts:
+        for k, v in explicit_layouts.items():
+            if ((not isinstance(k, str)) or (not isinstance(v, tuple)) or
+                (len(v) != 2) or (not isinstance(v[0], str)) or (not isinstance(v[1], str))):
+                raise ValueError("Invalid explicit layouts!")
+    else:
+        explicit_layouts = dict()
 
     logger.debug("tflite: %s", tflite_path)
     logger.debug("onnx: %s", onnx_path)
@@ -24,7 +33,7 @@ def convert(tflite_path: str, onnx_path: str,
         im = tflite.Model.GetRootAsModel(buf, 0)
 
     model = Model(im)
-    model.convert(layout_approach)
+    model.convert(layout_approach, explicit_layouts)
     model.save(onnx_path)
     logger.info("Converted ONNX model: %s", onnx_path)
 
