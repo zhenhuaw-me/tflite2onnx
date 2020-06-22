@@ -25,7 +25,7 @@ def end2end_test(model_name, layout_approach, use_layout, io_layouts):
 
 def test_explicit_layout():
     end2end_test('abs.float32', t2o.LayoutApproach.TRANSPOSE, 'NHWC',
-                 {'input':('NHWC', 'NCHW')})
+                 {'input': ('NHWC', 'NCHW')})
     # end2end_test('abs.float32', t2o.LayoutApproach.PROPAGATION, 'NCHW',
     #              {'input':('NHWC', 'NCHW')})
 

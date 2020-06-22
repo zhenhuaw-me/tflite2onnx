@@ -20,8 +20,8 @@ def convert(tflite_path: str, onnx_path: str,
 
     if explicit_layouts:
         for k, v in explicit_layouts.items():
-            if ((not isinstance(k, str)) or (not isinstance(v, tuple)) or
-                (len(v) != 2) or (not isinstance(v[0], str)) or (not isinstance(v[1], str))):
+            if not (isinstance(k, str) and isinstance(v, tuple) and
+                    (len(v) == 2) and isinstance(v[0], str) or isinstance(v[1], str)):
                 raise ValueError("Invalid explicit layouts!")
     else:
         explicit_layouts = dict()
