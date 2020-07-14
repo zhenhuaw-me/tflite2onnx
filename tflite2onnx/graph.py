@@ -26,6 +26,7 @@ class Graph(T2OBase):
         self.setInited()
 
     def parse(self, explicit_layouts):
+        self.explicit_layouts = explicit_layouts
         logger.debug("Parsing the Graph...")
         # operators
         for i in range(self.graph.OperatorsLength()):
@@ -119,16 +120,20 @@ class Graph(T2OBase):
             return ret
         op2insertIndex = list()  # collect where to insert Transpose op
 
-        # walk and transpose all tensors
+        T_toWalk = list()
         for t in self.initializer | self.value_info:
-            if t.layoutMatch:
-                continue
-            logger.debug("<%s> layout not match", t.name)
+            if not t.layoutMatch:
+                T_toWalk.append(t)
+
+        # walk and transpose all tensors
+        for t in T_toWalk:
+            isExplicitLayout = t.name in self.explicit_layouts
 
             def hasImplicitLayoutNode(ln):
                 return any(n.implicitLayout for n in ln)
 
-            if hasImplicitLayoutNode(t.consumers):
+            if ((isExplicitLayout and (len(t.consumers) != 0)) or
+                    hasImplicitLayoutNode(t.consumers)):
                 logger.debug("<%s> transposing consumers...", t.name)
                 t2, transOp = createTransposeHelper(t, False)
                 self.value_info.add(t2)
@@ -138,7 +143,8 @@ class Graph(T2OBase):
                     if op is not transOp:
                         op.replaceInput(t, t2)
 
-            if hasImplicitLayoutNode(t.producers):
+            if ((isExplicitLayout and (len(t.producers) != 0)) or
+                    hasImplicitLayoutNode(t.producers)):
                 logger.debug("<%s> transposing producers...", t.name)
                 t2, transOp = createTransposeHelper(t, True)
                 self.value_info.add(t2)
