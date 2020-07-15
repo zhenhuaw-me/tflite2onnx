@@ -51,6 +51,7 @@ Any contribution is welcome to this tool.
 
 ## Resources
 
+* [Release note](docs/release-notes.md).
 * [PyPI page][pypi].
 * [GitHub page][github].
 * [TensorFlow Lite converter][tf2tflite].
