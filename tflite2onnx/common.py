@@ -36,8 +36,15 @@ class Status(Enum):
 
 
 class LayoutApproach(Enum):
-    DEFAULT = 1
+    # An approach is taken as default always
+    DEFAULT = 2
+
+    # Insert `Transpose` operator where TFLite and ONNX has layout
+    # semantic divergence of tensors.
     TRANSPOSE = 1
+
+    # Propagate layout semantic divergence across graph. This won't
+    # insert additional operators nor tensors to graph.
     PROPAGATION = 2
 
 

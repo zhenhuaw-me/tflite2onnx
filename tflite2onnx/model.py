@@ -38,7 +38,7 @@ class Model(T2OBase):
         for g in self.graphes:
             g.convert(layout_approach)
 
-        # ONNX restrictions
+        # ONNXRuntime restrictions
         opset = helper.make_operatorsetid(onnx.defs.ONNX_DOMAIN, 11)
         attrs = {
                 'producer_name': 'tflite2onnx',

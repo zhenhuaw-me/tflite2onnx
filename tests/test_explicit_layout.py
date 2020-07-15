@@ -27,6 +27,7 @@ def test_explicit_layout():
     # needs to set both input and output layout due to test tool limitation.
     end2end_test('abs.float32', t2o.LayoutApproach.TRANSPOSE, 'NHWC',
                  {'input': ('NHWC', 'NCHW'), 'output': ('NHWC', 'NCHW')})
+
     end2end_test('abs.float32', t2o.LayoutApproach.PROPAGATION, 'NCHW',
                  {'input': ('NHWC', 'NCHW')})
 

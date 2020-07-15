@@ -13,10 +13,24 @@ logger = logging.getLogger('tflite2onnx')
 def convert(tflite_path: str, onnx_path: str,
             layout_approach=LayoutApproach.DEFAULT,
             explicit_layouts=None):
-    """Converting TensorFlow Lite models (*tflite) to ONNX models"""
+    """Converting TensorFlow Lite model (*.tflite) to ONNX model.
+
+    Args:
+        tflite_path (str): the path to TFLite model.
+        onnx_path (str): the path where to save the converted ONNX model.
+        layout_approach (LayoutApproach, optinal): Which layout handling
+            approach shall be used, see more in class `LayoutApproach`.
+            This can be safely ignored usually.
+        explicit_layouts (dict, optinal): Dict of `str -> tuple(str, str)`.
+            For each items, its *tensor name* `->` *tflite layout* and *onnx layout*.
+            This can be safely ignored usually - tflite2onnx can handle most
+            layout semantic divergence automatically.
+    """
 
     if not os.path.exists(tflite_path):
         raise ValueError("Invalid TFLite model path (%s)!" % tflite_path)
+    if os.path.exists(onnx_path):
+        logger.warn("ONNX model path (%s) existed!" % onnx_path)
 
     if explicit_layouts:
         for k, v in explicit_layouts.items():
