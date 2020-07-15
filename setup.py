@@ -5,10 +5,8 @@ setuptools.setup(
     name=tflite2onnx.NAME,
     version=tflite2onnx.VERSION,
     description=tflite2onnx.DESCRIPTION,
-    license=tflite2onnx.LICENSE,
     packages=setuptools.find_packages(),
     python_requires='>=3.5.*, <4',
-    install_requires=['numpy', 'onnx', 'tflite'],
 
     entry_points={
         'console_scripts': [

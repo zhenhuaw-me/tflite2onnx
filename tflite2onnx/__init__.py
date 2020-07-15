@@ -7,7 +7,6 @@ from tflite2onnx.common import LayoutApproach
 NAME = 'tflite2onnx'
 VERSION = '0.2.0'
 DESCRIPTION = "Convert TensorFlow Lite models to ONNX models"
-LICENSE = 'Apache License Version 2.0'
 
 __all__ = [
     convert,
@@ -15,5 +14,4 @@ __all__ = [
     NAME,
     VERSION,
     DESCRIPTION,
-    LICENSE,
 ]
