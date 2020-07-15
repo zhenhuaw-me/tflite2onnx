@@ -11,14 +11,15 @@ Converting TensorFlow Lite models to ONNX
 
 ## Usage
 
-> If you'd like to convert a TensorFlow model to ONNX, try
+> If you'd like to convert a TensorFlow model (`*.pb` or `SavedModel` whatever) to ONNX, try
 [`tf2onnx`](https://github.com/onnx/tensorflow-onnx). Or, you can firstly [convert][tf2tflite]
-it to TFLite (`*.tflite`), and then convert TFLite model to ONNX.
+it to TFLite (`*.tflite`), and then convert the TFLite model to ONNX.
 
 Install via [pip][pypi] `pip install tflite2onnx`.
 After installation, you may either try either.
 
 **Python interface**
+
 ```py
 import tflite2onnx
 
@@ -28,7 +29,11 @@ onnx_path = '/path/to/save/converted/onnx/model'
 tflite2onnx.convert(tflite_path, onnx_path)
 ```
 
+`tflite2onnx` now supports *explicit layout*, check the
+[test example](https://github.com/jackwish/tflite2onnx/blob/master/tests/test_explicit_layout.py).
+
 **Command line**
+
 ```sh
 tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 ```
@@ -38,7 +43,7 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 
 Any contribution is welcome to this tool.
 
-* If something is wrong to you, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
+* If you think something is wrong, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
 * If some operators are not supported yet, you may [request new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * It would be great if you can help to enable new operators, please join us with [How to enable new operator](docs/how-to-enable-new-operator.md).
 * Feel free to open discussions if you have any great idea to improve this tool.
