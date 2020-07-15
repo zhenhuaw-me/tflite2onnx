@@ -8,7 +8,7 @@ e.g. not included in [Operator Support Status](how-to-enable-new-operator.md).
 
 ## Prepare development environment
 
-This is retty simple:
+This is pretty simple:
 
 ```sh
 pip install -r requirements.txt
@@ -70,7 +70,9 @@ will be used in our test. Also, `{operator}` doesn't necessarily to be
 operator type only, check files in `${tflite2onnx}/assets/tests` for details.
 
 Add the pattern `{operator}.{data type}` into operator test -
-`OP_LIST` of function `test_ops()` in `${tflite2onnx}/tests/test_models.py`.
+`test_ops_implicit_layout()` or `test_ops_layout_transparent()` in
+`${tflite2onnx}/tests/test_models.py`, depending whether the operator
+assumes implicit layout of its tensors. Either can be choosen so far.
 It would help to comment out all other operators and tests when trying around.
 
 Invoke the test `python tests/test_models.py`. You should be able to see errors
@@ -147,6 +149,10 @@ class Concat(Operator):
 
         self.setParsed()
 
+    def transform(self):
+        # TODO: handle layout transform
+        pass
+
     def convert(self):
         logger.debug("Converting %s...", self.type)
 
@@ -166,6 +172,7 @@ modifications.
 * `Operator.type` is the operator type of ONNX. It's a string which you can find in operator examples in [ONNX Operator Schemas][onnx-op] - usually simply the operator type name, e.g. `Concat` in our example.
 * `Operator.implicitLayout` describes whether this operator assumes layout of tensors. This is a bit tricky, please look into [Data layout semantic and converting procedure][layout-handling].
 * `Operator.parse()` parses the tensors used by the operator, attributes of the operator. Let's left it *to be done* in next section. After finished, set object to status `PARSED`. Mostly, an object should not been parsed multiple times.
+* `Operator.transform()` transforms operator attributes that are sensitive to layout. This is sort tricky which requires serious consideration. Leave it empty currently.
 * `Operator.convert()` collects the tensors (names actually), attributes that have been parsed, and creates the ONNX operator object, which can be laterly used to create ONNX graph.
 
 Now, let's integrate the operator converter class into framework. This is simple (as we are trying to make it easy to extend :) ).
@@ -380,4 +387,3 @@ Thank you for contributing to this project!
 [onnx-op]: https://github.com/onnx/onnx/blob/master/docs/Operators.md
 [layout-handling]: https://github.com/jackwish/tflite2onnx/issues/2
 [tflite-api]: https://jackwish.net/tflite/docs
-
