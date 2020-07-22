@@ -20,4 +20,4 @@ jobs:
         pip install flake8
     - name: Check Python Style
       run: |
-        flake8 --count --show-source --max-complexity=10 --statistics --max-line-length=100 .
+        flake8
