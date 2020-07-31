@@ -3,6 +3,7 @@ import numpy as np
 import onnx
 import tflite
 from onnx import helper, TensorProto
+from shrub.mapping import DTYPE_TFLITE2ONNX, DTYPE_NAME2ONNX, DTYPE_ONNX2NAME
 
 from tflite2onnx.common import T2OBase
 from tflite2onnx.op import Operator
@@ -13,38 +14,6 @@ logger = logging.getLogger('tflite2onnx')
 # As Registery here is *global*, we need to manually clear it when new in a SubGraph
 # TODO: move the registery to Graph scope to save clear operation.
 registery = {}
-
-DTYPE_TFLITE2ONNX = {
-    tflite.TensorType.BOOL: TensorProto.BOOL,
-    tflite.TensorType.FLOAT16: TensorProto.FLOAT16,
-    tflite.TensorType.FLOAT32: TensorProto.FLOAT,
-    tflite.TensorType.INT16: TensorProto.INT16,
-    tflite.TensorType.INT32: TensorProto.INT32,
-    tflite.TensorType.INT8: TensorProto.INT8,
-    tflite.TensorType.UINT8: TensorProto.UINT8,
-}
-
-DTYPE_ONNX2NAME = {
-    TensorProto.BOOL: 'bool',
-    TensorProto.FLOAT16: 'float16',
-    TensorProto.FLOAT: 'float32',
-    TensorProto.INT16: 'int16',
-    TensorProto.INT32: 'int32',
-    TensorProto.INT64: 'int64',
-    TensorProto.INT8: 'int8',
-    TensorProto.UINT8: 'uint8',
-}
-
-DTYPE_NAME2ONNX = {
-    'bool': TensorProto.BOOL,
-    'float16': TensorProto.FLOAT16,
-    'float32': TensorProto.FLOAT,
-    'int16': TensorProto.INT16,
-    'int32': TensorProto.INT32,
-    'int64': TensorProto.INT64,
-    'int8': TensorProto.INT8,
-    'uint8': TensorProto.UINT8,
-}
 
 
 class Tensor(T2OBase):
