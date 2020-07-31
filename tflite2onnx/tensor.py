@@ -100,17 +100,16 @@ class Tensor(T2OBase):
         logger.debug("Parsing %s...", self.name)
         self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
 
-        if self.dtype is None:
-            assert(tensor.Type() in DTYPE_TFLITE2ONNX)
-            self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
-        # else:
-        #     assert(self.dtype == DTYPE_TFLITE2ONNX[tensor.Type()])
-        # quant = tensor.Quantization()
-        # if quant is not None:
-        #     assert(quant.ScaleAsNumpy().size() == 1)
-        #     assert(quant.ZeroPointAsNumpy().size() == 1)
-        #     self.scale = float(quant.ScaleAsNumpy())[0]
-        #     self.zero_point = int(quant.ZeroPointAsNumpy())[0]
+        assert(tensor.Type() in DTYPE_TFLITE2ONNX)
+        assert(self.dtype is None)
+        self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
+
+        quant = tensor.Quantization()
+        if quant is not None:
+            assert(quant.ScaleAsNumpy().size == 1)
+            assert(quant.ZeroPointAsNumpy().size == 1)
+            self.scale = float(quant.ScaleAsNumpy()[0])
+            self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
         if self.is_initializer:
             self.data = getData(self.model, self.graph, self.index, DTYPE_ONNX2NAME[self.dtype])
@@ -175,7 +174,7 @@ def get(model, graph, index, layout=None, is_initializer=False):
 
 
 def getData(model, graph, index, dtype):
-    assert(dtype in ['int32', 'float32'])
+    assert(dtype in ['int32', 'float32', 'uint8'])
     assert(index < graph.TensorsLength())
     t = graph.Tensors(index)
     bi = t.Buffer()
