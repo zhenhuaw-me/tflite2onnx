@@ -48,12 +48,16 @@ DTYPE_NAME2ONNX = {
 
 
 class Tensor(T2OBase):
-    def __init__(self, model, graph, index, layout=None, is_initializer=False, dtype=None):
+    def __init__(self, model, graph, index, layout=None, is_initializer=False):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None
         self.is_initializer = is_initializer
-        self.dtype = None if dtype is None else DTYPE_NAME2ONNX[dtype]
         self.shape = []
+        self.dtype = None
+
+        # the defaults of quantization parameter
+        self.scale = 1.0
+        self.zero_point = 127
         self.data = None
 
         self.layout = layout
@@ -73,6 +77,11 @@ class Tensor(T2OBase):
             self.consumers.append(op)
 
     @property
+    def quantized(self):
+        # FIXME
+        return self.dtype == TensorProto.UINT8
+
+    @property
     def layoutMatch(self):
         if self.layout is None:
             return True
@@ -90,9 +99,19 @@ class Tensor(T2OBase):
         self.name = tensor.Name().decode('utf-8')
         logger.debug("Parsing %s...", self.name)
         self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
+
         if self.dtype is None:
             assert(tensor.Type() in DTYPE_TFLITE2ONNX)
             self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
+        # else:
+        #     assert(self.dtype == DTYPE_TFLITE2ONNX[tensor.Type()])
+        # quant = tensor.Quantization()
+        # if quant is not None:
+        #     assert(quant.ScaleAsNumpy().size() == 1)
+        #     assert(quant.ZeroPointAsNumpy().size() == 1)
+        #     self.scale = float(quant.ScaleAsNumpy())[0]
+        #     self.zero_point = int(quant.ZeroPointAsNumpy())[0]
+
         if self.is_initializer:
             self.data = getData(self.model, self.graph, self.index, DTYPE_ONNX2NAME[self.dtype])
 
