@@ -47,8 +47,11 @@ class Tensor(T2OBase):
 
     @property
     def quantized(self):
-        # FIXME
-        return self.dtype == TensorProto.UINT8
+        if self.tflite is not None:
+            has_quant = self.tflite.Quantization() is not None
+            return ((self.dtype == TensorProto.UINT8) and has_quant)
+        else:
+            return self.dtype == TensorProto.UINT8
 
     @property
     def layoutMatch(self):
@@ -73,10 +76,10 @@ class Tensor(T2OBase):
         assert(self.dtype is None)
         self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
 
-        quant = tensor.Quantization()
-        if quant is not None:
-            assert(quant.ScaleAsNumpy().size == 1)
-            assert(quant.ZeroPointAsNumpy().size == 1)
+        if self.quantized:
+            quant = tensor.Quantization()
+            assert(quant.ScaleAsNumpy().size == 1), "Per-tensor support only currently"
+            assert(quant.ZeroPointAsNumpy().size == 1), "Per-tensor support only currently"
             self.scale = float(quant.ScaleAsNumpy()[0])
             self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
