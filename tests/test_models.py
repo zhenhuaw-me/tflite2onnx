@@ -33,6 +33,7 @@ def test_ops_implicit_layout():
         'conv-relu6.float32',
         'conv-stride.float32',
         'depthwise-conv.float32',
+        'depthwise-conv.uint8',
         'depthwise-conv-stride.float32',
     )
 

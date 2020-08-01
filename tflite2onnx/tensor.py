@@ -173,6 +173,7 @@ def isTFLiteQuantized(graph, tensor_index):
     return ((t.Type() == tflite.TensorType.UINT8) and
             (t.Quantization() is not None))
 
+
 def createQuantScale(tensor):
     value = tensor.scale
     assert(isinstance(value, float) or (len(value) == 1))
@@ -186,6 +187,7 @@ def createQuantScale(tensor):
         t.setParsed()
         registery[name] = t
     return registery[name]
+
 
 def createQuantZeroPoint(tensor):
     value = tensor.zero_point

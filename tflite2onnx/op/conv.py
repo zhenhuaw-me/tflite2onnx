@@ -1,3 +1,4 @@
+import math
 import logging
 import tflite
 from onnx import helper
@@ -65,8 +66,8 @@ class Conv(Operator):
 
         if self.quantized:
             # assert(len(it.scale)), "QLinearConv requires one scale element for input"
-            assert(isinstance(it.scale, float)), "QLinearConv requires one scale element for input"
-            assert(isinstance(it.zero_point, int)), "QLinearConv requires one zero pint element for input"
+            assert(isinstance(it.scale, float)), "QLinearConv requires one scale for input"
+            assert(isinstance(it.zero_point, int)), "QLinearConv requires one zero pint for input"
             st = tensor.createQuantScale(it)
             st.addConsumer(self)
             self.inputs.append(st)
@@ -110,6 +111,13 @@ class Conv(Operator):
         bt.parse()
         bt.addConsumer(self)
         self.inputs.append(bt)
+
+        if self.quantized:
+            bq = bt.tflite.Quantization()
+            bscale = float(bq.ScaleAsNumpy()[0])
+            bzp = int(bq.ZeroPointAsNumpy()[0])
+            assert(bzp == 0), "Quantization semantic assertion"
+            assert(math.isclose(bscale, (it.scale * wt.scale), rel_tol=1e-5))
 
         # options
         op_opt = op.BuiltinOptions()
