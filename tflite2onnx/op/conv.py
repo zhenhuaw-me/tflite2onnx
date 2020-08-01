@@ -31,7 +31,10 @@ class Conv(Operator):
 
     @property
     def type(self):
-        return 'Conv'
+        if self.status.parsed and self.quantized:
+            return 'QLinearConv'
+        else:
+            return 'Conv'
 
     @property
     def implicitLayout(self):
@@ -60,6 +63,17 @@ class Conv(Operator):
         it.addConsumer(self)
         self.inputs.append(it)
 
+        if self.quantized:
+            # assert(len(it.scale)), "QLinearConv requires one scale element for input"
+            assert(isinstance(it.scale, float)), "QLinearConv requires one scale element for input"
+            assert(isinstance(it.zero_point, int)), "QLinearConv requires one zero pint element for input"
+            st = tensor.createQuantScale(it)
+            st.addConsumer(self)
+            self.inputs.append(st)
+            zpt = tensor.createQuantZeroPoint(it)
+            zpt.addConsumer(self)
+            self.inputs.append(zpt)
+
         # weight
         wi = op.Inputs(1)
         wlayout = Layout('CHWM', 'MCHW') if self.isDepthwise else Layout('OHWI', 'OIHW')
@@ -67,6 +81,28 @@ class Conv(Operator):
         wt.parse()
         wt.addConsumer(self)
         self.inputs.append(wt)
+
+        if self.quantized:
+            st = tensor.createQuantScale(wt)
+            st.addConsumer(self)
+            self.inputs.append(st)
+            zpt = tensor.createQuantZeroPoint(wt)
+            zpt.addConsumer(self)
+            self.inputs.append(zpt)
+
+        # output
+        oi = op.Outputs(0)
+        olayout = Layout('NHWC', 'NCHW')
+        ot = tensor.get(self.model, self.graph, oi, olayout)
+        ot.parse()
+
+        if self.quantized:
+            st = tensor.createQuantScale(ot)
+            st.addConsumer(self)
+            self.inputs.append(st)
+            zpt = tensor.createQuantZeroPoint(ot)
+            zpt.addConsumer(self)
+            self.inputs.append(zpt)
 
         # bias
         bi = op.Inputs(2)
@@ -90,15 +126,13 @@ class Conv(Operator):
         self.pads = computePaddingSize(option.Padding(), it.shape[1:3], self.kshape,
                                        self.strides, self.dilations)
 
-        # output
-        oi = op.Outputs(0)
-        olayout = Layout('NHWC', 'NCHW')
-        ot = tensor.get(self.model, self.graph, oi, olayout)
-        ot.parse()
-
         handleFusedActivation(self, option, ot)
 
         self.setParsed()
+
+    @property
+    def quantized(self):
+        return tensor.isTFLiteQuantized(self.graph, self.tflite.Outputs(0))
 
     def transform(self):
         pass

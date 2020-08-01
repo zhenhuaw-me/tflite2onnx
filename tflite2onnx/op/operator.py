@@ -18,6 +18,10 @@ class Operator(T2OBase):
     def type(self):
         raise NotImplementedError("Method Operator.type() must be overrided!")
 
+    # @property
+    # def quantized(self):
+    #     raise NotImplementedError("Method Operator.quantized() must be overrided!")
+
     @property
     def implicitLayout(self):
         """Whether the operator assumes implact layout of tensors"""

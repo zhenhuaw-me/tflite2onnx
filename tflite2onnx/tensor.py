@@ -163,3 +163,38 @@ def createScalar(ref, value):
         t.setParsed()
         registery[name] = t
     return registery[name]
+
+
+def isTFLiteQuantized(graph, tensor_index):
+    t = graph.Tensors(tensor_index)
+    return ((t.Type() == tflite.TensorType.UINT8) and
+            (t.Quantization() is not None))
+
+def createQuantScale(tensor):
+    value = tensor.scale
+    assert(isinstance(value, float) or (len(value) == 1))
+    dtype = 'float32'
+    name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
+    if name not in registery:
+        t = Tensor(tensor.model, tensor.graph, -1, None, True)
+        t.name = name
+        t.dtype = DTYPE_NAME2ONNX[dtype]
+        t.data = np.full((1), value, dtype=dtype)
+        t.setParsed()
+        registery[name] = t
+    return registery[name]
+
+def createQuantZeroPoint(tensor):
+    value = tensor.zero_point
+    assert(isinstance(value, int) or (len(value) == 1))
+    assert(value >= 0 and value <= 255)
+    dtype = 'uint8'
+    name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
+    if name not in registery:
+        t = Tensor(tensor.model, tensor.graph, -1, None, True)
+        t.name = name
+        t.dtype = DTYPE_NAME2ONNX[dtype]
+        t.data = np.full((1), value, dtype=dtype)
+        t.setParsed()
+        registery[name] = t
+    return registery[name]
