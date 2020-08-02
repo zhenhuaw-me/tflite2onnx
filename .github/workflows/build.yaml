@@ -20,7 +20,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        # python -m pip install --upgrade pip
+        python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Build package
       run: tools/1-build.sh
@@ -29,3 +29,13 @@ jobs:
       run: pip install -U assets/dist/tflite2onnx-*.whl
     - name: Testing
       run: pytest
+    # - name: SSH via Ngrok if fail
+    #   if: ${{ failure() }}
+    #   env:
+    #     # Find token in: https://dashboard.ngrok.com/get-started/setup
+    #     NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
+    #     NGROK_LOCAL_PASS: ${{ secrets.NGROK_LOCAL_PASS }}
+    #   run: tools/open-github-connection.sh
+    # - name: Live instance if fail
+    #   if: ${{ failure() }}
+    #   run: sleep 1h
