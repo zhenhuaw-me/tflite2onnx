@@ -29,8 +29,8 @@ def convert(tflite_path: str, onnx_path: str,
 
     if not os.path.exists(tflite_path):
         raise ValueError("Invalid TFLite model path (%s)!" % tflite_path)
-    if os.path.exists(onnx_path):
-        logger.warning("ONNX model path (%s) existed!" % onnx_path)
+    # if os.path.exists(onnx_path):
+    #     logger.warning("ONNX model path (%s) existed!" % onnx_path)
 
     if explicit_layouts:
         for k, v in explicit_layouts.items():

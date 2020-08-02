@@ -59,7 +59,7 @@ class Reshape(Operator):
         self.setParsed()
 
     def transform(self):
-        logger.warning("Transforming %d, doing nothing now...", self.type)
+        logger.warning("Transforming %s, doing nothing now...", self.type)
 
     def convert(self):
         logger.debug("Converting %s...", self.type)

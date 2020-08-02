@@ -1,5 +1,5 @@
 flake8
-numpy
+numpy==1.18.0
 onnx
 onnxruntime
 pytest
