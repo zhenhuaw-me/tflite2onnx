@@ -28,12 +28,10 @@ def test_ops_implicit_layout():
         'avgpooling.float32',
         'avgpool-concat.float32',
         'conv.float32',
-        'conv.uint8',
         'conv-dilation.float32',
         'conv-relu6.float32',
         'conv-stride.float32',
         'depthwise-conv.float32',
-        'depthwise-conv.uint8',
         'depthwise-conv-stride.float32',
     )
 
