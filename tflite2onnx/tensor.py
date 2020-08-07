@@ -156,22 +156,27 @@ def getData(model, graph, index, dtype):
     return data
 
 
-def createScalar(ref, value):
-    name = 'TFLITE2ONNX_Scalar_' + DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
-    if name not in registery:
-        t = Tensor(ref.model, ref.graph, -1, None, True)
-        t.name = name
-        t.dtype = ref.dtype
-        t.data = np.full((1), value, dtype=DTYPE_ONNX2NAME[ref.dtype])
-        t.setParsed()
-        registery[name] = t
-    return registery[name]
-
-
 def isTFLiteQuantized(graph, tensor_index):
     t = graph.Tensors(tensor_index)
     return ((t.Type() == tflite.TensorType.UINT8) and
             (t.Quantization() is not None))
+
+
+def createScalar(ref, value):
+    name = 'TFLITE2ONNX_Scalar_' + DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
+    dtype = DTYPE_ONNX2NAME[ref.dtype]
+    return _createScalarCore(ref.model, ref.graph, name, dtype, value)
+
+
+def _createScalarCore(model, graph, name, dtype, value):
+    if name not in registery:
+        t = Tensor(model, graph, -1, None, True)
+        t.name = name
+        t.dtype = DTYPE_NAME2ONNX[dtype]
+        t.data = np.full((1), value, dtype=dtype)
+        t.setParsed()
+        registery[name] = t
+    return registery[name]
 
 
 def createQuantScale(tensor):
@@ -179,14 +184,7 @@ def createQuantScale(tensor):
     assert(isinstance(value, float) or (len(value) == 1))
     dtype = 'float32'
     name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
-    if name not in registery:
-        t = Tensor(tensor.model, tensor.graph, -1, None, True)
-        t.name = name
-        t.dtype = DTYPE_NAME2ONNX[dtype]
-        t.data = np.full((1), value, dtype=dtype)
-        t.setParsed()
-        registery[name] = t
-    return registery[name]
+    return _createScalarCore(tensor.model, tensor.graph, name, dtype, value)
 
 
 def createQuantZeroPoint(tensor):
@@ -195,11 +193,4 @@ def createQuantZeroPoint(tensor):
     assert(value >= 0 and value <= 255)
     dtype = 'uint8'
     name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
-    if name not in registery:
-        t = Tensor(tensor.model, tensor.graph, -1, None, True)
-        t.name = name
-        t.dtype = DTYPE_NAME2ONNX[dtype]
-        t.data = np.full((1), value, dtype=dtype)
-        t.setParsed()
-        registery[name] = t
-    return registery[name]
+    return _createScalarCore(tensor.model, tensor.graph, name, dtype, value)
