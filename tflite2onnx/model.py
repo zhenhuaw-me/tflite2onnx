@@ -17,7 +17,7 @@ class Model(T2OBase):
         self.graphes = []
         self.setInited()
 
-    def parse(self, explicit_layouts):
+    def parse(self):
         logger.debug("Parsing the Model...")
         graph_count = self.model.SubgraphsLength()
         if (graph_count != 1):
@@ -28,15 +28,15 @@ class Model(T2OBase):
         self.graphes.append(graph)
 
         for g in self.graphes:
-            g.parse(explicit_layouts)
+            g.parse()
 
         self.setParsed()
 
     def convert(self, layout_approach, explicit_layouts):
-        self.parse(explicit_layouts)
+        self.parse()
         logger.debug("Converting...")
         for g in self.graphes:
-            g.convert(layout_approach)
+            g.convert(layout_approach, explicit_layouts)
 
         # ONNXRuntime restrictions
         opset = helper.make_operatorsetid(onnx.defs.ONNX_DOMAIN, 11)

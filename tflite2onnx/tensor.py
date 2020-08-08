@@ -53,6 +53,15 @@ class Tensor(T2OBase):
         else:
             return self.dtype == TensorProto.UINT8
 
+    def dequantize(self):
+        if not self.quantized:
+            return
+        logger.debug("Dequantizing %s", self.name)
+        # if self.is_initializer:
+        #     print(type(self.data))
+        #     deq = (self.data - self.zero_point) * self.scale
+        self.dtype = TensorProto.FLOAT
+
     @property
     def layoutMatch(self):
         if self.layout is None:

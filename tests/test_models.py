@@ -36,8 +36,8 @@ def test_ops_implicit_layout():
     )
 
     for op in OP_LIST_IMPLICIT_LAYOUT:
-        end2end_test(op, t2o.LayoutApproach.PROPAGATION, 'NCHW')
         end2end_test(op, t2o.LayoutApproach.TRANSPOSE, 'NHWC')
+        end2end_test(op, t2o.LayoutApproach.PROPAGATION, 'NCHW')
 
 
 def test_ops_layout_transparent():
@@ -62,8 +62,8 @@ def test_networks():
     )
 
     for net in NETWORK_LIST:
-        end2end_test(net, t2o.LayoutApproach.PROPAGATION, 'NCHW')
         end2end_test(net, t2o.LayoutApproach.TRANSPOSE, 'NHWC')
+        end2end_test(net, t2o.LayoutApproach.PROPAGATION, 'NCHW')
 
 
 if __name__ == '__main__':

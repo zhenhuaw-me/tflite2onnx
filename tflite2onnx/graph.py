@@ -25,8 +25,17 @@ class Graph(T2OBase):
         tensor.registery.clear()
         self.setInited()
 
-    def parse(self, explicit_layouts):
-        self.explicit_layouts = explicit_layouts
+    def _collectTensors(self):
+        self.initializer.clear()
+        self.value_info.clear()
+        for op in self.ops:
+            for t in op.inputs + op.outputs:
+                if t.is_initializer:
+                    self.initializer.add(t)
+                else:
+                    self.value_info.add(t)
+
+    def parse(self):
         logger.debug("Parsing the Graph...")
         # operators
         for i in range(self.graph.OperatorsLength()):
@@ -51,10 +60,16 @@ class Graph(T2OBase):
             t = tensor.get(self.model, self.graph, index)
             self.outputs.append(t)
 
-        # collect tensors
+        self._collectTensors()
+
+        self.setParsed()
+
+    def convert(self, layout_approach, explicit_layouts):
+        logger.debug("Converting...")
+
+        logger.debug("Handling data layout...")
+
         for op in self.ops:
-            initializer = set()
-            value_info = set()
             tensors = op.inputs + op.outputs
             for t in tensors:
                 if t.name in explicit_layouts:
@@ -62,25 +77,22 @@ class Graph(T2OBase):
                     layouts = explicit_layouts[t.name]
                     assert(len(layouts) == 2)
                     t.layout = Layout(layouts[0], layouts[1])
-                if t.is_initializer:
-                    assert(t not in initializer)
-                    self.initializer.add(t)
-                else:
-                    assert(t not in value_info)
-                    self.value_info.add(t)
-
-        self.setParsed()
-
-    def convert(self, layout_approach):
-        logger.debug("Converting...")
 
         if layout_approach is LayoutApproach.TRANSPOSE:
-            self._insertLayoutTranpose()
+            self._insertLayoutTranpose(explicit_layouts)
         elif layout_approach is LayoutApproach.PROPAGATION:
+            # FIXME: explicit_layouts here?
             self._propagateLayout()
         else:
             assert(False), "Unkown LayoutApproach!"
 
+        logger.debug("Dequantizing operators...")
+        ops = [op for op in self.ops]
+        for op in ops:
+            logger.debug("Dequantizing %s...", str(op))
+            op.dequantize()
+
+        self._collectTensors()
         logger.debug("Graph:\n%s", str(self))
 
         for op in self.ops:
@@ -97,7 +109,7 @@ class Graph(T2OBase):
                                       initializer=initializer, value_info=value_info)
         self.setConverted()
 
-    def _insertLayoutTranpose(self):        # noqa: C901
+    def _insertLayoutTranpose(self, explicit_layouts):        # noqa: C901
         logger.debug("Inserting Transpose to layout divergence node...")
         assert(self.status.parsed)
         # prepare
@@ -127,7 +139,7 @@ class Graph(T2OBase):
 
         # walk and transpose all tensors
         for t in T_toWalk:
-            isExplicitLayout = t.name in self.explicit_layouts
+            isExplicitLayout = t.name in explicit_layouts
 
             def hasImplicitLayoutNode(ln):
                 return any(n.implicitLayout for n in ln)

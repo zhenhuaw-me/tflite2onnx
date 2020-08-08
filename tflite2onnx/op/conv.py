@@ -21,6 +21,7 @@ class Conv(Operator):
         self.group = -1
         self.kshape = []
         self.strides = []
+        self.has_bias = True
 
         # ONNX: This attribute cannot be used simultaneously with `auto_pad` attribute.
         # re-initialize during self.parse(), as it needs the shape of input.
@@ -53,7 +54,8 @@ class Conv(Operator):
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode is tflite.BuiltinOperator.CONV_2D or tflite.BuiltinOperator.DEPTHWISE_CONV_2D)
 
-        assert(op.InputsLength() == 3)
+        self.has_bias = op.InputsLength() == 3
+        assert(self.has_bias), "TFLite Conv always has bias"
         assert(op.OutputsLength() == 1)
 
         # input
@@ -64,17 +66,6 @@ class Conv(Operator):
         it.addConsumer(self)
         self.inputs.append(it)
 
-        if self.quantized:
-            # assert(len(it.scale)), "QLinearConv requires one scale element for input"
-            assert(isinstance(it.scale, float)), "QLinearConv requires one scale for input"
-            assert(isinstance(it.zero_point, int)), "QLinearConv requires one zero pint for input"
-            st = tensor.createQuantScale(it)
-            st.addConsumer(self)
-            self.inputs.append(st)
-            zpt = tensor.createQuantZeroPoint(it)
-            zpt.addConsumer(self)
-            self.inputs.append(zpt)
-
         # weight
         wi = op.Inputs(1)
         wlayout = Layout('CHWM', 'MCHW') if self.isDepthwise else Layout('OHWI', 'OIHW')
@@ -83,41 +74,19 @@ class Conv(Operator):
         wt.addConsumer(self)
         self.inputs.append(wt)
 
-        if self.quantized:
-            st = tensor.createQuantScale(wt)
-            st.addConsumer(self)
-            self.inputs.append(st)
-            zpt = tensor.createQuantZeroPoint(wt)
-            zpt.addConsumer(self)
-            self.inputs.append(zpt)
-
         # output
         oi = op.Outputs(0)
         olayout = Layout('NHWC', 'NCHW')
         ot = tensor.get(self.model, self.graph, oi, olayout)
         ot.parse()
 
-        if self.quantized:
-            st = tensor.createQuantScale(ot)
-            st.addConsumer(self)
-            self.inputs.append(st)
-            zpt = tensor.createQuantZeroPoint(ot)
-            zpt.addConsumer(self)
-            self.inputs.append(zpt)
-
         # bias
-        bi = op.Inputs(2)
-        bt = tensor.get(self.model, self.graph, bi, None, True)
-        bt.parse()
-        bt.addConsumer(self)
-        self.inputs.append(bt)
-
-        if self.quantized:
-            bq = bt.tflite.Quantization()
-            bscale = float(bq.ScaleAsNumpy()[0])
-            bzp = int(bq.ZeroPointAsNumpy()[0])
-            assert(bzp == 0), "Quantization semantic assertion"
-            assert(math.isclose(bscale, (it.scale * wt.scale), rel_tol=1e-5))
+        if self.has_bias:
+            bi = op.Inputs(2)
+            bt = tensor.get(self.model, self.graph, bi, None, True)
+            bt.parse()
+            bt.addConsumer(self)
+            self.inputs.append(bt)
 
         # options
         op_opt = op.BuiltinOptions()
@@ -141,6 +110,50 @@ class Conv(Operator):
     @property
     def quantized(self):
         return tensor.isTFLiteQuantized(self.graph, self.tflite.Outputs(0))
+
+    def dequantize(self):
+        if not self.quantized:
+            return
+
+        # output
+        ot = self.outputs[0]
+        assert(isinstance(ot.scale, float)), "QLinearConv requires one scale for output"
+        assert(isinstance(ot.zero_point, int)), "QLinearConv requires one zero pint for output"
+        zpt = tensor.createQuantZeroPoint(ot)
+        zpt.addConsumer(self)
+        self.inputs.insert(2, zpt)
+        st = tensor.createQuantScale(ot)
+        st.addConsumer(self)
+        self.inputs.insert(2, st)
+
+        # weight
+        wt = self.inputs[1]
+        zpt = tensor.createQuantZeroPoint(wt)
+        zpt.addConsumer(self)
+        self.inputs.insert(2, zpt)
+        st = tensor.createQuantScale(wt)
+        st.addConsumer(self)
+        self.inputs.insert(2, st)
+
+        # input
+        it = self.inputs[0]
+        assert(isinstance(it.scale, float)), "QLinearConv requires one scale for input"
+        assert(isinstance(it.zero_point, int)), "QLinearConv requires one zero pint for input"
+        zpt = tensor.createQuantZeroPoint(it)
+        zpt.addConsumer(self)
+        self.inputs.insert(1, zpt)
+        st = tensor.createQuantScale(it)
+        st.addConsumer(self)
+        self.inputs.insert(1, st)
+
+        # bias
+        if self.has_bias:
+            bt = self.inputs[8]
+            bq = bt.tflite.Quantization()
+            bscale = float(bq.ScaleAsNumpy()[0])
+            bzp = int(bq.ZeroPointAsNumpy()[0])
+            assert(bzp == 0), "Quantization semantic assertion"
+            assert(math.isclose(bscale, (it.scale * wt.scale), rel_tol=1e-5))
 
     def transform(self):
         pass

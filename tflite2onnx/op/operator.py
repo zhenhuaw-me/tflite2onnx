@@ -25,10 +25,25 @@ class Operator(T2OBase):
     @property
     def implicitLayout(self):
         """Whether the operator assumes implact layout of tensors"""
-        raise NotImplementedError("Method Operator.implicitLayout() must be overrided!")
+        raise NotImplementedError("Method %s.implicitLayout() must be overrided!" % self.type)
+
+    def dequantize(self):
+        """Dequantize quantized tensors back to float.
+
+        If TFLite model is quantized, we need to dequantize the parsed
+        quantized tensors back to float since ONNX has poor quantization
+        support. Only tensors of `QLinearConv` and `QLinearMatMul` quantized,
+        for which we need to insert `QuantizeLinear` and `DequantizeLinear`
+        before and after these two operators.
+        """
+        # raise NotImplementedError("Method %s.dequantize() must be overrided!" % self.type)
+        for i in self.inputs:
+            i.dequantize()
+        for o in self.outputs:
+            o.dequantize()
 
     def transform(self):
-        raise NotImplementedError("Method Operator.transform() must be overrided!")
+        raise NotImplementedError("Method %s.transform() must be overrided!" % self.type)
 
     @property
     def str(self):
