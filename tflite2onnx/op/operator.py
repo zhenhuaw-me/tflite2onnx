@@ -18,10 +18,6 @@ class Operator(T2OBase):
     def type(self):
         raise NotImplementedError("Method Operator.type() must be overrided!")
 
-    # @property
-    # def quantized(self):
-    #     raise NotImplementedError("Method Operator.quantized() must be overrided!")
-
     @property
     def implicitLayout(self):
         """Whether the operator assumes implact layout of tensors"""
@@ -36,11 +32,17 @@ class Operator(T2OBase):
         for which we need to insert `QuantizeLinear` and `DequantizeLinear`
         before and after these two operators.
         """
-        # raise NotImplementedError("Method %s.dequantize() must be overrided!" % self.type)
-        for i in self.inputs:
-            i.dequantize()
-        for o in self.outputs:
-            o.dequantize()
+        raise NotImplementedError("Method %s.dequantize() must be overrided!" % self.type)
+
+    def simpleDequantize(self):
+        """Dequantize the tensors only.
+
+        For most of the operators, only need to dequantize the tensors.
+        In practice, changing data type for activations and real dequantization
+        for initializers (weights).
+        """
+        for tensor in self.inputs + self.outputs:
+            tensor.dequantize()
 
     def transform(self):
         raise NotImplementedError("Method %s.transform() must be overrided!" % self.type)

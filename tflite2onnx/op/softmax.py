@@ -60,6 +60,9 @@ class Softmax(Operator):
 
         self.setParsed()
 
+    def dequantize(self):
+        self.simpleDequantize()
+
     def transform(self):
         pass
 

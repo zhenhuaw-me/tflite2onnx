@@ -112,10 +112,20 @@ class Conv(Operator):
         return tensor.isTFLiteQuantized(self.graph, self.tflite.Outputs(0))
 
     def dequantize(self):
+        """Insert `QuantizeLinear` and `DequantizeLinear` before and after.
+
+        Here, when called from Graph, any node prior to this has been dequantized,
+        meaning that the input tensor (activation) should be float32 while the output
+        is uint8. We don't care much about the data type of them actually, as only
+        need *scale* and *zero point* of them before they are dequantized - these
+        information shall not be lost when dequantizing.
+        """
         if not self.quantized:
             return
 
-        # output
+        # 1. prepare additional tensors for QLinearConv
+
+        # 1.1 output
         ot = self.outputs[0]
         assert(isinstance(ot.scale, float)), "QLinearConv requires one scale for output"
         assert(isinstance(ot.zero_point, int)), "QLinearConv requires one zero pint for output"
@@ -126,7 +136,7 @@ class Conv(Operator):
         st.addConsumer(self)
         self.inputs.insert(2, st)
 
-        # weight
+        # 1.2 weight
         wt = self.inputs[1]
         zpt = tensor.createQuantZeroPoint(wt)
         zpt.addConsumer(self)
@@ -135,7 +145,7 @@ class Conv(Operator):
         st.addConsumer(self)
         self.inputs.insert(2, st)
 
-        # input
+        # 1.3 input
         it = self.inputs[0]
         assert(isinstance(it.scale, float)), "QLinearConv requires one scale for input"
         assert(isinstance(it.zero_point, int)), "QLinearConv requires one zero pint for input"
@@ -146,7 +156,7 @@ class Conv(Operator):
         st.addConsumer(self)
         self.inputs.insert(1, st)
 
-        # bias
+        # 1.4 bias
         if self.has_bias:
             bt = self.inputs[8]
             bq = bt.tflite.Quantization()

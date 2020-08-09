@@ -54,6 +54,9 @@ class Concat(Operator):
 
         self.setParsed()
 
+    def dequantize(self):
+        self.simpleDequantize()
+
     def transform(self):
         layout = self.outputs[0].layout
         if layout is None:
