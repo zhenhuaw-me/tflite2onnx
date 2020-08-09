@@ -45,6 +45,11 @@ class Tensor(T2OBase):
         if op not in self.consumers:
             self.consumers.append(op)
 
+    def removeConsumer(self, op):
+        assert(isinstance(op, Operator))
+        if op in self.consumers:
+            self.consumers.remove(op)
+
     @property
     def quantized(self):
         if self.tflite is not None:

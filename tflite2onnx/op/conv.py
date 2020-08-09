@@ -4,6 +4,7 @@ import tflite
 from onnx import helper
 
 from tflite2onnx import tensor
+from tflite2onnx.quantize import createQuantize
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.padding import PaddingMapping, computePaddingSize
 from tflite2onnx.op.activation import handleFusedActivation
@@ -102,6 +103,9 @@ class Conv(Operator):
             assert(option.DepthMultiplier() == 1)
         self.pads = computePaddingSize(option.Padding(), it.shape[1:3], self.kshape,
                                        self.strides, self.dilations)
+
+        qi, qop = createQuantize(it, self)
+        self.pre.append(qop)
 
         handleFusedActivation(self, option, ot)
 
