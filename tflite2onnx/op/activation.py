@@ -107,8 +107,6 @@ def handleFusedActivation(master, option, output):
     logger.debug("Handling FusedActivationFunction for %s", output.name)
     faf = option.FusedActivationFunction()
     if faf is tflite.ActivationFunctionType.NONE:
-        output.addProducer(master)
-        master.outputs.append(output)
         return
 
     assert(faf in FusedActFunc2OpType)
@@ -151,5 +149,6 @@ def handleFusedActivation(master, option, output):
     # attach activation node to output of master node
     it_act = act.inputs[0]
     it_act.addProducer(master)
-    master.outputs.append(it_act)
+    master.replaceOutput(output, it_act)
+    output.removeConsumer(master)
     master.post.append(act)

@@ -1,4 +1,4 @@
-# import copy
+import copy
 import os
 import logging
 
@@ -23,17 +23,24 @@ def end2end_test(model_name, layout_approach, use_layout):
     tflite_ret = shrub.tflite.run(tflm_path, m.inputs)
 
     # ONNX model is supposed to be only several operators quantized
-    # iquant = shrub.tflite.parseQuantParam(tflm_path, True)[0]
-    # oquant = shrub.tflite.parseQuantParam(tflm_path, False)[0]
-    # finputs = list()
-    # for q in m.inputs:
-    #     finput = copy.deepcopy(q)
-    #     finput.quant = iquant
-    #     finput.dequantize()
-    #     finputs.append(finput)
-    onnx_ret = shrub.onnx.run(onnx_name, m.inputs, use_layout)
+    iquant = shrub.tflite.parseQuantParam(tflm_path, True)[0]
+    oquant = shrub.tflite.parseQuantParam(tflm_path, False)[0]
+    finputs = list()
+    for q in m.inputs:
+        finput = copy.deepcopy(q)
+        finput.quant = iquant
+        finput.dequantize()
+        finputs.append(finput)
+    onnx_ret = shrub.onnx.run(onnx_name, finputs, use_layout)
+    qoutputs = list()
+    for f in onnx_ret:
+        qoutput = copy.deepcopy(f)
+        qoutput.quant = oquant
+        qoutput.quant.quantized = False
+        qoutput.quantize()
+        qoutputs.append(qoutput)
 
-    assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
+    assert(shrub.network.cmpTensors(qoutputs, tflite_ret, atol=1.0))
 
 
 def test_quantized_ops():

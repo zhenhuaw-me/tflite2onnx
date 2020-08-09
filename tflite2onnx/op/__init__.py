@@ -6,6 +6,7 @@ from tflite2onnx.op.softmax import Softmax
 from tflite2onnx.op.binary import Binary
 from tflite2onnx.op.pooling import AveragePool
 from tflite2onnx.op.transpose import Transpose
+from tflite2onnx.op.quantize import Dequantize
 from tflite2onnx.op.quantize import Quantize
 from tflite2onnx.op.conv import Conv
 from tflite2onnx.op.activation import ReLU

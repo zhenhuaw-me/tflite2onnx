@@ -4,7 +4,7 @@ import tflite
 from onnx import helper
 
 from tflite2onnx import tensor
-from tflite2onnx.quantize import createQuantize
+from tflite2onnx.quantize import createQuantize, createDequantize
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.padding import PaddingMapping, computePaddingSize
 from tflite2onnx.op.activation import handleFusedActivation
@@ -80,6 +80,8 @@ class Conv(Operator):
         olayout = Layout('NHWC', 'NCHW')
         ot = tensor.get(self.model, self.graph, oi, olayout)
         ot.parse()
+        ot.addProducer(self)
+        self.outputs.append(ot)
 
         # bias
         if self.has_bias:
@@ -106,8 +108,10 @@ class Conv(Operator):
 
         qi, qop = createQuantize(it, self)
         self.pre.append(qop)
+        fo, dop = createDequantize(ot, self)
+        self.post.append(dop)
 
-        handleFusedActivation(self, option, ot)
+        handleFusedActivation(self, option, fo)
 
         self.setParsed()
 
