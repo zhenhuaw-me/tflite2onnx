@@ -149,4 +149,3 @@ def handleFusedActivation(master, option, output):
         master.post.append(act)
     else:
         raise NotImplementedError("Unsupported fused ActivationFunctionType")
-

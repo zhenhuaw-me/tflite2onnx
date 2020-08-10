@@ -4,7 +4,7 @@ import tflite
 from onnx import helper
 
 from tflite2onnx import tensor
-from tflite2onnx.quantize import createQuantize, createDequantize
+from tflite2onnx.op.quantize import createQuantize, createDequantize
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.padding import PaddingMapping, computePaddingSize
 from tflite2onnx.op.activation import handleFusedActivation
