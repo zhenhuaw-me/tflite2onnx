@@ -40,6 +40,18 @@ class Tensor(T2OBase):
         if op not in self.producers:
             self.producers.append(op)
 
+    def removeProducer(self, op):
+        assert(isinstance(op, Operator))
+        if op in self.producers:
+            self.producers.remove(op)
+
+    def replaceProducer(self, original, new):
+        assert(len(self.producers) == 1)
+        assert(isinstance(original, Operator))
+        assert(isinstance(new, Operator))
+        assert(self.producers[0] == original)
+        self.producers[0] = new
+
     def addConsumer(self, op):
         assert(isinstance(op, Operator))
         if op not in self.consumers:
@@ -49,6 +61,15 @@ class Tensor(T2OBase):
         assert(isinstance(op, Operator))
         if op in self.consumers:
             self.consumers.remove(op)
+
+    def replaceConsumer(self, original, new):
+        assert(isinstance(original, Operator))
+        assert(isinstance(new, Operator))
+        for index, op in enumerate(self.consumers):
+            if op is original:
+                self.consumers[index] = new
+                return
+        assert(False)
 
     @property
     def quantized(self):
@@ -62,6 +83,7 @@ class Tensor(T2OBase):
         if not self.quantized:
             return
         logger.debug("Dequantizing %s", self.name)
+        assert(not self.is_initializer)
         # if self.is_initializer:
         #     print(type(self.data))
         #     deq = (self.data - self.zero_point) * self.scale

@@ -49,6 +49,8 @@ class Concat(Operator):
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
         ot.parse()
+        ot.addProducer(self)
+        self.outputs.append(ot)
 
         handleFusedActivation(self, option, ot)
 

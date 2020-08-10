@@ -106,12 +106,14 @@ class Conv(Operator):
         self.pads = computePaddingSize(option.Padding(), it.shape[1:3], self.kshape,
                                        self.strides, self.dilations)
 
-        qi, qop = createQuantize(it, self)
-        self.pre.append(qop)
-        fo, dop = createDequantize(ot, self)
-        self.post.append(dop)
-
-        handleFusedActivation(self, option, fo)
+        if self.quantized:
+            qi, qop = createQuantize(it, self)
+            self.pre.append(qop)
+            fo, dop = createDequantize(ot, self)
+            self.post.append(dop)
+            handleFusedActivation(self, option, fo)
+        else:
+            handleFusedActivation(self, option, ot)
 
         self.setParsed()
 

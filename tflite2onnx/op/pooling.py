@@ -58,6 +58,8 @@ class AveragePool(Operator):
         olayout = Layout('NHWC', 'NCHW')
         ot = tensor.get(self.model, self.graph, oi, olayout)
         ot.parse()
+        ot.addProducer(self)
+        self.outputs.append(ot)
 
         handleFusedActivation(self, option, ot)
 

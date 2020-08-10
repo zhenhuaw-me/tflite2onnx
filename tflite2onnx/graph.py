@@ -146,7 +146,7 @@ class Graph(T2OBase):
 
             if ((isExplicitLayout and (len(t.consumers) != 0)) or
                     hasImplicitLayoutNode(t.consumers)):
-                logger.debug("<%s> transposing consumers...", t.name)
+                logger.debug("transposing consumers for <%s>...", t.name)
                 t2, transOp = createTransposeHelper(t, False)
                 self.value_info.add(t2)
                 ii = getMinIndex(t.consumers, transOp)
@@ -157,7 +157,7 @@ class Graph(T2OBase):
 
             if ((isExplicitLayout and (len(t.producers) != 0)) or
                     hasImplicitLayoutNode(t.producers)):
-                logger.debug("<%s> transposing producers...", t.name)
+                logger.debug("transposing producers for <%s>...", t.name)
                 t2, transOp = createTransposeHelper(t, True)
                 self.value_info.add(t2)
                 ii = getMaxIndex(t.producers, transOp) + 1
