@@ -127,7 +127,7 @@ def handleFusedActivation(master, option, output):
     input.addProducer(master)
 
     # create the activation node, and let master node output to be its'.
-    if act_type in [tflite.BuiltinOperator.RELU6, tflite.BuiltinOperator.RELU6]:
+    if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6]:
         act = ReLU(master.model, master.graph, -1, preset_opcode=act_type)
 
         input.addConsumer(act)
