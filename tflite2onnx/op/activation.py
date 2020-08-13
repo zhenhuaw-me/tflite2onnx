@@ -96,25 +96,40 @@ class ReLU(Operator):
         self.setConverted()
 
 
-def handleFusedActivation(master, option, output):
+def handleFusedActivation(master, option, output, intermediate=None):
     """Handle FusedActivationFunction for master node.
 
-    For master node such as Conv and FC, there could be FusedActivationFunction.
-    If there were, create a activation node `ActOp` and corresponding tensor `actTensor`,
-    and insert them into the original graph. E.g. for subgraph `Conv -> convTensor -> OP`
-    with `ReLU6`, we generate `Conv -> actTensor -> ActOp(ReLU6) -> convTensor -> OP`.
+    For master node such as Conv and FC, there could be
+    FusedActivationFunction. If there were, create a activation node
+    `ActOp` and corresponding tensor `actTensor`, and insert them
+    into the original graph. E.g. for subgraph `[Conv] -> <t1>`
+    with `ReLU`, we generate `[Conv] -> <t1'> -> [ActOp(ReLU)] -> <t1>`.
+
+    Sometimes, there will be other nodes (quantization node for example)
+    inserted between the *master* node and activation node. For such case,
+    we cannot attach activation node to master node directly, e.g. the input graph
+    will be like `[Conv] -> <t1> -> [Dequantize] -> <t2>`. Therefore, generating
+    `[Conv] -> <t1> -> [Dequantize] -> <t2'> -> [ActOp(ReLU)] -> <t2>`.
+
+    So this util generates a pattern `<new tensor> -> [ActOp(ReLU)]` and
+    insert to the original graph. In general, we need:
+    * `master`: the *mater* node, and usualy which activation attached to.
+    * `option`: the option parsed from the original master node.
+    * `output`: the tensor that act as output of the whole pattern.
+    * `intermediate`: the node that activation attach to, usually same as `master`.
     """
     logger.debug("Handling FusedActivationFunction for %s", master)
     faf = option.FusedActivationFunction()
     if faf is tflite.ActivationFunctionType.NONE:
         return
+    intermediate = master if intermediate is None else intermediate
 
     assert(faf in FusedActFunc2OpType)
     act_type = FusedActFunc2OpType[faf]
     assert(output.status.parsed)
 
     # create tensor that from Conv/FC to Activation
-    input = tensor.Tensor(master.model, master.graph, -1)
+    input = tensor.Tensor(intermediate.model, intermediate.graph, -1)
     input.name = 'TFLITE2ONNX_FAF_%s' % output.name
     input.dtype = output.dtype
     input.layout = copy.deepcopy(output.layout)
@@ -123,12 +138,12 @@ def handleFusedActivation(master, option, output):
     assert(input.name not in tensor.registery)
     tensor.registery[input.name] = input
 
-    master.replaceOutput(output, input)
-    input.addProducer(master)
+    intermediate.replaceOutput(output, input)
+    input.addProducer(intermediate)
 
-    # create the activation node, and let master node output to be its'.
+    # create the activation node, and let intermediate node output to be its'.
     if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6]:
-        act = ReLU(master.model, master.graph, -1, preset_opcode=act_type)
+        act = ReLU(intermediate.model, intermediate.graph, -1, preset_opcode=act_type)
 
         input.addConsumer(act)
         act.inputs.append(input)
@@ -141,11 +156,13 @@ def handleFusedActivation(master, option, output):
             tmax.addConsumer(act)
             act.inputs.append(tmax)
 
-        output.replaceProducer(master, act)
+        output.replaceProducer(intermediate, act)
         act.outputs.append(output)
 
         act.setParsed()
 
+        # this is where we need *master* node, all tflite2onnx generated
+        # node shall be added as `pre` or `post` of the node that has a TFLite op.
         master.post.append(act)
     else:
         raise NotImplementedError("Unsupported fused ActivationFunctionType")

@@ -46,6 +46,7 @@ def end2end_test(model_name, use_layout):
 def test_quantized_ops():
     OP_LIST = (
         'conv.uint8',
+        'conv-relu.uint8',
         'depthwise-conv.uint8',
     )
 

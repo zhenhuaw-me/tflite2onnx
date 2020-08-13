@@ -111,7 +111,7 @@ class Conv(Operator):
             self.pre.append(qop)
             fo, dop = createDequantize(ot, self)
             self.post.append(dop)
-            handleFusedActivation(self, option, fo)
+            handleFusedActivation(self, option, fo, intermediate=dop)
         else:
             handleFusedActivation(self, option, ot)
 
