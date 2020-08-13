@@ -4,7 +4,7 @@ import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx.common import T2OBase, LayoutApproach
+from tflite2onnx.common import T2OBase
 from tflite2onnx import tensor
 from tflite2onnx.op import getOp
 from tflite2onnx.transpose import createTransposeHelper
@@ -64,7 +64,7 @@ class Graph(T2OBase):
 
         self.setParsed()
 
-    def convert(self, layout_approach, explicit_layouts):
+    def convert(self, explicit_layouts):
         logger.debug("Converting...")
 
         logger.debug("Handling data layout...")
@@ -78,13 +78,7 @@ class Graph(T2OBase):
                     assert(len(layouts) == 2)
                     t.layout = Layout(layouts[0], layouts[1])
 
-        if layout_approach is LayoutApproach.TRANSPOSE:
-            self._insertLayoutTranpose(explicit_layouts)
-        elif layout_approach is LayoutApproach.PROPAGATION:
-            # FIXME: explicit_layouts here?
-            self._propagateLayout()
-        else:
-            assert(False), "Unkown LayoutApproach!"
+        self._propagateLayout()
 
         logger.debug("Dequantizing operators...")
         ops = [op for op in self.ops]

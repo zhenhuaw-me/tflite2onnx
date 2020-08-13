@@ -7,13 +7,13 @@ import tflite2onnx as t2o
 shrub.util.formatLogging(logging.DEBUG)
 
 
-def end2end_test(model_name, layout_approach, use_layout):
+def end2end_test(model_name, use_layout):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     tflm_dir = os.path.abspath(cur_dir + '/../assets/tests')
     tflm_name = model_name + '.tflite'
     onnx_name = model_name + '.onnx'
     tflm_path = os.path.join(tflm_dir, tflm_name)
-    t2o.convert(tflm_path, onnx_name, layout_approach)
+    t2o.convert(tflm_path, onnx_name)
 
     m = shrub.tflite.parse(tflm_path)
     m.genInput()
@@ -36,8 +36,7 @@ def test_ops_implicit_layout():
     )
 
     for op in OP_LIST_IMPLICIT_LAYOUT:
-        end2end_test(op, t2o.LayoutApproach.TRANSPOSE, 'NHWC')
-        end2end_test(op, t2o.LayoutApproach.PROPAGATION, 'NCHW')
+        end2end_test(op, 'NCHW')
 
 
 def test_ops_layout_transparent():
@@ -53,7 +52,7 @@ def test_ops_layout_transparent():
     )
 
     for op in OP_LIST_LAYOUT_TRANSPARENT:
-        end2end_test(op, t2o.LayoutApproach.DEFAULT, 'NHWC')
+        end2end_test(op, 'NHWC')
 
 
 def test_networks():
@@ -62,8 +61,7 @@ def test_networks():
     )
 
     for net in NETWORK_LIST:
-        end2end_test(net, t2o.LayoutApproach.TRANSPOSE, 'NHWC')
-        end2end_test(net, t2o.LayoutApproach.PROPAGATION, 'NCHW')
+        end2end_test(net, 'NCHW')
 
 
 if __name__ == '__main__':

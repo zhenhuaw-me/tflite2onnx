@@ -5,22 +5,17 @@ import os
 import tflite
 import tflite2onnx
 from tflite2onnx.model import Model
-from tflite2onnx.common import LayoutApproach
 
 logger = logging.getLogger('tflite2onnx')
 
 
 def convert(tflite_path: str, onnx_path: str,
-            layout_approach=LayoutApproach.DEFAULT,
             explicit_layouts=None):
     """Converting TensorFlow Lite model (*.tflite) to ONNX model.
 
     Args:
         tflite_path (str): the path to TFLite model.
         onnx_path (str): the path where to save the converted ONNX model.
-        layout_approach (LayoutApproach, optinal): Which layout handling
-            approach shall be used, see more in class `LayoutApproach`.
-            This can be safely ignored usually.
         explicit_layouts (dict, optinal): Dict of `str -> tuple(str, str)`.
             For each items, its *tensor name* `->` *tflite layout* and *onnx layout*.
             This can be safely ignored usually - tflite2onnx can handle most
@@ -47,7 +42,7 @@ def convert(tflite_path: str, onnx_path: str,
         im = tflite.Model.GetRootAsModel(buf, 0)
 
     model = Model(im)
-    model.convert(layout_approach, explicit_layouts)
+    model.convert(explicit_layouts)
     model.save(onnx_path)
     logger.info("Converted ONNX model: %s", onnx_path)
 

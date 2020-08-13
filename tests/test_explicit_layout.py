@@ -7,13 +7,13 @@ import tflite2onnx as t2o
 shrub.util.formatLogging(logging.DEBUG)
 
 
-def end2end_test(model_name, layout_approach, use_layout, io_layouts):
+def end2end_test(model_name, use_layout, io_layouts):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     tflm_dir = os.path.abspath(cur_dir + '/../assets/tests')
     tflm_name = model_name + '.tflite'
     onnx_name = model_name + '.onnx'
     tflm_path = os.path.join(tflm_dir, tflm_name)
-    t2o.convert(tflm_path, onnx_name, layout_approach, io_layouts)
+    t2o.convert(tflm_path, onnx_name, io_layouts)
 
     m = shrub.tflite.parse(tflm_path)
     m.genInput()
@@ -24,12 +24,10 @@ def end2end_test(model_name, layout_approach, use_layout, io_layouts):
 
 
 def test_explicit_layout():
-    # needs to set both input and output layout due to test tool limitation.
-    end2end_test('abs.float32', t2o.LayoutApproach.TRANSPOSE, 'NHWC',
-                 {'input': ('NHWC', 'NCHW'), 'output': ('NHWC', 'NCHW')})
-
-    end2end_test('abs.float32', t2o.LayoutApproach.PROPAGATION, 'NCHW',
-                 {'input': ('NHWC', 'NCHW')})
+    end2end_test('abs.float32', 'NCHW', {'input': ('NHWC', 'NCHW'), 'output': ('NHWC', 'NCHW')})
+    end2end_test('abs.float32', 'NCHW', {'input': ('NHWC', 'NCHW')})
+    end2end_test('abs.float32', 'NHWC', {'input': ('NHWC', 'NHWC'), 'output': ('NHWC', 'NHWC')})
+    end2end_test('abs.float32', 'NHWC', {'input': ('NHWC', 'NHWC')})
 
 
 if __name__ == '__main__':

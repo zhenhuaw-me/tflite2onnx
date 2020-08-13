@@ -35,19 +35,6 @@ class Status(Enum):
         return self == self.CONVERTED
 
 
-class LayoutApproach(Enum):
-    # An approach is taken as default always
-    DEFAULT = 2
-
-    # Insert `Transpose` operator where TFLite and ONNX has layout
-    # semantic divergence of tensors.
-    TRANSPOSE = 1
-
-    # Propagate layout semantic divergence across graph. This won't
-    # insert additional operators nor tensors to graph.
-    PROPAGATION = 2
-
-
 class T2OBase(ABC):
     """Holding objects of TFLite and ONNX"""
     def __init__(self, model=None, graph=None, index=None):
