@@ -7,6 +7,7 @@ from onnx import helper
 from tflite2onnx.common import T2OBase
 from tflite2onnx import tensor
 from tflite2onnx.op import getOp
+from tflite2onnx.quantize import handleQuantizationTensor
 from tflite2onnx.transpose import createTransposeHelper
 from tflite2onnx.layout import Layout
 
@@ -16,7 +17,8 @@ logger = logging.getLogger('tflite2onnx')
 class Graph(T2OBase):
     def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
         super().__init__(model, graph)
-        self.ops = []
+        self.ops = []   # the OP that has TFLite peer
+        self.op_all = []  # includes helper OP
         self.inputs = []
         self.outputs = []
         self.initializer = set()
@@ -25,10 +27,17 @@ class Graph(T2OBase):
         tensor.registery.clear()
         self.setInited()
 
-    def _collectTensors(self):
+    def _collectOpAndTensor(self):
+        self.op_all.clear()
+        for op in self.ops:
+            self.op_all.extend(op.pre)
+            self.op_all.append(op)
+            self.op_all.extend(op.post)
+
+        assert(len(self.op_all) > 0)
         self.initializer.clear()
         self.value_info.clear()
-        for op in self.ops:
+        for op in self.op_all:
             for t in op.inputs + op.outputs:
                 if t.is_initializer:
                     self.initializer.add(t)
@@ -42,9 +51,7 @@ class Graph(T2OBase):
             logger.debug("Parsing operator: {}".format(i))
             op = getOp(self.model, self.graph, i)
             op.parse()
-            self.ops.extend(op.pre)
             self.ops.append(op)
-            self.ops.extend(op.post)
 
         # inputs
         logger.debug("Parsing inputs...")
@@ -60,7 +67,7 @@ class Graph(T2OBase):
             t = tensor.get(self.model, self.graph, index)
             self.outputs.append(t)
 
-        self._collectTensors()
+        self._collectOpAndTensor()
 
         self.setParsed()
 
@@ -68,7 +75,6 @@ class Graph(T2OBase):
         logger.debug("Converting...")
 
         logger.debug("Handling data layout...")
-
         for op in self.ops:
             tensors = op.inputs + op.outputs
             for t in tensors:
@@ -77,23 +83,20 @@ class Graph(T2OBase):
                     layouts = explicit_layouts[t.name]
                     assert(len(layouts) == 2)
                     t.layout = Layout(layouts[0], layouts[1])
-
         self._propagateLayout()
 
-        logger.debug("Dequantizing operators...")
-        ops = [op for op in self.ops]
-        for op in ops:
-            logger.debug("Dequantizing %s...", str(op))
-            op.dequantize()
+        logger.debug("Translating quantization pattern...")
+        self._collectOpAndTensor()
+        for t in self.value_info | self.initializer:
+            handleQuantizationTensor(t)
 
-        self._collectTensors()
         logger.debug("Graph:\n%s", str(self))
 
-        for op in self.ops:
+        for op in self.op_all:
             op.convert()
 
         logger.debug("Making ONNX...")
-        onodes = [n.onnx for n in self.ops]
+        onodes = [n.onnx for n in self.op_all]
         oinputs = [t.onnx for t in self.inputs]
         ooutputs = [t.onnx for t in self.outputs]
         initializer = [t.onnx for t in self.initializer]
@@ -215,7 +218,7 @@ class Graph(T2OBase):
 
     def __str__(self):
         string = str()
-        for op in self.ops:
+        for op in self.op_all:
             string += '[OP] ' + str(op) + '\n'
         for t in self.inputs:
             string += '[Inputs] ' + str(t) + '\n'

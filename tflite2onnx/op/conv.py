@@ -119,6 +119,7 @@ class Conv(Operator):
 
     @property
     def quantized(self):
+        return False
         return tensor.isTFLiteQuantized(self.graph, self.tflite.Outputs(0))
 
     def dequantize(self):
@@ -130,6 +131,8 @@ class Conv(Operator):
         need *scale* and *zero point* of them before they are dequantized - these
         information shall not be lost when dequantizing.
         """
+        logger.debug("Skip Conv.dequantize()...")
+        return
         if not self.quantized:
             return
 

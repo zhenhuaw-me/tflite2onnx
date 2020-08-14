@@ -17,10 +17,12 @@ registery = {}
 
 
 class Tensor(T2OBase):
-    def __init__(self, model, graph, index, layout=None, is_initializer=False):
+    def __init__(self, model, graph, index, layout=None,
+            is_initializer=False, is_bias=False):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None
         self.is_initializer = is_initializer
+        self.is_bias = is_bias
         self.shape = []
         self.dtype = None
 
@@ -73,11 +75,13 @@ class Tensor(T2OBase):
 
     @property
     def quantized(self):
-        if self.tflite is not None:
-            has_quant = self.tflite.Quantization() is not None
-            return ((self.dtype == TensorProto.UINT8) and has_quant)
+        has_quant = self.tflite.Quantization() is not None
+        is_quant_dtype = ((self.dtype == TensorProto.UINT8) or
+                          ((self.dtype == TensorProto.INT32) and self.is_bias))
+        if self.tflite is None:
+            return is_quant_dtype
         else:
-            return self.dtype == TensorProto.UINT8
+            return is_quant_dtype and has_quant
 
     def dequantize(self):
         if not self.quantized:
