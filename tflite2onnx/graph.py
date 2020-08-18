@@ -88,7 +88,11 @@ class Graph(T2OBase):
         logger.debug("Translating quantization pattern...")
         self._collectOpAndTensor()
         for t in self.value_info | self.initializer:
-            handleQuantizationTensor(t)
+            deqt = handleQuantizationTensor(t)
+            for i, o in enumerate(self.outputs):
+                if o == t:
+                    self.outputs[i] = deqt
+        self._collectOpAndTensor()
 
         logger.debug("Graph:\n%s", str(self))
 

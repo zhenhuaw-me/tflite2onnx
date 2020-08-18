@@ -75,22 +75,20 @@ class Tensor(T2OBase):
 
     @property
     def quantized(self):
-        has_quant = self.tflite.Quantization() is not None
         is_quant_dtype = ((self.dtype == TensorProto.UINT8) or
                           ((self.dtype == TensorProto.INT32) and self.is_bias))
         if self.tflite is None:
             return is_quant_dtype
         else:
+            has_quant = self.tflite.Quantization() is not None
             return is_quant_dtype and has_quant
 
     def dequantize(self):
         if not self.quantized:
             return
         logger.debug("Dequantizing %s", self.name)
-        assert(not self.is_initializer)
-        # if self.is_initializer:
-        #     print(type(self.data))
-        #     deq = (self.data - self.zero_point) * self.scale
+        if self.is_initializer:
+            self.data = (self.data - self.zero_point) * self.scale
         self.dtype = TensorProto.FLOAT
 
     @property
@@ -148,6 +146,7 @@ class Tensor(T2OBase):
             onnx.checker.check_tensor(self.onnx)
         else:
             self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
+        assert(self.onnx)
 
         self.setConverted()
 
@@ -161,11 +160,11 @@ class Tensor(T2OBase):
         return '%s: %s -> %s' % (self.str, producer_names, consumer_names)
 
 
-def get(model, graph, index, layout=None, is_initializer=False):
+def get(model, graph, index, layout=None, is_initializer=False, is_bias=False):
     tft = graph.Tensors(index)
     name = tft.Name().decode('utf-8')
     if name not in registery:
-        t = Tensor(model, graph, index, layout, is_initializer)
+        t = Tensor(model, graph, index, layout, is_initializer, is_bias)
         registery[name] = t
 
     # We need to handle scenario that, `producer.implicitLayout` is `False`, while

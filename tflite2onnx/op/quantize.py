@@ -23,15 +23,15 @@ class Quantize(Operator):
 
     @property
     def isQuantize(self):
-        return (self.status.parsed and
-                (self.outputs[0].dtype is TensorProto.UINT8))
+        assert(self.status.parsed)
+        return self.inputs[0].dtype is TensorProto.FLOAT
 
     @property
     def implicitLayout(self):
         return False
 
     def parse(self):
-        logger.debug("Parsing %s...", self.type)
+        logger.debug("Parsing %s...", self.str)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode is tflite.BuiltinOperator.QUANTIZE or tflite.BuiltinOperator.DEQUANTIZE)
@@ -62,7 +62,7 @@ class Quantize(Operator):
             ft = self.outputs[0]
 
         ft.dequantize()
-        assert(qt.quantized)
+        # assert(qt.quantized)
 
         st = tensor.createQuantScale(qt)
         st.addConsumer(self)
@@ -75,10 +75,9 @@ class Quantize(Operator):
         pass
 
     def convert(self):
-        logger.debug("Converting %s...", self.type)
+        logger.debug("Converting %s...", self.str)
 
-        self.inputs[0].convert()
-        self.outputs[0].convert()
+        super()._convertTensors()
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]

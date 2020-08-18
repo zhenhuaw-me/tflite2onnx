@@ -4,7 +4,6 @@ import tflite
 from onnx import helper
 
 from tflite2onnx import tensor
-from tflite2onnx.op.quantize import createQuantize, createDequantize
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.padding import PaddingMapping, computePaddingSize
 from tflite2onnx.op.activation import handleFusedActivation
@@ -86,7 +85,8 @@ class Conv(Operator):
         # bias
         if self.has_bias:
             bi = op.Inputs(2)
-            bt = tensor.get(self.model, self.graph, bi, None, True)
+            bt = tensor.get(self.model, self.graph, bi,
+                            is_initializer=True, is_bias=True)
             bt.parse()
             bt.addConsumer(self)
             self.inputs.append(bt)
@@ -106,14 +106,7 @@ class Conv(Operator):
         self.pads = computePaddingSize(option.Padding(), it.shape[1:3], self.kshape,
                                        self.strides, self.dilations)
 
-        if self.quantized:
-            qi, qop = createQuantize(it, self)
-            self.pre.append(qop)
-            fo, dop = createDequantize(ot, self)
-            self.post.append(dop)
-            handleFusedActivation(self, option, fo, intermediate=dop)
-        else:
-            handleFusedActivation(self, option, ot)
+        handleFusedActivation(self, option, ot)
 
         self.setParsed()
 
