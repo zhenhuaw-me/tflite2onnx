@@ -21,10 +21,16 @@ def end2end_test(model_name, use_layout):
 
     # TFLite model is supposed to be end to end quantized
     tflite_ret = shrub.tflite.run(tflm_path, m.inputs)
+    oquant = shrub.tflite.parseQuantParam(tflm_path, False)[0]
+    foutputs = list()
+    for f in tflite_ret:
+        foutput = copy.deepcopy(f)
+        foutput.quant = oquant
+        foutput.dequantize()
+        foutputs.append(foutput)
 
     # ONNX model is supposed to be only several operators quantized
     iquant = shrub.tflite.parseQuantParam(tflm_path, True)[0]
-    oquant = shrub.tflite.parseQuantParam(tflm_path, False)[0]
     finputs = list()
     for q in m.inputs:
         finput = copy.deepcopy(q)
@@ -32,15 +38,8 @@ def end2end_test(model_name, use_layout):
         finput.dequantize()
         finputs.append(finput)
     onnx_ret = shrub.onnx.run(onnx_name, finputs, use_layout)
-    qoutputs = list()
-    for f in onnx_ret:
-        qoutput = copy.deepcopy(f)
-        qoutput.quant = oquant
-        qoutput.quant.quantized = False
-        qoutput.quantize()
-        qoutputs.append(qoutput)
 
-    assert(shrub.network.cmpTensors(qoutputs, tflite_ret, atol=1.0))
+    assert(shrub.network.cmpTensors(foutputs, onnx_ret))
 
 
 def test_quantized_ops():

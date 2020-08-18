@@ -88,7 +88,10 @@ class Tensor(T2OBase):
             return
         logger.debug("Dequantizing %s", self.name)
         if self.is_initializer:
-            self.data = (self.data - self.zero_point) * self.scale
+            int32 = self.data.astype('int32')
+            shiftted = np.subtract(int32, self.zero_point)
+            fp32 = np.multiply(shiftted.astype('float32'), self.scale)
+            self.data = fp32
         self.dtype = TensorProto.FLOAT
 
     @property
