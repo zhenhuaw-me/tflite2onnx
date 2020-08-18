@@ -46,7 +46,7 @@ def test_quantized_ops():
     OP_LIST = (
         'conv.uint8',
         # 'conv-relu.uint8',
-        # 'depthwise-conv.uint8',
+        'depthwise-conv.uint8',
     )
 
     for op in OP_LIST:

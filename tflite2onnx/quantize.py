@@ -90,12 +90,12 @@ def handleQuantizationTensor(t):
     # add Quantize/Dequantize to graph
     if t.producers:
         master_op = t.producers[0]
-        master_op.post.append(qop)
-        master_op.post.append(deqop)
+        master_op.post.insert(0, deqop)
+        master_op.post.insert(0, qop)
     elif t.consumers:
         master_op = t.consumers[0]
-        master_op.pre.append(qop)
-        master_op.pre.append(deqop)
+        master_op.pre.insert(0, deqop)
+        master_op.pre.insert(0, qop)
     else:
         assert(False), "No place to add op"
 

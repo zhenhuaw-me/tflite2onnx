@@ -29,10 +29,15 @@ class Graph(T2OBase):
 
     def _collectOpAndTensor(self):
         self.op_all.clear()
-        for op in self.ops:
-            self.op_all.extend(op.pre)
+
+        def _recursive(op):
+            for cur_op in op.pre:
+                _recursive(cur_op)
             self.op_all.append(op)
-            self.op_all.extend(op.post)
+            for cur_op in op.post:
+                _recursive(cur_op)
+        for op in self.ops:
+            _recursive(op)
 
         assert(len(self.op_all) > 0)
         self.initializer.clear()
@@ -73,7 +78,6 @@ class Graph(T2OBase):
 
     def convert(self, explicit_layouts):
         logger.debug("Converting...")
-        self._collectOpAndTensor()
 
         logger.debug("Handling data layout...")
         for op in self.ops:
