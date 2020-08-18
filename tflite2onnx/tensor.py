@@ -18,7 +18,7 @@ registery = {}
 
 class Tensor(T2OBase):
     def __init__(self, model, graph, index, layout=None,
-            is_initializer=False, is_bias=False):
+                 is_initializer=False, is_bias=False):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None
         self.is_initializer = is_initializer

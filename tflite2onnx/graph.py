@@ -73,6 +73,7 @@ class Graph(T2OBase):
 
     def convert(self, explicit_layouts):
         logger.debug("Converting...")
+        self._collectOpAndTensor()
 
         logger.debug("Handling data layout...")
         for op in self.ops:
@@ -84,9 +85,9 @@ class Graph(T2OBase):
                     assert(len(layouts) == 2)
                     t.layout = Layout(layouts[0], layouts[1])
         self._propagateLayout()
+        self._collectOpAndTensor()
 
         logger.debug("Translating quantization pattern...")
-        self._collectOpAndTensor()
         for t in self.value_info | self.initializer:
             deqt = handleQuantizationTensor(t)
             for i, o in enumerate(self.outputs):
