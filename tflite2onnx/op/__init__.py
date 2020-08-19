@@ -4,7 +4,7 @@ from tflite2onnx.op.operator import Operator    # noqa: F401
 from tflite2onnx.op.unary import Unary
 from tflite2onnx.op.softmax import Softmax
 from tflite2onnx.op.binary import Binary
-from tflite2onnx.op.pooling import AveragePool
+from tflite2onnx.op.pooling import Pooling
 from tflite2onnx.op.transpose import Transpose
 from tflite2onnx.op.quantize import Quantize
 from tflite2onnx.op.conv import Conv
@@ -18,7 +18,8 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.SOFTMAX: Softmax,
     tflite.BuiltinOperator.ADD: Binary,
     tflite.BuiltinOperator.MUL: Binary,
-    tflite.BuiltinOperator.AVERAGE_POOL_2D: AveragePool,
+    tflite.BuiltinOperator.AVERAGE_POOL_2D: Pooling,
+    tflite.BuiltinOperator.MAX_POOL_2D: Pooling,
     tflite.BuiltinOperator.TRANSPOSE: Transpose,
     tflite.BuiltinOperator.CONV_2D: Conv,
     tflite.BuiltinOperator.RELU: ReLU,

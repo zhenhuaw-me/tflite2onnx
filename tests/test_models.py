@@ -34,6 +34,7 @@ def test_ops_implicit_layout():
         'conv-stride.float32',
         'depthwise-conv.float32',
         'depthwise-conv-stride.float32',
+        'maxpooling.float32',
     )
 
     for op in OP_LIST_IMPLICIT_LAYOUT:

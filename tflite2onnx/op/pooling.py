@@ -11,7 +11,13 @@ from tflite2onnx.layout import Layout
 logger = logging.getLogger('tflite2onnx')
 
 
-class AveragePool(Operator):
+OpTypeMapping = {
+    tflite.BuiltinOperator.AVERAGE_POOL_2D: 'AveragePool',
+    tflite.BuiltinOperator.MAX_POOL_2D: 'MaxPool',
+}
+
+
+class Pooling(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
@@ -24,7 +30,13 @@ class AveragePool(Operator):
 
     @property
     def type(self):
-        return 'AveragePool'
+        if self.status.uninitialized:
+            return 'Pooling'
+        else:
+            op = self.tflite
+            opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+            assert(opcode in OpTypeMapping)
+            return OpTypeMapping[opcode]
 
     @property
     def implicitLayout(self):
@@ -34,7 +46,7 @@ class AveragePool(Operator):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.AVERAGE_POOL_2D)
+        assert(opcode in OpTypeMapping)
 
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
