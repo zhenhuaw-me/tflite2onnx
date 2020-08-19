@@ -6,14 +6,13 @@ Converting TensorFlow Lite models to ONNX
 
 `tflite2onnx` converts TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`).
 
-***This project is under early stage of development, [contributions are welcome](#contributing).***
+> If you'd like to convert a TensorFlow model (frozen graph `*.pb`, `SavedModel`
+or whatever) to ONNX, try [`tf2onnx`](https://github.com/onnx/tensorflow-onnx).
+Or, you can firstly [convert][tf2tflite] it to a TFLite (`*.tflite`) model,
+and then convert the TFLite model to ONNX.
 
 
 ## Usage
-
-> If you'd like to convert a TensorFlow model (`*.pb` or `SavedModel` whatever) to ONNX, try
-[`tf2onnx`](https://github.com/onnx/tensorflow-onnx). Or, you can firstly [convert][tf2tflite]
-it to TFLite (`*.tflite`), and then convert the TFLite model to ONNX.
 
 Install via [pip][pypi] `pip install tflite2onnx`.
 After installation, you may either try either.
