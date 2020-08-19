@@ -8,7 +8,7 @@ import tflite2onnx as t2o
 shrub.util.formatLogging(logging.DEBUG)
 
 
-def end2end_test(model_name, use_layout):
+def end2end_test(model_name, use_layout, atol, rtol):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     tflm_dir = os.path.abspath(cur_dir + '/../assets/tests')
     tflm_name = model_name + '.tflite'
@@ -39,29 +39,30 @@ def end2end_test(model_name, use_layout):
         finputs.append(finput)
     onnx_ret = shrub.onnx.run(onnx_name, finputs, use_layout)
 
-    assert(shrub.network.cmpTensors(foutputs, onnx_ret))
+    assert(shrub.network.cmpTensors(foutputs, onnx_ret, atol=atol, rtol=rtol))
 
 
 def test_quantized_ops():
     OP_LIST = (
         'conv.uint8',
-        # 'conv-relu.uint8',
+        'conv-relu.uint8',
         'depthwise-conv.uint8',
     )
 
     for op in OP_LIST:
-        end2end_test(op, 'NCHW')
+        end2end_test(op, 'NCHW', 1e-7, 1e-5)
 
 
-# def test_quantized_networks():
-#     NETWORK_LIST = (
-#         'mobilenet_v1_0.25_128_quant',
-#     )
+def test_quantized_networks():
+    NETWORK_LIST = (
+        'mobilenet_v1_0.25_128_quant',
+    )
 
-#     for net in NETWORK_LIST:
-#         end2end_test(net, 'NCHW')
+    for net in NETWORK_LIST:
+        # relax precision for end to end network
+        end2end_test(net, 'NCHW', 1e-1, 1e-5)
 
 
 if __name__ == '__main__':
     test_quantized_ops()
-    # test_quantized_networks()
+    test_quantized_networks()

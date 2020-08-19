@@ -132,6 +132,8 @@ def handleFusedActivation(master, option, output, intermediate=None):
     input = tensor.Tensor(intermediate.model, intermediate.graph, -1)
     input.name = 'TFLITE2ONNX_FAF_%s' % output.name
     input.dtype = output.dtype
+    input.scale = copy.deepcopy(output.scale)
+    input.zero_point = copy.deepcopy(output.zero_point)
     input.layout = copy.deepcopy(output.layout)
     input.shape = copy.deepcopy(output.shape)
     input.setParsed()
