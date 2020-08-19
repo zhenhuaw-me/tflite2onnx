@@ -4,12 +4,19 @@ from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.activation import handleFusedActivation
 
 logger = logging.getLogger('tflite2onnx')
 
 
 OpTypeMapping = {
     tflite.BuiltinOperator.ADD: 'Add',
+    tflite.BuiltinOperator.MUL: 'Mul',
+}
+
+OpOptionFuncMapping = {
+    tflite.BuiltinOperator.ADD: tflite.AddOptions,
+    tflite.BuiltinOperator.MUL: tflite.MulOptions,
 }
 
 
@@ -55,6 +62,13 @@ class Binary(Operator):
         ot.parse()
         ot.addProducer(self)
         self.outputs.append(ot)
+
+        # options
+        op_opt = op.BuiltinOptions()
+        option = OpOptionFuncMapping[opcode]()
+        option.Init(op_opt.Bytes, op_opt.Pos)
+
+        handleFusedActivation(self, option, ot)
 
         self.setParsed()
 

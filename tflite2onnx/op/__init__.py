@@ -17,6 +17,7 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.ABS: Unary,
     tflite.BuiltinOperator.SOFTMAX: Softmax,
     tflite.BuiltinOperator.ADD: Binary,
+    tflite.BuiltinOperator.MUL: Binary,
     tflite.BuiltinOperator.AVERAGE_POOL_2D: AveragePool,
     tflite.BuiltinOperator.TRANSPOSE: Transpose,
     tflite.BuiltinOperator.CONV_2D: Conv,

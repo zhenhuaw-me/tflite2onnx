@@ -44,6 +44,8 @@ def test_ops_layout_transparent():
     OP_LIST_LAYOUT_TRANSPARENT = (
         'abs.float32',
         'add.float32',
+        'add-relu.float32',
+        'mul.float32',
         'concat.float32',
         'relu6.float32',
         'relu.float32',
