@@ -1,11 +1,9 @@
 flake8
 numpy
 onnx
-onnxruntime
 pytest
 setuptools
 shrub
 tflite
 twine
 wheel
-yapf
