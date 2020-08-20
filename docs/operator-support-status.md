@@ -15,7 +15,7 @@ Please add in A-Z style.
     - [x] Dilation
     - [x] Padding
 - [x] Dequantize
-- [ ] FullyConnected
+- [x] FullyConnected
 - [x] MaxPooling
 - [x] Mean (reduce)
 - [x] Mul

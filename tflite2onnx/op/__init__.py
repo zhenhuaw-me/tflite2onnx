@@ -12,6 +12,7 @@ from tflite2onnx.op.activation import ReLU
 from tflite2onnx.op.reshape import Reshape
 from tflite2onnx.op.concat import Concat
 from tflite2onnx.op.reduce import Reduce
+from tflite2onnx.op.fullyconnected import FullyConnected
 
 
 OP_CONVERTERS = {
@@ -31,6 +32,7 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.QUANTIZE: Quantize,
     tflite.BuiltinOperator.DEQUANTIZE: Quantize,
     tflite.BuiltinOperator.MEAN: Reduce,
+    tflite.BuiltinOperator.FULLY_CONNECTED: FullyConnected,
 }
 
 
