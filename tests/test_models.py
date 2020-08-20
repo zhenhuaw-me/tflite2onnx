@@ -35,6 +35,7 @@ def test_ops_implicit_layout():
         'depthwise-conv.float32',
         'depthwise-conv-stride.float32',
         'fullyconnected.float32',
+        'fullyconnected-relu6.float32',
         'maxpooling.float32',
     )
 
