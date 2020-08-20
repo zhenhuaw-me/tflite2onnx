@@ -58,9 +58,6 @@ class Reshape(Operator):
 
         self.setParsed()
 
-    def dequantize(self):
-        self.simpleDequantize()
-
     def transform(self):
         logger.warning("Transforming %s, doing nothing now...", self.type)
 

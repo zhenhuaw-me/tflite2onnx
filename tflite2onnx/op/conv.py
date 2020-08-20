@@ -1,4 +1,3 @@
-import math
 import logging
 import tflite
 from onnx import helper
@@ -114,62 +113,6 @@ class Conv(Operator):
     def quantized(self):
         return False
         return tensor.isTFLiteQuantized(self.graph, self.tflite.Outputs(0))
-
-    def dequantize(self):
-        """Insert `QuantizeLinear` and `DequantizeLinear` before and after.
-
-        Here, when called from Graph, any node prior to this has been dequantized,
-        meaning that the input tensor (activation) should be float32 while the output
-        is uint8. We don't care much about the data type of them actually, as only
-        need *scale* and *zero point* of them before they are dequantized - these
-        information shall not be lost when dequantizing.
-        """
-        logger.debug("Skip Conv.dequantize()...")
-        return
-        if not self.quantized:
-            return
-
-        # 1. prepare additional tensors for QLinearConv
-
-        # 1.1 output
-        ot = self.outputs[0]
-        assert(isinstance(ot.scale, float)), "QLinearConv requires one scale for output"
-        assert(isinstance(ot.zero_point, int)), "QLinearConv requires one zero pint for output"
-        zpt = tensor.createQuantZeroPoint(ot)
-        zpt.addConsumer(self)
-        self.inputs.insert(2, zpt)
-        st = tensor.createQuantScale(ot)
-        st.addConsumer(self)
-        self.inputs.insert(2, st)
-
-        # 1.2 weight
-        wt = self.inputs[1]
-        zpt = tensor.createQuantZeroPoint(wt)
-        zpt.addConsumer(self)
-        self.inputs.insert(2, zpt)
-        st = tensor.createQuantScale(wt)
-        st.addConsumer(self)
-        self.inputs.insert(2, st)
-
-        # 1.3 input
-        it = self.inputs[0]
-        assert(isinstance(it.scale, float)), "QLinearConv requires one scale for input"
-        assert(isinstance(it.zero_point, int)), "QLinearConv requires one zero pint for input"
-        zpt = tensor.createQuantZeroPoint(it)
-        zpt.addConsumer(self)
-        self.inputs.insert(1, zpt)
-        st = tensor.createQuantScale(it)
-        st.addConsumer(self)
-        self.inputs.insert(1, st)
-
-        # 1.4 bias
-        if self.has_bias:
-            bt = self.inputs[8]
-            bq = bt.tflite.Quantization()
-            bscale = float(bq.ScaleAsNumpy()[0])
-            bzp = int(bq.ZeroPointAsNumpy()[0])
-            assert(bzp == 0), "Quantization semantic assertion"
-            assert(math.isclose(bscale, (it.scale * wt.scale), rel_tol=1e-5))
 
     def transform(self):
         pass

@@ -50,9 +50,6 @@ class Transpose(Operator):
 
         self.setParsed()
 
-    def dequantize(self):
-        self.simpleDequantize()
-
     def convert(self):
         logger.debug("Converting %s...", self.type)
 

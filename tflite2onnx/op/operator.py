@@ -23,27 +23,6 @@ class Operator(T2OBase):
         """Whether the operator assumes implact layout of tensors"""
         raise NotImplementedError("Method %s.implicitLayout() must be overrided!" % self.type)
 
-    def dequantize(self):
-        """Dequantize quantized tensors back to float.
-
-        If TFLite model is quantized, we need to dequantize the parsed
-        quantized tensors back to float since ONNX has poor quantization
-        support. Only tensors of `QLinearConv` and `QLinearMatMul` quantized,
-        for which we need to insert `QuantizeLinear` and `DequantizeLinear`
-        before and after these two operators.
-        """
-        raise NotImplementedError("Method %s.dequantize() must be overrided!" % self.type)
-
-    def simpleDequantize(self):
-        """Dequantize the tensors only.
-
-        For most of the operators, only need to dequantize the tensors.
-        In practice, changing data type for activations and real dequantization
-        for initializers (weights).
-        """
-        for tensor in self.inputs + self.outputs:
-            tensor.dequantize()
-
     def transform(self):
         raise NotImplementedError("Method %s.transform() must be overrided!" % self.type)
 
