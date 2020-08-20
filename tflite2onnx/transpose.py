@@ -1,8 +1,8 @@
 import logging
 
-from tflite2onnx.op import Transpose
 from tflite2onnx import layout
 from tflite2onnx import tensor
+from tflite2onnx.op import Transpose
 
 logger = logging.getLogger('tflite2onnx')
 
