@@ -11,6 +11,7 @@ from tflite2onnx.op.conv import Conv
 from tflite2onnx.op.activation import ReLU
 from tflite2onnx.op.reshape import Reshape
 from tflite2onnx.op.concat import Concat
+from tflite2onnx.op.reduce import Reduce
 
 
 OP_CONVERTERS = {
@@ -29,6 +30,7 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.CONCATENATION: Concat,
     tflite.BuiltinOperator.QUANTIZE: Quantize,
     tflite.BuiltinOperator.DEQUANTIZE: Quantize,
+    tflite.BuiltinOperator.MEAN: Reduce,
 }
 
 

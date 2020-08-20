@@ -53,6 +53,8 @@ def test_ops_layout_transparent():
         'reshape.float32',
         'softmax.float32',
         'transpose.float32',
+        'mean.float32',
+        'mean-keepdims.float32',
     )
 
     for op in OP_LIST_LAYOUT_TRANSPARENT:
