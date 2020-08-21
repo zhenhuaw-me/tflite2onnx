@@ -1,3 +1,4 @@
+import copy
 import logging
 import tflite
 from onnx import helper
@@ -11,6 +12,9 @@ logger = logging.getLogger('tflite2onnx')
 class Reshape(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
+
+        self.forFakeBroadcasting = False
+
         self.setInited()
 
     @property
@@ -59,7 +63,16 @@ class Reshape(Operator):
         self.setParsed()
 
     def transform(self):
-        logger.warning("Transforming %s, doing nothing now...", self.type)
+        if not self.forFakeBroadcasting:
+            return
+        i = self.inputs[0]
+        o = self.outputs[0]
+        assert(len(i.shape) != len(o.shape))
+        shape_t = self.inputs[1]
+        layout = copy.deepcopy(o.layout)
+        if layout is None:
+            raise ValueError("Requires layout description for <%s>" % i.name)
+        shape_t.data = layout.transform(shape_t.data)
 
     def convert(self):
         logger.debug("Converting %s...", self.type)
