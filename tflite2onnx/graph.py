@@ -115,68 +115,6 @@ class Graph(T2OBase):
                                       initializer=initializer, value_info=value_info)
         self.setConverted()
 
-    def _insertLayoutTranpose(self, explicit_layouts):        # noqa: C901
-        logger.debug("Inserting Transpose to layout divergence node...")
-        assert(self.status.parsed)
-        # prepare
-        op2index = dict()
-        for index, op in enumerate(self.ops):
-            op2index[op] = index
-
-        def getMinIndex(ops, skip):
-            ret = sys.maxsize
-            for op in ops:
-                if op is not skip:
-                    ret = min(ret, op2index[op])
-            return ret
-
-        def getMaxIndex(ops, skip):
-            ret = -1
-            for op in ops:
-                if op is not skip:
-                    ret = max(ret, op2index[op])
-            return ret
-        op2insertIndex = list()  # collect where to insert Transpose op
-
-        T_toWalk = list()
-        for t in self.initializer | self.value_info:
-            if not t.layoutMatch:
-                T_toWalk.append(t)
-
-        # walk and transpose all tensors
-        for t in T_toWalk:
-            isExplicitLayout = t.name in explicit_layouts
-
-            def hasImplicitLayoutNode(ln):
-                return any(n.implicitLayout for n in ln)
-
-            if ((isExplicitLayout and (len(t.consumers) != 0)) or
-                    hasImplicitLayoutNode(t.consumers)):
-                logger.debug("transposing consumers for <%s>...", t.name)
-                t2, transOp = createTransposeHelper(t, False)
-                self.value_info.add(t2)
-                ii = getMinIndex(t.consumers, transOp)
-                op2insertIndex.append((transOp, ii))
-                for op in t.consumers:
-                    if op is not transOp:
-                        op.replaceInput(t, t2)
-
-            if ((isExplicitLayout and (len(t.producers) != 0)) or
-                    hasImplicitLayoutNode(t.producers)):
-                logger.debug("transposing producers for <%s>...", t.name)
-                t2, transOp = createTransposeHelper(t, True)
-                self.value_info.add(t2)
-                ii = getMaxIndex(t.producers, transOp) + 1
-                op2insertIndex.append((transOp, ii))
-                for op in t.producers:
-                    if op is not transOp:
-                        op.replaceOutput(t, t2)
-
-        # insert transpose op to graph
-        op2insertIndex = sorted(op2insertIndex, key=lambda k: k[1], reverse=True)
-        for op, index in op2insertIndex:
-            self.ops.insert(index, op)
-
     def _propagateLayout(self):        # noqa: C901
         logger.debug("Propragating layout across graph...")
 
