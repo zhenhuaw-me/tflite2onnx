@@ -88,13 +88,19 @@ class Binary(Operator):
         self.setConverted()
 
 
-def fakeBroadcast(a, b):
-    extend_a = len(a) < len(b)
-    to_extend = a if extend_a else b
-    ref = b if extend_a else a
+def alignDimension(a, b):
+    """Align the dimension of the shorter one to the longer one.
 
-    size = len(ref) - len(to_extend)
+    We don't really broadcast tensors during converting, instead, align
+    dimensions of the two inputs such that the tensors have same dimensions
+    which is _layout handling compatible_.
+    """
+    align_a = len(a) < len(b)
+    to_align = a if align_a else b
+    ref = b if align_a else a
+
+    size = len(ref) - len(to_align)
     for i in range(size):
-        to_extend.insert(0, 1)
+        to_align.insert(0, 1)
 
     return (a, b)
