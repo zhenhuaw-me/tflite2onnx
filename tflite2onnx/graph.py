@@ -1,5 +1,4 @@
 import copy
-import sys
 import logging
 import tflite
 from onnx import helper
@@ -9,7 +8,6 @@ from tflite2onnx.common import T2OBase
 from tflite2onnx.layout import Layout
 from tflite2onnx.op import getOp
 from tflite2onnx.quantize import handleQuantizationTensor
-from tflite2onnx.transpose import createTransposeHelper
 
 logger = logging.getLogger('tflite2onnx')
 
