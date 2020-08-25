@@ -86,3 +86,15 @@ class Binary(Operator):
         onames = [t.name for t in self.outputs]
         self.onnx = helper.make_node(self.type, inames, onames)
         self.setConverted()
+
+
+def fakeBroadcast(a, b):
+    extend_a = len(a) < len(b)
+    to_extend = a if extend_a else b
+    ref = b if extend_a else a
+
+    size = len(ref) - len(to_extend)
+    for i in range(size):
+        to_extend.insert(0, 1)
+
+    return (a, b)
