@@ -24,6 +24,10 @@ class Transpose(Operator):
     def implicitLayout(self):
         return True
 
+    @property
+    def layoutPropagatable(self):
+        return False
+
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite

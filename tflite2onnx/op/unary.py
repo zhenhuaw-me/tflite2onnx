@@ -32,6 +32,10 @@ class Unary(Operator):
     def implicitLayout(self):
         return False
 
+    @property
+    def layoutPropagatable(self):
+        return True
+
     def parse(self):
         logger.debug("Parsing %s...", self.type)
 

@@ -42,6 +42,10 @@ class Conv(Operator):
         return True
 
     @property
+    def layoutPropagatable(self):
+        return False
+
+    @property
     def isDepthwise(self):
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
