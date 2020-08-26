@@ -38,10 +38,6 @@ class Conv(Operator):
             return 'Conv'
 
     @property
-    def implicitLayout(self):
-        return True
-
-    @property
     def layoutPropagatable(self):
         return False
 

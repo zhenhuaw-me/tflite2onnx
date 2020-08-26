@@ -39,10 +39,6 @@ class Pooling(Operator):
             return OpTypeMapping[opcode]
 
     @property
-    def implicitLayout(self):
-        return True
-
-    @property
     def layoutPropagatable(self):
         return False
 

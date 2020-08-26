@@ -22,10 +22,6 @@ class Concat(Operator):
         return 'Concat'
 
     @property
-    def implicitLayout(self):
-        return False
-
-    @property
     def layoutPropagatable(self):
         return True
 

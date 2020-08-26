@@ -134,13 +134,7 @@ class Graph(T2OBase):
         while (len(T_toWalk) != 0):
             T = T_toWalk.pop()
             for n in T.producers + T.consumers:
-                if n.implicitLayout:
-                    for t in n.inputs + n.outputs:
-                        # Bias has no layout information, and unneed to handle
-                        if t in T_wild:
-                            T_wild.remove(t)
-                            T_ignored.add(t)
-                else:
+                if n.layoutPropagatable:
                     for t in n.inputs + n.outputs:
                         logger.debug("Propagation: processing %s" % str(t))
                         if t in T_wild:
@@ -151,6 +145,12 @@ class Graph(T2OBase):
                             else:
                                 t.layout = copy.deepcopy(T.layout)
                                 T_toWalk.add(t)
+                else:
+                    for t in n.inputs + n.outputs:
+                        # Bias has no layout information, and unneed to handle
+                        if t in T_wild:
+                            T_wild.remove(t)
+                            T_ignored.add(t)
             T_walked.add(T)
         logger.debug("Propagation: wild tensors %d, ignored tensors %d" %
                      (len(T_wild), len(T_ignored)))

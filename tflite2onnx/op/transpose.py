@@ -21,10 +21,6 @@ class Transpose(Operator):
         return 'Transpose'
 
     @property
-    def implicitLayout(self):
-        return True
-
-    @property
     def layoutPropagatable(self):
         return False
 

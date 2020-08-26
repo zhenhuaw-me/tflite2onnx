@@ -169,21 +169,6 @@ def get(model, graph, index, layout=None, is_initializer=False, is_bias=False):
     if name not in registery:
         t = Tensor(model, graph, index, layout, is_initializer, is_bias)
         registery[name] = t
-
-    # We need to handle scenario that, `producer.implicitLayout` is `False`, while
-    # `consumer.implicitLayout` is `True`. Assigning new `layout` to Tensor cannot
-    # get it fixed, as the *transpose approach* may break the semantic of producer.
-    # Needs further consideration.
-    # else:
-    #     t = registery[name]
-    #     if layout is not None:
-    #         if t.layout is None:
-    #             # In case the producer doesn't assume implicit layout, but a consumer does.
-    #             t.layout = layout
-    #         else:
-    #             assert(t.layout.source == layout.source)
-    #             assert(t.layout.target == layout.target)
-
     return registery[name]
 
 

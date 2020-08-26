@@ -26,10 +26,6 @@ class Quantize(Operator):
         return self.inputs[0].dtype is TensorProto.FLOAT
 
     @property
-    def implicitLayout(self):
-        return False
-
-    @property
     def layoutPropagatable(self):
         return True
 

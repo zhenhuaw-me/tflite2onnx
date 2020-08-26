@@ -19,11 +19,6 @@ class Operator(T2OBase):
         raise NotImplementedError("Method Operator.type() must be overrided!")
 
     @property
-    def implicitLayout(self):
-        """Whether the operator assumes implact layout of tensors"""
-        raise NotImplementedError("Method %s.implicitLayout() must be overrided!" % self.type)
-
-    @property
     def layoutPropagatable(self):
         """Should the layout be propagated across this operator?
 

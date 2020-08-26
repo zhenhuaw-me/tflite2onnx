@@ -29,10 +29,6 @@ class Unary(Operator):
             return OpTypeMapping[opcode]
 
     @property
-    def implicitLayout(self):
-        return False
-
-    @property
     def layoutPropagatable(self):
         return True
 

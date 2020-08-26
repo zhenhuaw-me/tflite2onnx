@@ -18,10 +18,6 @@ class Reshape(Operator):
         return 'Reshape'
 
     @property
-    def implicitLayout(self):
-        return True
-
-    @property
     def layoutPropagatable(self):
         return False
 

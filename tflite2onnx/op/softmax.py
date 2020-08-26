@@ -21,10 +21,6 @@ class Softmax(Operator):
         return 'Softmax'
 
     @property
-    def implicitLayout(self):
-        return True
-
-    @property
     def layoutPropagatable(self):
         # FIXME
         return False

@@ -27,10 +27,6 @@ class FullyConnected(Operator):
         return 'Gemm'
 
     @property
-    def implicitLayout(self):
-        return True
-
-    @property
     def layoutPropagatable(self):
         return False
 
