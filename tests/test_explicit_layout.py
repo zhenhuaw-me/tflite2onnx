@@ -36,6 +36,13 @@ def test_explicit_layout():
     end2end_test('add-broadcast.float32', 'NCHW', {'A': ('NHWC', 'NCHW'),
                                                    'output': ('NHWC', 'NCHW')})
 
+    end2end_test('add-broadcast2.float32', 'NHWC', {'A': ('NHWC', 'NHWC')})
+    end2end_test('add-broadcast2.float32', 'NCHW', {'A': ('NHWC', 'NCHW')})
+    end2end_test('add-broadcast2.float32', 'NHWC', {'output': ('NHWC', 'NHWC')})
+    end2end_test('add-broadcast2.float32', 'NCHW', {'output': ('NHWC', 'NCHW')})
+    end2end_test('add-broadcast2.float32', 'NCHW', {'A': ('NHWC', 'NCHW'),
+                                                    'output': ('NHWC', 'NCHW')})
+
 
 if __name__ == '__main__':
     test_explicit_layout()

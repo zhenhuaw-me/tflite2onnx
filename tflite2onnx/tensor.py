@@ -124,8 +124,10 @@ class Tensor(T2OBase):
             self.scale = float(quant.ScaleAsNumpy()[0])
             self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
+        self.data = getData(self.model, self.graph, self.index, DTYPE_ONNX2NAME[self.dtype])
         if self.is_initializer:
-            self.data = getData(self.model, self.graph, self.index, DTYPE_ONNX2NAME[self.dtype])
+            assert(self.data is not None), "Preset as initializer, should have data"
+        self.is_initializer = self.data is not None
 
         self.setParsed()
 
@@ -179,6 +181,8 @@ def getData(model, graph, index, dtype):
     bi = t.Buffer()
     assert(bi < model.BuffersLength())
     raw = model.Buffers(bi).DataAsNumpy()
+    if isinstance(raw, int) and raw == 0:
+        return None
     data = np.frombuffer(raw, dtype=dtype)
     return data
 
