@@ -52,5 +52,5 @@ class Model(T2OBase):
     def save(self, path: str):
         logger.debug("saving model as %s", path)
         assert(self.status.converted)
-        onnx.checker.check_model(self.onnx)
         onnx.save(self.onnx, path)
+        onnx.checker.check_model(path)
