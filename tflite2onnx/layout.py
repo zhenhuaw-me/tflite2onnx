@@ -33,7 +33,6 @@ class Layout(object):
         self.current = self.target
 
     def transform(self, input):
-        logger.debug("Transforming from %s to %s...", self.source, self.target)
         output = transform(input, self.source, self.target)
         self.current = self.target
         return output

@@ -158,7 +158,8 @@ class Graph(T2OBase):
         # update tensor and operator
         for t in T_walked:
             t.transform()
-        for op in self.ops:
+        self._collectOpAndTensor()
+        for op in self.op_all:
             op.transform()
 
     def __str__(self):

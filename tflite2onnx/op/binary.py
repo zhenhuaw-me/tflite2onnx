@@ -1,11 +1,13 @@
 import copy
 import logging
 import tflite
+import numpy as np
 from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.activation import handleFusedActivation
+from tflite2onnx.op.reshape import Reshape
 
 logger = logging.getLogger('tflite2onnx')
 
@@ -41,6 +43,58 @@ class Binary(Operator):
     def layoutPropagatable(self):
         return True
 
+    def fakeBroadcast(self):
+        # Binary operators need to broadcast shape explicitly here since
+        # they may not be broadcastable after layout propagration.
+        # We don't really broadcast here, but extend shape with 1.
+        assert(self.status.initialized)
+        a = self.inputs[0]
+        b = self.inputs[1]
+        output = self.outputs[0]
+        if (len(a.shape) == len(b.shape)):
+            return
+        logger.info("Inserting `Reshape` for fake broadcasting, be carefull for the layout")
+
+        align_a, new_shape = alignDimension(a.shape, b.shape)
+        todo = a if align_a else b
+        assert(len(new_shape) == len(output.shape))
+
+        new_t = tensor.Tensor(todo.model, todo.graph, -1)
+        new_t.name = 'TFLITE2ONNX_Reshape_%s' % todo.name
+        new_t.dtype = todo.dtype
+        new_t.scale = copy.deepcopy(todo.scale)
+        new_t.zero_point = copy.deepcopy(todo.zero_point)
+        new_t.layout = copy.deepcopy(todo.layout)
+        new_t.shape = new_shape
+        new_t.setParsed()
+        assert(new_t.name not in tensor.registery)
+        tensor.registery[new_t.name] = new_t
+
+        shape_t = tensor.Tensor(todo.model, todo.graph, -1)
+        shape_t.name = 'TFLITE2ONNX_NewShape_%s' % todo.name
+        shape_t.dtype = tensor.DTYPE_NAME2ONNX['int64']
+        shape_t.shape = (len(new_shape),)
+        shape_t.data = np.array(new_shape)
+        shape_t.is_initializer = True
+        shape_t.setParsed()
+
+        reshape = Reshape(todo.model, todo.graph, -1)
+        reshape.forFakeBroadcasting = True
+
+        reshape.inputs.append(todo)
+        todo.replaceConsumer(self, reshape)
+        self.replaceInput(todo, new_t)
+
+        reshape.inputs.append(shape_t)
+        shape_t.addConsumer(reshape)
+
+        reshape.outputs.append(new_t)
+        new_t.addProducer(reshape)
+        new_t.addConsumer(self)
+        reshape.setParsed()
+
+        self.pre.append(reshape)
+
     def parse(self):
         logger.debug("Parsing %s...", self.type)
 
@@ -63,6 +117,8 @@ class Binary(Operator):
         ot.parse()
         ot.addProducer(self)
         self.outputs.append(ot)
+
+        self.fakeBroadcast()
 
         # options
         op_opt = op.BuiltinOptions()
