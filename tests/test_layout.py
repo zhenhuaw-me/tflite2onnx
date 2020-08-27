@@ -22,11 +22,11 @@ def test_getPerm():
 def test_align_dimension():
     from tflite2onnx.op.binary import alignDimension
     # cases from: https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md
-    assert(alignDimension([2, 3, 4, 5], list()) == ([2, 3, 4, 5], [1, 1, 1, 1]))
-    assert(alignDimension([2, 3, 4, 5], [5, ]) == ([2, 3, 4, 5], [1, 1, 1, 5]))
-    assert(alignDimension([4, 5], [2, 3, 4, 5]) == ([1, 1, 4, 5], [2, 3, 4, 5]))
-    assert(alignDimension([1, 4, 5], [2, 3, 1, 1]) == ([1, 1, 4, 5], [2, 3, 1, 1]))
-    assert(alignDimension([3, 4, 5], [2, 1, 1, 1]) == ([1, 3, 4, 5], [2, 1, 1, 1]))
+    assert(alignDimension([2, 3, 4, 5], list()) == (False, [1, 1, 1, 1]))
+    assert(alignDimension([2, 3, 4, 5], [5, ]) == (False, [1, 1, 1, 5]))
+    assert(alignDimension([4, 5], [2, 3, 4, 5]) == (True, [1, 1, 4, 5]))
+    assert(alignDimension([1, 4, 5], [2, 3, 1, 1]) == (True, [1, 1, 4, 5]))
+    assert(alignDimension([3, 4, 5], [2, 1, 1, 1]) == (True, [1, 3, 4, 5]))
 
 
 if __name__ == '__main__':

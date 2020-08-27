@@ -1,3 +1,4 @@
+import copy
 import logging
 import tflite
 from onnx import helper
@@ -100,7 +101,8 @@ def alignDimension(a, b):
     ref = b if align_a else a
 
     size = len(ref) - len(to_align)
+    aligned = copy.deepcopy(to_align)
     for i in range(size):
-        to_align.insert(0, 1)
+        aligned.insert(0, 1)
 
-    return (a, b)
+    return (align_a, aligned)
