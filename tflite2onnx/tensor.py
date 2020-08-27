@@ -171,7 +171,11 @@ def get(model, graph, index, layout=None, is_initializer=False, is_bias=False):
     if name not in registery:
         t = Tensor(model, graph, index, layout, is_initializer, is_bias)
         registery[name] = t
-    return registery[name]
+    else:
+        t = registery[name]
+        if t.layout is None:
+            t.layout = layout
+    return t
 
 
 def getData(model, graph, index, dtype):

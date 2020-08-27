@@ -66,13 +66,12 @@ class Reduce(Operator):
         self.setParsed()
 
     def transform(self):
-        layout = self.outputs[0].layout
+        layout = self.inputs[0].layout
         if layout is None:
             return
         else:
-            raise NotImplementedError("Untested yet!")
-            # axes = self.axes if self.axes >= 0 else (self.axes + len(layout.perm))
-            # self.axes = layout.perm.index(axes)
+            axes = [axe if axe >= 0 else (self.axes + len(layout.perm)) for axe in self.axes]
+            self.axes = [layout.perm.index(axe) for axe in axes]
 
     def convert(self):
         logger.debug("Converting %s...", self.type)

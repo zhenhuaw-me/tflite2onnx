@@ -133,11 +133,14 @@ class Graph(T2OBase):
         T_walked = set()
         while (len(T_toWalk) != 0):
             T = T_toWalk.pop()
+            logger.debug("Propagation: walking %s" % str(T))
             for n in T.producers + T.consumers:
                 if n.layoutPropagatable:
                     for t in n.inputs + n.outputs:
-                        logger.debug("Propagation: processing %s" % str(t))
+                        if t is T:
+                            continue
                         if t in T_wild:
+                            logger.debug("Propagation: propagated to %s" % str(t))
                             assert(t.layout is None)
                             T_wild.remove(t)
                             if t.isScalar:
