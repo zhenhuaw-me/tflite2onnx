@@ -4,6 +4,7 @@ import tflite
 import numpy as np
 from onnx import helper
 
+from tflite2onnx import mapping
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 from tflite2onnx.op.activation import handleFusedActivation
@@ -72,7 +73,7 @@ class Binary(Operator):
 
         shape_t = tensor.Tensor(todo.model, todo.graph, -1)
         shape_t.name = 'TFLITE2ONNX_NewShape_%s' % todo.name
-        shape_t.dtype = tensor.DTYPE_NAME2ONNX['int64']
+        shape_t.dtype = mapping.DTYPE_NAME2ONNX['int64']
         shape_t.shape = (len(new_shape),)
         shape_t.data = np.array(new_shape)
         shape_t.is_initializer = True

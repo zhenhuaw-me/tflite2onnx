@@ -3,6 +3,7 @@ import logging
 import tflite
 from onnx import helper
 
+from tflite2onnx import mapping
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 
@@ -47,7 +48,7 @@ class Reshape(Operator):
         st = tensor.get(self.model, self.graph, si, None, True)
         st.parse()
         # TFLite shape is int32 data type, ONNX is int64
-        st.dtype = tensor.DTYPE_NAME2ONNX['int64']
+        st.dtype = mapping.DTYPE_NAME2ONNX['int64']
         st.data = st.data.astype('int64')
         st.addConsumer(self)
         self.inputs.append(st)

@@ -3,7 +3,7 @@ import numpy as np
 import onnx
 import tflite
 from onnx import helper, TensorProto
-from shrub.mapping import DTYPE_TFLITE2ONNX, DTYPE_NAME2ONNX, DTYPE_ONNX2NAME
+from tflite2onnx import mapping
 
 from tflite2onnx.common import T2OBase
 from tflite2onnx.op import Operator
@@ -113,9 +113,9 @@ class Tensor(T2OBase):
         logger.debug("Parsing %s...", self.name)
         self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
 
-        assert(tensor.Type() in DTYPE_TFLITE2ONNX)
+        assert(tensor.Type() in mapping.DTYPE_TFLITE2ONNX)
         assert(self.dtype is None)
-        self.dtype = DTYPE_TFLITE2ONNX[tensor.Type()]
+        self.dtype = mapping.DTYPE_TFLITE2ONNX[tensor.Type()]
 
         if self.quantized:
             quant = tensor.Quantization()
@@ -124,7 +124,7 @@ class Tensor(T2OBase):
             self.scale = float(quant.ScaleAsNumpy()[0])
             self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
-        self.data = getData(self.model, self.graph, self.index, DTYPE_ONNX2NAME[self.dtype])
+        self.data = getData(self.model, self.graph, self.index, mapping.DTYPE_ONNX2NAME[self.dtype])
         if self.is_initializer:
             assert(self.data is not None), "Preset as initializer, should have data"
         self.is_initializer = self.data is not None
@@ -157,7 +157,7 @@ class Tensor(T2OBase):
 
     @property
     def str(self):
-        return '<%s>(%s,%s)' % (self.name, DTYPE_ONNX2NAME[self.dtype], str(self.shape))
+        return '<%s>(%s,%s)' % (self.name, mapping.DTYPE_ONNX2NAME[self.dtype], str(self.shape))
 
     def __str__(self):
         producer_names = str([op.str for op in self.producers])
@@ -198,8 +198,8 @@ def isTFLiteQuantized(graph, tensor_index):
 
 
 def createScalar(ref, value):
-    name = 'TFLITE2ONNX_Scalar_' + DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
-    dtype = DTYPE_ONNX2NAME[ref.dtype]
+    name = 'TFLITE2ONNX_Scalar_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
+    dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
     return _createScalarCore(ref.model, ref.graph, name, dtype, value)
 
 
@@ -207,7 +207,7 @@ def _createScalarCore(model, graph, name, dtype, value):
     if name not in registery:
         t = Tensor(model, graph, -1, None, True)
         t.name = name
-        t.dtype = DTYPE_NAME2ONNX[dtype]
+        t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
         t.data = np.full((1), value, dtype=dtype)
         t.setParsed()
         registery[name] = t
