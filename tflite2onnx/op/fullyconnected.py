@@ -49,7 +49,7 @@ class FullyConnected(Operator):
 
         # weight
         wi = op.Inputs(1)
-        wt = tensor.get(self.model, self.graph, wi, is_initializer=True)
+        wt = tensor.get(self.model, self.graph, wi)
         wt.parse()
         wt.addConsumer(self)
         self.inputs.append(wt)
@@ -64,8 +64,7 @@ class FullyConnected(Operator):
         # bias
         if self.has_bias:
             bi = op.Inputs(2)
-            bt = tensor.get(self.model, self.graph, bi,
-                            is_initializer=True, is_bias=True)
+            bt = tensor.get(self.model, self.graph, bi, is_bias=True)
             bt.parse()
             bt.addConsumer(self)
             self.inputs.append(bt)

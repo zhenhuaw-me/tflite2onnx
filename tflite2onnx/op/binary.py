@@ -76,7 +76,6 @@ class Binary(Operator):
         shape_t.dtype = mapping.DTYPE_NAME2ONNX['int64']
         shape_t.shape = (len(new_shape),)
         shape_t.data = np.array(new_shape)
-        shape_t.is_initializer = True
         shape_t.setParsed()
 
         reshape = Reshape(todo.model, todo.graph, -1)

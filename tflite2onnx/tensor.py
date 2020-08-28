@@ -17,11 +17,9 @@ registery = {}
 
 
 class Tensor(T2OBase):
-    def __init__(self, model, graph, index, layout=None,
-                 is_initializer=False, is_bias=False):
+    def __init__(self, model, graph, index, layout=None, is_bias=False):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None
-        self.is_initializer = is_initializer
         self.is_bias = is_bias
         self.shape = []
         self.dtype = None
@@ -36,6 +34,10 @@ class Tensor(T2OBase):
         self.consumers = []
 
         self.setInited()
+
+    @property
+    def isInitializer(self):
+        return self.data is not None
 
     def addProducer(self, op):
         assert(isinstance(op, Operator))
@@ -87,7 +89,7 @@ class Tensor(T2OBase):
         if not self.quantized:
             return
         logger.debug("Dequantizing %s", self.name)
-        if self.is_initializer:
+        if self.isInitializer:
             int32 = self.data.astype('int32')
             shiftted = np.subtract(int32, self.zero_point)
             fp32 = np.multiply(shiftted.astype('float32'), self.scale)
@@ -125,16 +127,15 @@ class Tensor(T2OBase):
             self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
         self.data = getData(self.model, self.graph, self.index, mapping.DTYPE_ONNX2NAME[self.dtype])
-        if self.is_initializer:
+        if self.isInitializer:
             assert(self.data is not None), "Preset as initializer, should have data"
-        self.is_initializer = self.data is not None
 
         self.setParsed()
 
     def transform(self):
         assert(self.status.parsed)
         assert(self.layout is not None)
-        if self.is_initializer:
+        if self.isInitializer:
             data = self.data.reshape(self.shape)
             self.shape = self.layout.transform(self.shape)
             data = data.transpose(self.layout.perm)
@@ -146,7 +147,7 @@ class Tensor(T2OBase):
         if self.status.converted:
             return
         logger.debug("Converting %s...", self.name)
-        if self.is_initializer:
+        if self.isInitializer:
             self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, self.data)
             onnx.checker.check_tensor(self.onnx)
         else:
@@ -165,11 +166,11 @@ class Tensor(T2OBase):
         return '%s: %s -> %s' % (self.str, producer_names, consumer_names)
 
 
-def get(model, graph, index, layout=None, is_initializer=False, is_bias=False):
+def get(model, graph, index, layout=None, is_bias=False):
     tft = graph.Tensors(index)
     name = tft.Name().decode('utf-8')
     if name not in registery:
-        t = Tensor(model, graph, index, layout, is_initializer, is_bias)
+        t = Tensor(model, graph, index, layout, is_bias)
         registery[name] = t
     else:
         t = registery[name]
@@ -205,7 +206,7 @@ def createScalar(ref, value):
 
 def _createScalarCore(model, graph, name, dtype, value):
     if name not in registery:
-        t = Tensor(model, graph, -1, None, True)
+        t = Tensor(model, graph, -1, None)
         t.name = name
         t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
         t.data = np.full((1), value, dtype=dtype)

@@ -42,7 +42,7 @@ class Graph(T2OBase):
         self.value_info.clear()
         for op in self.op_all:
             for t in op.inputs + op.outputs:
-                if t.is_initializer:
+                if t.isInitializer:
                     self.initializer.add(t)
                 else:
                     self.value_info.add(t)

@@ -45,7 +45,7 @@ class Reshape(Operator):
 
         # shape
         si = op.Inputs(1)
-        st = tensor.get(self.model, self.graph, si, None, True)
+        st = tensor.get(self.model, self.graph, si)
         st.parse()
         # TFLite shape is int32 data type, ONNX is int64
         st.dtype = mapping.DTYPE_NAME2ONNX['int64']

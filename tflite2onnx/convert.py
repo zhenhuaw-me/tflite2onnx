@@ -9,8 +9,7 @@ from tflite2onnx.model import Model
 logger = logging.getLogger('tflite2onnx')
 
 
-def convert(tflite_path: str, onnx_path: str,
-            explicit_layouts=None):
+def convert(tflite_path: str, onnx_path: str, explicit_layouts=None):
     """Converting TensorFlow Lite model (*.tflite) to ONNX model.
 
     Args:

@@ -68,7 +68,7 @@ class Conv(Operator):
         # weight
         wi = op.Inputs(1)
         wlayout = Layout('CHWM', 'MCHW') if self.isDepthwise else Layout('OHWI', 'OIHW')
-        wt = tensor.get(self.model, self.graph, wi, wlayout, True)
+        wt = tensor.get(self.model, self.graph, wi, wlayout)
         wt.parse()
         wt.addConsumer(self)
         self.inputs.append(wt)
@@ -84,8 +84,7 @@ class Conv(Operator):
         # bias
         if self.has_bias:
             bi = op.Inputs(2)
-            bt = tensor.get(self.model, self.graph, bi,
-                            is_initializer=True, is_bias=True)
+            bt = tensor.get(self.model, self.graph, bi, is_bias=True)
             bt.parse()
             bt.addConsumer(self)
             self.inputs.append(bt)
