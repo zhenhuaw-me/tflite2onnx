@@ -1,6 +1,6 @@
 import logging
 import tflite
-from onnx import helper, TensorProto
+from onnx import TensorProto
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
@@ -12,7 +12,7 @@ class Quantize(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-        self.axis = 1
+        # self.axis = 1
 
         self.setInited()
 
@@ -72,13 +72,3 @@ class Quantize(Operator):
 
     def transform(self):
         pass
-
-    def convert(self):
-        logger.debug("Converting %s...", self.str)
-
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames)
-        self.setConverted()

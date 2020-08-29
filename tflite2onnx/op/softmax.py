@@ -1,6 +1,5 @@
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
@@ -12,7 +11,7 @@ class Softmax(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-        self.axis = -1
+        self.attrs['axis'] = -1
 
         self.setInited()
 
@@ -51,7 +50,7 @@ class Softmax(Operator):
         #     axis = -1
         #     logger.warning("Softmax has input shape %s.", str(to.shape))
         # FIXME: axis is the dim index of 'C'.
-        self.axis = -1
+        self.attrs['axis'] = -1
 
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
@@ -63,12 +62,3 @@ class Softmax(Operator):
 
     def transform(self):
         pass
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames, axis=self.axis)
-        self.setConverted()

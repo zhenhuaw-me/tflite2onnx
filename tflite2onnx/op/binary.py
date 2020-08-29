@@ -2,7 +2,6 @@ import copy
 import logging
 import tflite
 import numpy as np
-from onnx import helper
 
 from tflite2onnx import mapping
 from tflite2onnx import tensor
@@ -131,15 +130,6 @@ class Binary(Operator):
 
     def transform(self):
         pass
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames)
-        self.setConverted()
 
 
 def alignDimension(a, b):

@@ -1,6 +1,5 @@
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
@@ -12,7 +11,7 @@ class Transpose(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-        self.perm = []
+        self.attrs['perm'] = []
 
         self.setInited()
 
@@ -40,7 +39,7 @@ class Transpose(Operator):
         self.inputs.append(it)
 
         ii = op.Inputs(1)
-        self.perm = tensor.getData(self.model, self.graph, ii, 'int32')
+        self.attrs['perm'] = tensor.getData(self.model, self.graph, ii, 'int32')
 
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
@@ -50,16 +49,8 @@ class Transpose(Operator):
 
         self.setParsed()
 
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames, perm=self.perm)
-
     def transform(self):
         logger.warning("Transforming %s, doing nothing now...", self.type)
 
     def __str__(self):
-        return super().__str__() + ', perm: ' + str(self.perm)
+        return super().__str__() + ', perm: ' + str(self.attrs['perm'])

@@ -1,6 +1,5 @@
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.activation import handleFusedActivation
@@ -14,11 +13,11 @@ class FullyConnected(Operator):
         super().__init__(model, graph, index)
 
         # raw default values
-        self.alpha = 1.0
-        self.beta = 1.0
+        self.attrs['alpha'] = 1.0
+        self.attrs['beta'] = 1.0
         # TFLite Fully Connected: A (M, K), B (N, K)
-        self.transA = 0
-        self.transB = 1
+        self.attrs['transA'] = 0
+        self.attrs['transB'] = 1
 
         self.setInited()
 
@@ -83,15 +82,3 @@ class FullyConnected(Operator):
 
     def transform(self):
         pass
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        logger.debug("Making ONNX...")
-        self.onnx = helper.make_node(self.type, inames, onames,
-                                     alpha=self.alpha, beta=self.beta,
-                                     transA=self.transA, transB=self.transB)

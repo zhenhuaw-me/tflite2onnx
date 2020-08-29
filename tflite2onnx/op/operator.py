@@ -1,4 +1,5 @@
 import logging
+from onnx import helper
 
 from tflite2onnx.common import T2OBase
 
@@ -13,6 +14,7 @@ class Operator(T2OBase):
         self.outputs = []
         self.pre = []  # ops that before this op which to enable TFLite op
         self.post = []  # ops that after this op which to enable TFLite op
+        self.attrs = dict()  # One dict to hold all ONNX operator attributes
 
     @property
     def type(self):
@@ -79,8 +81,11 @@ class Operator(T2OBase):
         onames = str([t.name for t in self.outputs])
         return self.str + ': ' + inames + ' -> ' + onames
 
-    def _convertTensors(self):
-        for t in self.inputs:
+    def convert(self):
+        logger.debug("converting %s...", self.type)
+        for t in self.inputs + self.outputs:
             t.convert()
-        for t in self.outputs:
-            t.convert()
+        inames = [t.name for t in self.inputs]
+        onames = [t.name for t in self.outputs]
+        self.onnx = helper.make_node(self.type, inames, onames, **self.attrs)
+        self.setConverted()

@@ -1,6 +1,5 @@
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.layout import Layout
@@ -21,10 +20,10 @@ class Pooling(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-        self.auto_pad = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
+        self.attrs['kernel_shape'] = []
+        self.attrs['strides'] = []
+        self.attrs['auto_pad'] = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
         # ceil_mod = 0
-        self.kshape = []
-        self.strides = []
 
         self.setInited()
 
@@ -61,10 +60,9 @@ class Pooling(Operator):
         op_opt = op.BuiltinOptions()
         option = tflite.Pool2DOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
-        self.auto_pad = PaddingMapping[option.Padding()]
-
-        self.kshape = [option.FilterHeight(), option.FilterWidth()]
-        self.strides = [option.StrideH(), option.StrideW()]
+        self.attrs['auto_pad'] = PaddingMapping[option.Padding()]
+        self.attrs['kernel_shape'] = [option.FilterHeight(), option.FilterWidth()]
+        self.attrs['strides'] = [option.StrideH(), option.StrideW()]
 
         oi = op.Outputs(0)
         olayout = Layout('NHWC', 'NCHW')
@@ -79,12 +77,3 @@ class Pooling(Operator):
 
     def transform(self):
         pass
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=self.kshape,
-                                     strides=self.strides, auto_pad=self.auto_pad)

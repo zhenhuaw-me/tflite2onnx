@@ -1,6 +1,5 @@
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
@@ -17,8 +16,8 @@ class Reduce(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-        self.axes = None
-        self.keepdims = 0
+        self.attrs['axes'] = None
+        self.attrs['keepdims'] = 0
 
         self.setInited()
 
@@ -60,8 +59,8 @@ class Reduce(Operator):
 
         # options
         ai = op.Inputs(1)
-        self.axes = tensor.getData(self.model, self.graph, ai, 'int32')
-        self.keepdims = 1 if (len(ot.shape) == len(it.shape)) else 0
+        self.attrs['axes'] = tensor.getData(self.model, self.graph, ai, 'int32')
+        self.attrs['keepdims'] = 1 if (len(ot.shape) == len(it.shape)) else 0
 
         self.setParsed()
 
@@ -70,15 +69,6 @@ class Reduce(Operator):
         if layout is None:
             return
         else:
-            axes = [axe if axe >= 0 else (self.axes + len(layout.perm)) for axe in self.axes]
-            self.axes = [layout.perm.index(axe) for axe in axes]
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames,
-                                     axes=self.axes, keepdims=self.keepdims)
-        self.setConverted()
+            axes = self.attrs['axes']
+            axes = [axe if axe >= 0 else (axes + len(layout.perm)) for axe in axes]
+            self.attrs['axes'] = [layout.perm.index(axe) for axe in axes]

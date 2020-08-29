@@ -1,7 +1,6 @@
 import copy
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
@@ -79,15 +78,6 @@ class ReLU(Operator):
 
     def transform(self):
         pass
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames)
-        self.setConverted()
 
 
 def handleFusedActivation(master, option, output, intermediate=None):

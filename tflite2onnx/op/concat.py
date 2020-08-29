@@ -1,6 +1,5 @@
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.op.activation import handleFusedActivation
@@ -13,7 +12,7 @@ class Concat(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-        self.axis = -1
+        self.attrs['axis'] = -1
 
         self.setInited()
 
@@ -44,7 +43,7 @@ class Concat(Operator):
         op_opt = op.BuiltinOptions()
         option = tflite.ConcatenationOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
-        self.axis = option.Axis()
+        self.attrs['axis'] = option.Axis()
 
         oi = op.Outputs(0)
         ot = tensor.get(self.model, self.graph, oi)
@@ -61,14 +60,6 @@ class Concat(Operator):
         if layout is None:
             return
         else:
-            axis = self.axis if self.axis >= 0 else (self.axis + len(layout.perm))
-            self.axis = layout.perm.index(axis)
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        logger.debug("Making ONNX...")
-        self.onnx = helper.make_node(self.type, inames, onames, axis=self.axis)
+            axis = self.attrs['axis']
+            axis = axis if axis >= 0 else (axis + len(layout.perm))
+            self.attrs['axis'] = layout.perm.index(axis)

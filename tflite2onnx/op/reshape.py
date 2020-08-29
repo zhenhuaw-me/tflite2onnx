@@ -74,12 +74,3 @@ class Reshape(Operator):
         if layout is None:
             raise ValueError("Requires layout description for <%s>" % i.name)
         shape_t.data = layout.transform(shape_t.data)
-
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames)
-        self.setConverted()

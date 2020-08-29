@@ -1,12 +1,11 @@
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import tensor
 from tflite2onnx.layout import Layout
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.op.operator import Operator
-from tflite2onnx.op.padding import PaddingMapping, computePaddingSize
+from tflite2onnx.op.padding import computePaddingSize
 
 logger = logging.getLogger('tflite2onnx')
 
@@ -15,18 +14,19 @@ class Conv(Operator):
     def __init__(self, model, graph, index):
         super().__init__(model, graph, index)
 
-        self.auto_pad = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
-        self.dilations = []
-        self.group = -1
-        self.kshape = []
-        self.strides = []
-        self.has_bias = True
-
+        self.attrs['kernel_shape'] = []
+        self.attrs['strides'] = []
         # ONNX: This attribute cannot be used simultaneously with `auto_pad` attribute.
         # re-initialize during self.parse(), as it needs the shape of input.
         # We prefer `auto_pad`, however ONNXRuntime doesn't support
         # `dilation` + `auto_pad`, such that we use `pads` to workaround it.
-        self.pads = [0, 0, 0, 0]
+        self.attrs['pads'] = [0, 0, 0, 0]
+        # XXX Not enabled as ONNXRuntime has limitation to infer pads for non-1 dilation
+        # self.attrs['auto_pad'] = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
+        self.attrs['dilations'] = []
+        self.attrs['group'] = -1
+
+        self.has_bias = True
 
         self.setInited()
 
@@ -94,15 +94,17 @@ class Conv(Operator):
         option = tflite.DepthwiseConv2DOptions() if self.isDepthwise else tflite.Conv2DOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
 
-        self.dilations = [option.DilationHFactor(), option.DilationWFactor()]
-        self.group = it.shape[3] if self.isDepthwise else 1
-        self.kshape = wt.shape[1:3]
-        self.strides = [option.StrideH(), option.StrideW()]
-        self.auto_pad = PaddingMapping[option.Padding()]
+        self.attrs['dilations'] = [option.DilationHFactor(), option.DilationWFactor()]
+        self.attrs['group'] = it.shape[3] if self.isDepthwise else 1
+        self.attrs['kernel_shape'] = wt.shape[1:3]
+        self.attrs['strides'] = [option.StrideH(), option.StrideW()]
+        # XXX Not enabled as ONNXRuntime has limitation to infer pads for non-1 dilation
+        # self.attrs['auto_pad'] = PaddingMapping[option.Padding()]
         if self.isDepthwise:
             assert(option.DepthMultiplier() == 1)
-        self.pads = computePaddingSize(option.Padding(), it.shape[1:3], self.kshape,
-                                       self.strides, self.dilations)
+        self.attrs['pads'] = computePaddingSize(option.Padding(), it.shape[1:3],
+                                                self.attrs['kernel_shape'],
+                                                self.attrs['strides'], self.attrs['dilations'])
 
         handleFusedActivation(self, option, ot)
 
@@ -116,17 +118,7 @@ class Conv(Operator):
     def transform(self):
         pass
 
-    def convert(self):
-        logger.debug("Converting %s...", self.type)
-        self._convertTensors()
-
-        inames = [t.name for t in self.inputs]
-        onames = [t.name for t in self.outputs]
-        self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=self.kshape,
-                                     strides=self.strides, pads=self.pads,
-                                     # strides=self.strides, auto_pad=self.auto_pad,
-                                     dilations=self.dilations, group=self.group)
-
     def __str__(self):
-        attrs = 'K%s, S%s, D%s, G(%d)' % (self.kshape, self.strides, self.dilations, self.group)
+        attrs = 'K%s, S%s, D%s, G(%d)' % (self.attrs['kernel_shape'], self.attrs['strides'],
+                                          self.attrs['dilations'], self.attrs['group'])
         return super().__str__() + attrs
