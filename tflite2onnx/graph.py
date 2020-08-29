@@ -28,6 +28,7 @@ class Graph(T2OBase):
     def _collectOpAndTensor(self):
         self.op_all.clear()
 
+        # collect operators
         def _recursive(op):
             for cur_op in op.pre:
                 _recursive(cur_op)
@@ -37,6 +38,7 @@ class Graph(T2OBase):
         for op in self.ops:
             _recursive(op)
 
+        # collect tensors
         assert(len(self.op_all) > 0)
         self.initializer.clear()
         self.value_info.clear()
@@ -74,6 +76,13 @@ class Graph(T2OBase):
 
         self.setParsed()
 
+    def validate(self):
+        self._collectOpAndTensor()
+        for op in self.op_all:
+            op.validate()
+        for t in self.initializer | self.value_info:
+            t.validate()
+
     def convert(self, explicit_layouts):
         logger.debug("Converting...")
 
@@ -99,6 +108,7 @@ class Graph(T2OBase):
 
         logger.debug("Graph:\n%s", str(self))
 
+        self.validate()
         for op in self.op_all:
             op.convert()
 

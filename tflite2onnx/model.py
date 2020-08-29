@@ -32,6 +32,9 @@ class Model(T2OBase):
 
         self.setParsed()
 
+    def validate(self):
+        pass
+
     def convert(self, explicit_layouts):
         self.parse()
         logger.debug("Converting...")

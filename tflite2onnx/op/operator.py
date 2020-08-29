@@ -71,6 +71,9 @@ class Operator(T2OBase):
                 return
         assert(False)
 
+    def validate(self):
+        assert(len(self.outputs) >= 1), "Operator should produce something"
+
     def __str__(self):
         inames = str([t.name for t in self.inputs])
         onames = str([t.name for t in self.outputs])

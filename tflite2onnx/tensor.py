@@ -143,6 +143,13 @@ class Tensor(T2OBase):
         else:
             self.shape = self.layout.transform(self.shape)
 
+    def validate(self):
+        if self.isInitializer:
+            assert(len(self.producers) == 0), "Initializer should not have producer"
+        else:
+            assert(len(self.producers) <= 1), "Tensor should have 1 producer or no"
+        assert(len(self.name) > 0), "Tensor must have valid name"
+
     def convert(self):
         if self.status.converted:
             return

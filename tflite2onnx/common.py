@@ -62,6 +62,9 @@ class T2OBase(ABC):
         assert(self.status.initialized)
         self.status = Status.PARSED
 
+    def validate(self):
+        raise NotImplementedError("method validate() is not overrided!")
+
     def convert(self):
         raise NotImplementedError("method convert() is not overrided!")
 
