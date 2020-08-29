@@ -66,10 +66,7 @@ class Concat(Operator):
 
     def convert(self):
         logger.debug("Converting %s...", self.type)
-
-        for t in self.inputs:
-            t.convert()
-        self.outputs[0].convert()
+        self._convertTensors()
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]

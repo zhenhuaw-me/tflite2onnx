@@ -87,7 +87,7 @@ class FullyConnected(Operator):
     def convert(self):
         logger.debug("Converting %s...", self.type)
 
-        super()._convertTensors()
+        self._convertTensors()
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]

@@ -76,7 +76,7 @@ class Quantize(Operator):
     def convert(self):
         logger.debug("Converting %s...", self.str)
 
-        super()._convertTensors()
+        self._convertTensors()
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]

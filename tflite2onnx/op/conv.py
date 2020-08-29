@@ -118,12 +118,10 @@ class Conv(Operator):
 
     def convert(self):
         logger.debug("Converting %s...", self.type)
-
-        super()._convertTensors()
+        self._convertTensors()
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]
-        logger.debug("Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=self.kshape,
                                      strides=self.strides, pads=self.pads,
                                      # strides=self.strides, auto_pad=self.auto_pad,

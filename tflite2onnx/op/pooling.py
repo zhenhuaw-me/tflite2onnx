@@ -82,12 +82,9 @@ class Pooling(Operator):
 
     def convert(self):
         logger.debug("Converting %s...", self.type)
-
-        self.inputs[0].convert()
-        self.outputs[0].convert()
+        self._convertTensors()
 
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]
-        logger.debug("Making ONNX...")
         self.onnx = helper.make_node(self.type, inames, onames, kernel_shape=self.kshape,
                                      strides=self.strides, auto_pad=self.auto_pad)
