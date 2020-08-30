@@ -117,8 +117,3 @@ class Conv(Operator):
 
     def transform(self):
         pass
-
-    def __str__(self):
-        attrs = 'K%s, S%s, D%s, G(%d)' % (self.attrs['kernel_shape'], self.attrs['strides'],
-                                          self.attrs['dilations'], self.attrs['group'])
-        return super().__str__() + attrs

@@ -58,7 +58,7 @@ class Operator(T2OBase):
         return '[' + self.name + '] (' + self.type + ')'
 
     def replaceInput(self, original, new):
-        logger.debug("Replacing [%s] input <%s> with <%s>", self.type, original.name, new.name)
+        logger.debug("Replacing %s input %s with %s", self.shorty, original.shorty, new.shorty)
         for index, item in enumerate(self.inputs):
             if item is original:
                 self.inputs[index] = new
@@ -66,7 +66,7 @@ class Operator(T2OBase):
         assert(False)
 
     def replaceOutput(self, original, new):
-        logger.debug("Replacing [%s] output <%s> with <%s>", self.type, original.name, new.name)
+        logger.debug("Replacing %s output %s with %s", self.shorty, original.shorty, new.shorty)
         for index, item in enumerate(self.outputs):
             if item is original:
                 self.outputs[index] = new
@@ -76,11 +76,6 @@ class Operator(T2OBase):
     def validate(self):
         assert(len(self.outputs) >= 1), "Operator should produce something"
 
-    def __str__(self):
-        inames = str([t.name for t in self.inputs])
-        onames = str([t.name for t in self.outputs])
-        return self.str + ': ' + inames + ' -> ' + onames
-
     def convert(self):
         logger.debug("converting %s...", self.type)
         for t in self.inputs + self.outputs:
@@ -89,3 +84,12 @@ class Operator(T2OBase):
         onames = [t.name for t in self.outputs]
         self.onnx = helper.make_node(self.type, inames, onames, **self.attrs)
         self.setConverted()
+
+    @property
+    def shorty(self):
+        return '[%s](%s)' % (self.name, self.type)
+
+    def __str__(self):
+        inames = str([t.name for t in self.inputs])
+        onames = str([t.name for t in self.outputs])
+        return '%s attr%s: %s -> %s' % (self.shorty, self.attrs, inames, onames)

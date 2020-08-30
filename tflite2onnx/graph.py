@@ -98,7 +98,7 @@ class Graph(T2OBase):
         self._propagateLayout()
         self._collectOpAndTensor()
 
-        logger.debug("Translating quantization pattern...")
+        logger.debug("Translating quantization semantic...")
         for t in self.value_info | self.initializer:
             deqt = handleQuantizationTensor(t)
             for i, o in enumerate(self.outputs):
@@ -143,14 +143,14 @@ class Graph(T2OBase):
         T_walked = set()
         while (len(T_toWalk) != 0):
             T = T_toWalk.pop()
-            logger.debug("Propagation: walking %s" % str(T))
+            logger.debug("Propagation: walking %s" % T.shorty)
             for n in T.producers + T.consumers:
                 if n.layoutPropagatable:
                     for t in n.inputs + n.outputs:
                         if t is T:
                             continue
                         if t in T_wild:
-                            logger.debug("Propagation: propagated to %s" % str(t))
+                            logger.debug("Propagation: propagated to %s" % t.shorty)
                             assert(t.layout is None)
                             T_wild.remove(t)
                             if t.isScalar:
@@ -175,16 +175,27 @@ class Graph(T2OBase):
         for op in self.op_all:
             op.transform()
 
+    def _dump(self, tag, container, useShorty):
+        dump = str()
+        for e in container:
+            dump += '[%s] %s\n' % (tag, e.shorty if useShorty else e)
+        return dump
+
+    @property
+    def shorty(self):
+        string = str()
+        string += self._dump('OP', self.op_all, True)
+        string += self._dump('Input', self.inputs, True)
+        string += self._dump('Output', self.outputs, True)
+        string += self._dump('Initializer', self.initializer, True)
+        string += self._dump('Value Info', self.value_info, True)
+        return string
+
     def __str__(self):
         string = str()
-        for op in self.op_all:
-            string += '[OP] ' + str(op) + '\n'
-        for t in self.inputs:
-            string += '[Inputs] ' + str(t) + '\n'
-        for t in self.initializer:
-            string += '[Initializer] ' + str(t) + '\n'
-        for t in self.value_info:
-            string += '[Value Info] ' + str(t) + '\n'
-        for t in self.outputs:
-            string += '[Outputs] ' + str(t) + '\n'
+        string += self._dump('OP', self.op_all, False)
+        string += self._dump('Input', self.inputs, False)
+        string += self._dump('Output', self.outputs, False)
+        string += self._dump('Initializer', self.initializer, False)
+        string += self._dump('Value Info', self.value_info, False)
         return string

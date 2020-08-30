@@ -1,7 +1,6 @@
 import copy
 import logging
 import tflite
-from onnx import helper
 
 from tflite2onnx import mapping
 from tflite2onnx import tensor

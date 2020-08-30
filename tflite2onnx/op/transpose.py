@@ -51,6 +51,3 @@ class Transpose(Operator):
 
     def transform(self):
         logger.warning("Transforming %s, doing nothing now...", self.type)
-
-    def __str__(self):
-        return super().__str__() + ', perm: ' + str(self.attrs['perm'])

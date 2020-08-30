@@ -42,7 +42,7 @@ class T2OBase(ABC):
         self.status = Status.UNINITIALIZED
 
         # TFLite objects
-        self.name = 'Unintialized'
+        self.name = 'Unnamed'
         self.model = model
         self.graph = graph
         self.index = index  # index of tensor or op
@@ -56,17 +56,17 @@ class T2OBase(ABC):
         self.status = Status.INITIALIZED
 
     def parse(self):
-        raise NotImplementedError("method parse() is not overrided!")
+        raise NotImplementedError("method parse() should be overrided!")
 
     def setParsed(self):
         assert(self.status.initialized)
         self.status = Status.PARSED
 
     def validate(self):
-        raise NotImplementedError("method validate() is not overrided!")
+        raise NotImplementedError("method validate() should be overrided!")
 
     def convert(self):
-        raise NotImplementedError("method convert() is not overrided!")
+        raise NotImplementedError("method convert() should be overrided!")
 
     def setConverted(self):
         assert(self.status.parsed)
@@ -75,5 +75,15 @@ class T2OBase(ABC):
     def setInvalid(self):
         self.status = Status.INVALID
 
+    @property
+    def shorty(self):
+        """A short readable description for the class/object.
+
+        This aims to be different from `__str__` which is exepcted to be
+        long description on this package.
+        """
+        raise NotImplementedError("method shorty() should be overrided!")
+
     def __str__(self):
-        return self.onnx.__str__()
+        """A readable description for the class/object."""
+        raise NotImplementedError("method __str__() should be overrided!")

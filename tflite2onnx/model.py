@@ -57,3 +57,10 @@ class Model(T2OBase):
         assert(self.status.converted)
         onnx.save(self.onnx, path)
         onnx.checker.check_model(path)
+
+    @property
+    def shorty(self):
+        return "Model holder"
+
+    def __str__(self):
+        return self.shorty

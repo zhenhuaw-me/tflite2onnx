@@ -102,7 +102,7 @@ def handleFusedActivation(master, option, output, intermediate=None):
     * `output`: the tensor that act as output of the whole pattern.
     * `intermediate`: the node that activation attach to, usually same as `master`.
     """
-    logger.debug("Handling FusedActivationFunction for %s", master)
+    logger.debug("Handling FusedActivationFunction for %s", master.shorty)
     faf = option.FusedActivationFunction()
     if faf is tflite.ActivationFunctionType.NONE:
         return

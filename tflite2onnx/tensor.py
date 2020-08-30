@@ -88,7 +88,7 @@ class Tensor(T2OBase):
     def dequantize(self):
         if not self.quantized:
             return
-        logger.debug("Dequantizing %s", self.name)
+        logger.debug("Dequantizing %s", self.shorty)
         if self.isInitializer:
             int32 = self.data.astype('int32')
             shiftted = np.subtract(int32, self.zero_point)
@@ -153,7 +153,7 @@ class Tensor(T2OBase):
     def convert(self):
         if self.status.converted:
             return
-        logger.debug("Converting %s...", self.name)
+        logger.debug("Converting %s...", self.shorty)
         if self.isInitializer:
             self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, self.data)
             onnx.checker.check_tensor(self.onnx)
@@ -164,13 +164,13 @@ class Tensor(T2OBase):
         self.setConverted()
 
     @property
-    def str(self):
-        return '<%s>(%s,%s)' % (self.name, mapping.DTYPE_ONNX2NAME[self.dtype], str(self.shape))
+    def shorty(self):
+        return '<%s>(%s,%s)' % (self.name, mapping.DTYPE_ONNX2NAME[self.dtype], self.shape)
 
     def __str__(self):
-        producer_names = str([op.str for op in self.producers])
-        consumer_names = str([op.str for op in self.consumers])
-        return '%s: %s -> %s' % (self.str, producer_names, consumer_names)
+        producer_names = [op.shorty for op in self.producers]
+        consumer_names = [op.shorty for op in self.consumers]
+        return '%s: {%s} -> {%s}' % (self.shorty, producer_names, consumer_names)
 
 
 def get(model, graph, index, layout=None, is_bias=False):
