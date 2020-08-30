@@ -1,10 +1,11 @@
+import copy
 import logging
 import numpy as np
 import onnx
 import tflite
 from onnx import helper, TensorProto
-from tflite2onnx import mapping
 
+from tflite2onnx import mapping
 from tflite2onnx.common import T2OBase
 from tflite2onnx.op import Operator
 
@@ -20,7 +21,6 @@ class Tensor(T2OBase):
     def __init__(self, model, graph, index, layout=None, is_bias=False):
         super().__init__(model, graph, index)
         self.tflite = graph.Tensors(index) if index >= 0 else None
-        self.is_bias = is_bias
         self.shape = []
         self.dtype = None
 
@@ -32,6 +32,9 @@ class Tensor(T2OBase):
         self.layout = layout
         self.producers = []
         self.consumers = []
+
+        # we only accept INT32 as quantized tensor type for bias
+        self.is_bias = is_bias
 
         self.setInited()
 
@@ -183,6 +186,27 @@ def get(model, graph, index, layout=None, is_bias=False):
         t = registery[name]
         if t.layout is None:
             t.layout = layout
+    return t
+
+
+def getWithRef(ref, name, forceUnique=False):
+    """Create a copy of the ref tensor.
+
+    This is used to create helper tensors for activations, layout handling,
+    quantization and so on. Some attributions will be removed.
+    """
+    if name not in registery:
+        t = Tensor(ref.model, ref.graph, -1)
+        t.name = name
+        t.dtype = ref.dtype
+        t.layout = copy.deepcopy(ref.layout)
+        t.shape = copy.deepcopy(ref.shape)
+        t.scale = copy.deepcopy(ref.scale)
+        t.zero_point = copy.deepcopy(ref.zero_point)
+        registery[name] = t
+    else:
+        assert(not forceUnique)
+        t = registery[name]
     return t
 
 

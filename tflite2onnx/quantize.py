@@ -1,4 +1,3 @@
-import copy
 import logging
 from onnx import TensorProto
 
@@ -42,16 +41,9 @@ def handleQuantizationTensor(t):
 
     # create quantized tensor
     qtname = name_prefix + '_quantized'
-    assert(qtname not in tensor.registery)
-    qtensor = tensor.Tensor(t.model, t.graph, -1)
-    qtensor.name = qtname
+    qtensor = tensor.getWithRef(t, qtname, True)
     qtensor.dtype = TensorProto.UINT8
-    qtensor.layout = copy.deepcopy(t.layout)
-    qtensor.shape = copy.deepcopy(t.shape)
-    qtensor.scale = copy.deepcopy(t.scale)
-    qtensor.zero_point = copy.deepcopy(t.zero_point)
     qtensor.setParsed()
-    tensor.registery[qtensor.name] = qtensor
 
     # create Quantize op
     qop = Quantize(t.model, t.graph, -1)
@@ -63,16 +55,9 @@ def handleQuantizationTensor(t):
 
     # create dequantized tensor
     deqtname = name_prefix + '_dequantized'
-    assert(deqtname not in tensor.registery)
-    deqtensor = tensor.Tensor(t.model, t.graph, -1)
-    deqtensor.name = deqtname
+    deqtensor = tensor.getWithRef(t, deqtname, True)
     deqtensor.dtype = TensorProto.FLOAT
-    deqtensor.layout = copy.deepcopy(t.layout)
-    deqtensor.shape = copy.deepcopy(t.shape)
-    deqtensor.scale = copy.deepcopy(t.scale)
-    deqtensor.zero_point = copy.deepcopy(t.zero_point)
     deqtensor.setParsed()
-    tensor.registery[deqtensor.name] = deqtensor
 
     # create Dequantize op
     deqop = Quantize(t.model, t.graph, -1)

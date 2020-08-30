@@ -59,19 +59,13 @@ class Binary(Operator):
         todo = a if align_a else b
         assert(len(new_shape) == len(output.shape))
 
-        new_t = tensor.Tensor(todo.model, todo.graph, -1)
-        new_t.name = 'TFLITE2ONNX_Reshape_%s' % todo.name
-        new_t.dtype = todo.dtype
-        new_t.scale = copy.deepcopy(todo.scale)
-        new_t.zero_point = copy.deepcopy(todo.zero_point)
-        new_t.layout = copy.deepcopy(todo.layout)
+        new_t_name = 'TFLITE2ONNX_Reshape_%s' % todo.name
+        new_t = tensor.getWithRef(todo, new_t_name, True)
         new_t.shape = new_shape
         new_t.setParsed()
-        assert(new_t.name not in tensor.registery)
-        tensor.registery[new_t.name] = new_t
 
-        shape_t = tensor.Tensor(todo.model, todo.graph, -1)
-        shape_t.name = 'TFLITE2ONNX_NewShape_%s' % todo.name
+        shape_t_name = 'TFLITE2ONNX_NewShape_%s' % todo.name
+        shape_t = tensor.getWithRef(todo, shape_t_name, True)
         shape_t.dtype = mapping.DTYPE_NAME2ONNX['int64']
         shape_t.shape = (len(new_shape),)
         shape_t.data = np.array(new_shape)

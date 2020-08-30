@@ -1,4 +1,3 @@
-import copy
 import logging
 import tflite
 
@@ -113,16 +112,9 @@ def handleFusedActivation(master, option, output, intermediate=None):
     assert(output.status.parsed)
 
     # create tensor that from Conv/FC to Activation
-    input = tensor.Tensor(intermediate.model, intermediate.graph, -1)
-    input.name = 'TFLITE2ONNX_FAF_%s' % output.name
-    input.dtype = output.dtype
-    input.scale = copy.deepcopy(output.scale)
-    input.zero_point = copy.deepcopy(output.zero_point)
-    input.layout = copy.deepcopy(output.layout)
-    input.shape = copy.deepcopy(output.shape)
+    iname = 'TFLITE2ONNX_FAF_%s' % output.name
+    input = tensor.getWithRef(output, iname, True)
     input.setParsed()
-    assert(input.name not in tensor.registery)
-    tensor.registery[input.name] = input
 
     intermediate.replaceOutput(output, input)
     input.addProducer(intermediate)
