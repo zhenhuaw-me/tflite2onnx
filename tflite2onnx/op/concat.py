@@ -25,7 +25,7 @@ class Concat(Operator):
         return True
 
     def parse(self):
-        logger.debug("Parsing %s...", self.type)
+        logger.debug("Parsing %s...", self.shorty)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode is tflite.BuiltinOperator.CONCATENATION)
@@ -56,10 +56,9 @@ class Concat(Operator):
         self.setParsed()
 
     def transform(self):
+        logger.debug("Transforming %s...", self.shorty)
         layout = self.outputs[0].layout
-        if layout is None:
-            return
-        else:
+        if layout is not None:
             axis = self.attrs['axis']
             axis = axis if axis >= 0 else (axis + len(layout.perm))
             self.attrs['axis'] = layout.perm.index(axis)
