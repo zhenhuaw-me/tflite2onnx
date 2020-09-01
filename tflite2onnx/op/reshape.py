@@ -1,6 +1,7 @@
 import copy
 import logging
 import tflite
+import numpy as np
 
 from tflite2onnx import mapping
 from tflite2onnx import tensor
@@ -48,10 +49,16 @@ class Reshape(Operator):
         st.parse()
         # TFLite shape is int32 data type, ONNX is int64
         st.dtype = mapping.DTYPE_NAME2ONNX['int64']
-        st.data = st.data.astype('int64')
         st.addConsumer(self)
         self.inputs.append(st)
-        logger.warning("In Reshape parsing, may need to handle new shape regarding layout.")
+        if st.isInitializer:
+            st.data = st.data.astype('int64')
+        if (len(st.shape) > 1):
+            logger.warning("ONNXRuntime doesn't support 2+rank shape, "
+                           "flatten if the shape is initialzier, ignore otherwise."
+                           "https://github.com/jackwish/tflite2onnx/issues/16")
+            if st.isInitializer:
+                st.shape = (np.prod(np.array(st.shape)),)
 
         # output
         oi = op.Outputs(0)
