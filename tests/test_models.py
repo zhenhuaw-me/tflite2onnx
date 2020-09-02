@@ -50,8 +50,12 @@ def test_ops_post_propagation():
         'concat.float32',
         'mean.float32',
         'reshape.float32',
-        'split.float32',
         'softmax.float32',
+        'split.float32',
+        'stridedslice-beginmask.float32',
+        'stridedslice-endmask.float32',
+        'stridedslice-stride.float32',
+        'stridedslice.float32',
         'transpose.float32',
     )
 

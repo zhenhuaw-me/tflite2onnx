@@ -220,7 +220,7 @@ def getData(model, graph, index, dtype):
     if isinstance(raw, int) and raw == 0:
         return None
     data = np.frombuffer(raw, dtype=dtype)
-    return data
+    return data.copy()
 
 
 def isTFLiteQuantized(graph, tensor_index):
@@ -233,6 +233,21 @@ def createScalar(ref, value):
     name = 'TFLITE2ONNX_Scalar_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
     dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
     return _createScalarCore(ref.model, ref.graph, name, dtype, value)
+
+
+def createVector(ref, ndarray):
+    array2key = str(ndarray).replace(' ', '_')
+    name = 'TFLITE2ONNX_Vector_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + array2key
+    dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
+    if name not in registery:
+        t = Tensor(ref.model, ref.graph, -1, None)
+        t.name = name
+        t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
+        t.data = ndarray.copy()
+        t.shape = t.data.shape
+        t.setParsed()
+        registery[name] = t
+    return registery[name]
 
 
 def _createScalarCore(model, graph, name, dtype, value):
