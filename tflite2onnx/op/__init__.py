@@ -10,6 +10,7 @@ from tflite2onnx.op.pooling import Pooling
 from tflite2onnx.op.quantize import Quantize
 from tflite2onnx.op.reduce import Reduce
 from tflite2onnx.op.reshape import Reshape
+from tflite2onnx.op.split import Split
 from tflite2onnx.op.softmax import Softmax
 from tflite2onnx.op.transpose import Transpose
 from tflite2onnx.op.unary import Unary
@@ -31,6 +32,7 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.RELU6: ReLU,
     tflite.BuiltinOperator.RELU: ReLU,
     tflite.BuiltinOperator.RESHAPE: Reshape,
+    tflite.BuiltinOperator.SPLIT: Split,
     tflite.BuiltinOperator.SOFTMAX: Softmax,
     tflite.BuiltinOperator.TRANSPOSE: Transpose,
 }

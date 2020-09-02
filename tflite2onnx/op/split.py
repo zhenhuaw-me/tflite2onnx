@@ -1,0 +1,79 @@
+import logging
+import tflite
+import numpy as np
+
+from tflite2onnx import tensor
+from tflite2onnx.op.operator import Operator
+
+logger = logging.getLogger('tflite2onnx')
+
+
+class Split(Operator):
+    def __init__(self, model, graph, index):
+        super().__init__(model, graph, index)
+
+        self.attrs['axis'] = -1
+        self.attrs['split'] = None
+
+        self.setInited()
+
+    @property
+    def type(self):
+        return 'Split'
+
+    @property
+    def layoutPropagatable(self):
+        return True
+
+    def parse(self):
+        logger.debug("Parsing %s...", self.type)
+
+        op = self.tflite
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        assert(opcode is tflite.BuiltinOperator.SPLIT)
+
+        assert(op.InputsLength() == 2)
+
+        # input
+        ii = op.Inputs(1)
+        it = tensor.get(self.model, self.graph, ii)
+        it.parse()
+        it.addConsumer(self)
+        self.inputs.append(it)
+
+        # options
+        ai = op.Inputs(0)
+        axis = tensor.getData(self.model, self.graph, ai, 'int32')
+        assert(axis.size == 1)
+        self.attrs['axis'] = int(axis[0])
+
+        op_opt = op.BuiltinOptions()
+        option = tflite.SplitOptions()
+        option.Init(op_opt.Bytes, op_opt.Pos)
+        # TFLite outputs have same shape
+        split_size = option.NumSplits()
+        assert(isinstance(split_size, int))
+        assert(op.OutputsLength() == split_size)
+        self.attrs['split'] = np.zeros(split_size).astype('int')
+
+        # XXX workaround for ONNXRuntime: doesn't support all-zero `split`.
+        split = it.shape[self.attrs['axis']] / split_size
+        self.attrs['split'] = np.full((split_size,), split).astype('int')
+
+        # output
+        for i in range(split_size):
+            oi = op.Outputs(i)
+            ot = tensor.get(self.model, self.graph, oi)
+            ot.parse()
+            ot.addProducer(self)
+            self.outputs.append(ot)
+
+        self.setParsed()
+
+    def transform(self):
+        logger.debug("Transforming %s...", self.shorty)
+        layout = self.outputs[0].layout
+        if layout is not None:
+            axis = self.attrs['axis']
+            axis = axis if axis >= 0 else (axis + len(layout.perm))
+            self.attrs['axis'] = layout.perm.index(axis)

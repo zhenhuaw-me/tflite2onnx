@@ -25,7 +25,7 @@ def end2end_test(model_name, use_layout):
 
 def test_ops_implicit_layout():
     # this ops will stop layout propagation
-    OP_LIST_IMPLICIT_LAYOUT = (
+    OP_LIST = (
         'avgpooling.float32',
         'avgpool-concat.float32',
         'conv.float32',
@@ -40,27 +40,28 @@ def test_ops_implicit_layout():
         'maxpooling.float32',
     )
 
-    for op in OP_LIST_IMPLICIT_LAYOUT:
+    for op in OP_LIST:
         end2end_test(op, 'NCHW')
 
 
 def test_ops_post_propagation():
     # this ops need post-propagation handling
-    OP_LIST_LAYOUT_TRANSPARENT = (
+    OP_LIST = (
         'concat.float32',
         'mean.float32',
         'reshape.float32',
+        'split.float32',
         'softmax.float32',
         'transpose.float32',
     )
 
-    for op in OP_LIST_LAYOUT_TRANSPARENT:
+    for op in OP_LIST:
         end2end_test(op, 'NHWC')
 
 
 def test_ops_layout_transparent():
     # this ops are very wild :)
-    OP_LIST_LAYOUT_TRANSPARENT = (
+    OP_LIST = (
         'abs.float32',
         'add.float32',
         'add-relu.float32',
@@ -69,7 +70,7 @@ def test_ops_layout_transparent():
         'relu.float32',
     )
 
-    for op in OP_LIST_LAYOUT_TRANSPARENT:
+    for op in OP_LIST:
         end2end_test(op, 'NHWC')
 
 
