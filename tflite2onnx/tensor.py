@@ -110,6 +110,11 @@ class Tensor(T2OBase):
     def isScalar(self):
         return (self.layout is None) and (len(self.shape) == 0) and (len(self.data) == 1)
 
+    def asDtype(self, dtype: str):
+        self.dtype = mapping.DTYPE_NAME2ONNX[dtype]
+        if self.isInitializer:
+            self.data = self.data.astype(dtype)
+
     def parse(self):
         if self.status.parsed:
             return

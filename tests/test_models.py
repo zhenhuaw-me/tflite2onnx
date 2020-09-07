@@ -49,6 +49,7 @@ def test_ops_post_propagation():
     OP_LIST = (
         'concat.float32',
         'mean.float32',
+        'padding.float32',
         'reshape.float32',
         'softmax.float32',
         'split.float32',

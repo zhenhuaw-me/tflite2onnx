@@ -1,11 +1,87 @@
+import logging
 import numpy as np
 import tflite
+
+from tflite2onnx import tensor
+from tflite2onnx.op.operator import Operator
+
+logger = logging.getLogger('tflite2onnx')
 
 
 PaddingMapping = {
     tflite.Padding.SAME: 'SAME_UPPER',
     tflite.Padding.VALID: 'VALID',
 }
+
+
+class Padding(Operator):
+    def __init__(self, model, graph, index):
+        super().__init__(model, graph, index)
+
+        self.attrs['mode'] = 'constant'
+
+        self.setInited()
+
+    @property
+    def type(self):
+        return 'Pad'
+
+    def parse(self):
+        logger.debug("Parsing %s...", self.shorty)
+        op = self.tflite
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        assert(opcode is tflite.BuiltinOperator.PAD)
+
+        assert(op.InputsLength() == 2)
+        assert(op.OutputsLength() == 1)
+
+        ii = op.Inputs(0)
+        it = tensor.get(self.model, self.graph, ii)
+        it.parse()
+        it.addConsumer(self)
+        self.inputs.append(it)
+
+        pi = op.Inputs(1)
+        pt = tensor.get(self.model, self.graph, pi)
+        pt.parse()
+        assert(len(pt.shape) == 2)
+        assert(pt.shape[0] == len(it.shape))
+        assert(pt.shape[1] == 2)
+        assert(pt.isInitializer)
+        # bridge semantic gap
+        pt.asDtype('int64')
+        pt.addConsumer(self)
+        self.inputs.append(pt)
+
+        oi = op.Outputs(0)
+        ot = tensor.get(self.model, self.graph, oi)
+        ot.parse()
+        ot.addProducer(self)
+        self.outputs.append(ot)
+
+        self.setParsed()
+
+    def propagatableTensors(self):
+        return [self.inputs[0], self.outputs[0]]
+
+    def transform(self):
+        # Padding.transform() handls TFLite/ONNX semantic gap in addition to layout gap
+        # TensorFlow (Lite) pads is `[n, 2]` where `[i, 0]` is _begin_ and `[i, 1]` is _end_
+        # ONNX pads is `[n * 2]` sequenced as `[x1_begin, x2_begin,...,x1_end, x2_end,...]`
+        layout = self.inputs[0].layout
+        pt = self.inputs[1]
+        pads = pt.data
+        pads = np.reshape(pads, pt.shape)
+        if layout is None:
+            pads = np.transpose(pads)
+        else:
+            pads_begin = pads[:, 0]
+            pads_end = pads[:, 1]
+            pads_begin = layout.transform(pads_begin)
+            pads_end = layout.transform(pads_end)
+            pads = np.array([pads_begin, pads_end])
+        pt.data = pads.flatten()
+        pt.shape = [np.prod(pt.shape), ]
 
 
 # https://github.com/tensorflow/tensorflow/blob/v2.2.0/tensorflow/lite/kernels/padding.h#L58

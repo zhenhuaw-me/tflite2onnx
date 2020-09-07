@@ -6,6 +6,7 @@ from tflite2onnx.op.concat import Concat
 from tflite2onnx.op.conv import Conv
 from tflite2onnx.op.fullyconnected import FullyConnected
 from tflite2onnx.op.operator import Operator    # noqa: F401
+from tflite2onnx.op.padding import Padding
 from tflite2onnx.op.pooling import Pooling
 from tflite2onnx.op.quantize import Quantize
 from tflite2onnx.op.reduce import Reduce
@@ -29,6 +30,7 @@ OP_CONVERTERS = {
     tflite.BuiltinOperator.MAX_POOL_2D: Pooling,
     tflite.BuiltinOperator.MEAN: Reduce,
     tflite.BuiltinOperator.MUL: Binary,
+    tflite.BuiltinOperator.PAD: Padding,
     tflite.BuiltinOperator.QUANTIZE: Quantize,
     tflite.BuiltinOperator.RELU6: ReLU,
     tflite.BuiltinOperator.RELU: ReLU,
