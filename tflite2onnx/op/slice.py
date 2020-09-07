@@ -1,3 +1,4 @@
+import copy
 import logging
 import tflite
 import numpy as np
@@ -107,5 +108,14 @@ class Slice(Operator):
     def transform(self):
         logger.debug("Transforming %s...", self.shorty)
         layout = self.outputs[0].layout
-        assert(layout is None)
-        # if layout is not None:
+        cl = copy.deepcopy(layout)
+        if cl is None:
+            logger.warning("layout of %s should not be None", self.shorty)
+            return
+        assert(len(self.inputs) == 5)
+        tbegin = self.inputs[1]
+        tbegin.data = cl.transform(tbegin.data)
+        tend = self.inputs[2]
+        tend.data = cl.transform(tend.data)
+        tstrides = self.inputs[4]
+        tstrides.data = cl.transform(tstrides.data)
