@@ -19,11 +19,14 @@ Please add in A-Z style.
 - [x] MaxPooling
 - [x] Mean (reduce)
 - [x] Mul
+- [x] Pad
 - [x] Quantize
 - [x] ReLU
 - [x] ReLU6
 - [x] Reshape
 - [x] Softmax
+- [x] Split
+- [x] StridedSlice
 - [x] Transpose
 
 - [ ] Fused Activations
