@@ -19,10 +19,6 @@ class Transpose(Operator):
     def type(self):
         return 'Transpose'
 
-    @property
-    def layoutPropagatable(self):
-        return False
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
@@ -48,6 +44,9 @@ class Transpose(Operator):
         self.outputs.append(ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return list()
 
     def transform(self):
         logger.warning("Transforming %s, doing nothing now...", self.type)

@@ -17,10 +17,6 @@ class Slice(Operator):
     def type(self):
         return 'Slice'
 
-    @property
-    def layoutPropagatable(self):
-        return True
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
 
@@ -104,6 +100,9 @@ class Slice(Operator):
         self.inputs.append(st)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return [self.inputs[0], self.outputs[0]]
 
     def transform(self):
         logger.debug("Transforming %s...", self.shorty)

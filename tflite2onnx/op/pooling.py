@@ -37,10 +37,6 @@ class Pooling(Operator):
             assert(opcode in OpTypeMapping)
             return OpTypeMapping[opcode]
 
-    @property
-    def layoutPropagatable(self):
-        return False
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
@@ -74,6 +70,9 @@ class Pooling(Operator):
         handleFusedActivation(self, option, ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return list()
 
     def transform(self):
         pass

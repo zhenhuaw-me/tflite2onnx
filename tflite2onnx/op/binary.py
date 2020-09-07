@@ -39,10 +39,6 @@ class Binary(Operator):
             assert(opcode in OpTypeMapping)
             return OpTypeMapping[opcode]
 
-    @property
-    def layoutPropagatable(self):
-        return True
-
     def fakeBroadcast(self):
         # Binary operators need to broadcast shape explicitly here since
         # they may not be broadcastable after layout propagration.
@@ -121,6 +117,9 @@ class Binary(Operator):
         handleFusedActivation(self, option, ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return self.inputs + self.outputs
 
     def transform(self):
         pass

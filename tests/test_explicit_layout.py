@@ -49,6 +49,9 @@ def test_explicit_layout():
     end2end_test('mean.float32', 'NHWC', {'input': ('NHWC', 'NHWC')})
     end2end_test('mean.float32', 'NCHW', {'input': ('NHWC', 'NCHW')})
 
+    end2end_test('stridedslice.float32', 'NHWC', {'input': ('NHWC', 'NHWC')})
+    end2end_test('stridedslice.float32', 'NCHW', {'input': ('NHWC', 'NCHW')})
+
 
 if __name__ == '__main__':
     test_explicit_layout()

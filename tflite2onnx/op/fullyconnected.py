@@ -25,10 +25,6 @@ class FullyConnected(Operator):
     def type(self):
         return 'Gemm'
 
-    @property
-    def layoutPropagatable(self):
-        return False
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
@@ -79,6 +75,9 @@ class FullyConnected(Operator):
         handleFusedActivation(self, option, ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return list()
 
     def transform(self):
         pass

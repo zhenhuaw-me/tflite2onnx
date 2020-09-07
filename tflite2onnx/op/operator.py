@@ -20,26 +20,28 @@ class Operator(T2OBase):
     def type(self):
         raise NotImplementedError("Method Operator.type() must be overrided!")
 
-    @property
-    def layoutPropagatable(self):
-        """Should the layout be propagated across this operator?
+    def propagatableTensors(self):
+        """Get all layout propagable tensors of this operator.
 
         When we propagate layouts across the graph:
-        1. [False] Some operators may stop the propagation
+        1. Some operators may stop the propagation
             a) An operator assumes layouts of its tensors, `Conv` for example.
                Such operator needs to define the layouts of its tensors explicitly.
             b) An operator breaks layout semantic, `Reshape` for example.
                Tensors connected to this operator should be propagated.
                And the operator may need special handling regarding layout.
-        2. [True] Others may not - propagatable:
+        2. Others may not - propagatable:
             a) An operator that is transparent to layout, such as Add.
                Just propagate the layouts.
             b) Layout can propagate across tensors of an operator, but the operator
                itself has attribution that is sensitive to layout.
                Operator needs special handling after propagation.
         This is defined per operator.
+
+        To handle this, we firstly propagate layouts of tensors across the graph,
+        and then update attributes of operators accordingly.
         """
-        raise NotImplementedError("Method %s.layoutPropagatable() must be overrided!" % self.type)
+        raise NotImplementedError("Method %s.propagatableTensors() must be overrided!" % self.type)
 
     def transform(self):
         """Transform the operator attributions w.r.t. propagated layouts.

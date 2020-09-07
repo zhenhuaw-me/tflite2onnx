@@ -38,10 +38,6 @@ class Conv(Operator):
             return 'Conv'
 
     @property
-    def layoutPropagatable(self):
-        return False
-
-    @property
     def isDepthwise(self):
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
@@ -109,6 +105,9 @@ class Conv(Operator):
         handleFusedActivation(self, option, ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return list()
 
     @property
     def quantized(self):

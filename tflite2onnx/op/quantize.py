@@ -25,10 +25,6 @@ class Quantize(Operator):
         assert(self.status.parsed)
         return self.inputs[0].dtype is TensorProto.FLOAT
 
-    @property
-    def layoutPropagatable(self):
-        return True
-
     def parse(self):
         logger.debug("Parsing %s...", self.shorty)
         op = self.tflite
@@ -51,6 +47,9 @@ class Quantize(Operator):
         self.outputs.append(ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return self.inputs + self.outputs
 
     def dequantize(self):
         if self.isQuantize:

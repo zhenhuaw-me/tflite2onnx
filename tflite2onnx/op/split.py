@@ -21,10 +21,6 @@ class Split(Operator):
     def type(self):
         return 'Split'
 
-    @property
-    def layoutPropagatable(self):
-        return True
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
 
@@ -69,6 +65,9 @@ class Split(Operator):
             self.outputs.append(ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return self.inputs + self.outputs
 
     def transform(self):
         logger.debug("Transforming %s...", self.shorty)

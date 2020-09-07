@@ -31,10 +31,6 @@ class Reduce(Operator):
             assert(opcode in OpTypeMapping)
             return OpTypeMapping[opcode]
 
-    @property
-    def layoutPropagatable(self):
-        return False
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
 
@@ -63,6 +59,9 @@ class Reduce(Operator):
         self.attrs['keepdims'] = 1 if (len(ot.shape) == len(it.shape)) else 0
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return list()
 
     def transform(self):
         layout = self.inputs[0].layout

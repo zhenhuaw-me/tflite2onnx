@@ -19,11 +19,6 @@ class Softmax(Operator):
     def type(self):
         return 'Softmax'
 
-    @property
-    def layoutPropagatable(self):
-        # FIXME
-        return False
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
@@ -59,6 +54,9 @@ class Softmax(Operator):
         self.outputs.append(ot)
 
         self.setParsed()
+
+    def propagatableTensors(self):
+        return self.inputs + self.outputs
 
     def transform(self):
         pass
