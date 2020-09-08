@@ -29,19 +29,11 @@ class Slice(Operator):
         assert(op.OutputsLength() == 1)
 
         # input
-        ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        it = self.parseInput(0)
         rank = len(it.shape)
 
         # output
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        ot = self.parseOutput(0)
         assert(rank == len(ot.shape))
 
         # options
@@ -64,26 +56,18 @@ class Slice(Operator):
         m_end = _intToBitsList(m_end, rank)
 
         # begin
-        bi = op.Inputs(1)
-        bt = tensor.get(self.model, self.graph, bi)
-        bt.parse()
+        bt = self.parseInput(1)
         assert(bt.isInitializer)
         assert(rank == bt.shape[0])
         for i, (mask, begin) in enumerate(zip(m_begin, list(bt.data))):
             bt.data[i] = 0 if mask == 1 else begin
-        bt.addConsumer(self)
-        self.inputs.append(bt)
 
         # end
-        ei = op.Inputs(2)
-        et = tensor.get(self.model, self.graph, ei)
-        et.parse()
+        et = self.parseInput(2)
         assert(et.isInitializer)
         assert(rank == et.shape[0])
         for i, (extent, mask, end) in enumerate(zip(it.shape, m_end, list(et.data))):
             et.data[i] = extent if mask == 1 else end
-        et.addConsumer(self)
-        self.inputs.append(et)
 
         # axis, we create from empty
         axis = np.arange(rank)
@@ -92,13 +76,9 @@ class Slice(Operator):
         self.inputs.append(at)
 
         # strides
-        si = op.Inputs(3)
-        st = tensor.get(self.model, self.graph, si)
-        st.parse()
+        st = self.parseInput(3)
         assert(st.isInitializer)
         assert(rank == st.shape[0])
-        st.addConsumer(self)
-        self.inputs.append(st)
 
         self.setParsed()
 

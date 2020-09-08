@@ -1,7 +1,6 @@
 import logging
 import tflite
 
-from tflite2onnx import tensor
 from tflite2onnx.layout import Layout
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.op.operator import Operator
@@ -46,12 +45,8 @@ class Pooling(Operator):
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
-        ii = op.Inputs(0)
         ilayout = Layout('NHWC', 'NCHW')
-        it = tensor.get(self.model, self.graph, ii, ilayout)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        self.parseInput(0, ilayout)
 
         op_opt = op.BuiltinOptions()
         option = tflite.Pool2DOptions()
@@ -60,12 +55,8 @@ class Pooling(Operator):
         self.attrs['kernel_shape'] = [option.FilterHeight(), option.FilterWidth()]
         self.attrs['strides'] = [option.StrideH(), option.StrideW()]
 
-        oi = op.Outputs(0)
         olayout = Layout('NHWC', 'NCHW')
-        ot = tensor.get(self.model, self.graph, oi, olayout)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        ot = self.parseOutput(0, olayout)
 
         handleFusedActivation(self, option, ot)
 

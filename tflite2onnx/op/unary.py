@@ -1,7 +1,6 @@
 import logging
 import tflite
 
-from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
@@ -36,18 +35,8 @@ class Unary(Operator):
 
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
-
-        ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
-
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        self.parseInput(0)
+        self.parseOutput(0)
 
         self.setParsed()
 

@@ -40,18 +40,8 @@ class Reduce(Operator):
 
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)
-
-        ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
-
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        it = self.parseInput(0)
+        ot = self.parseOutput(0)
 
         # options
         ai = op.Inputs(1)

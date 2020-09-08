@@ -1,7 +1,6 @@
 import logging
 import tflite
 
-from tflite2onnx import tensor
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.op.operator import Operator
 
@@ -31,38 +30,20 @@ class FullyConnected(Operator):
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode is tflite.BuiltinOperator.FULLY_CONNECTED)
 
-        self.has_bias = op.InputsLength() == 3
-        assert(self.has_bias), "TFLite Fullly Connected always has bias"
+        assert(op.InputsLength() == 3), "TFLite Fullly Connected always has bias"
         assert(op.OutputsLength() == 1)
 
         # input
-        ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        self.parseInput(0)
 
         # weight
-        wi = op.Inputs(1)
-        wt = tensor.get(self.model, self.graph, wi)
-        wt.parse()
-        wt.addConsumer(self)
-        self.inputs.append(wt)
-
-        # output
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        self.parseInput(1)
 
         # bias
-        if self.has_bias:
-            bi = op.Inputs(2)
-            bt = tensor.get(self.model, self.graph, bi, is_bias=True)
-            bt.parse()
-            bt.addConsumer(self)
-            self.inputs.append(bt)
+        self.parseInput(2, is_bias=True)
+
+        # output
+        ot = self.parseOutput(0)
 
         # options
         op_opt = op.BuiltinOptions()

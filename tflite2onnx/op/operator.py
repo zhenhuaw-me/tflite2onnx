@@ -1,6 +1,7 @@
 import logging
 from onnx import helper
 
+from tflite2onnx import tensor
 from tflite2onnx.common import T2OBase
 
 logger = logging.getLogger('tflite2onnx')
@@ -58,6 +59,22 @@ class Operator(T2OBase):
     @property
     def str(self):
         return '[' + self.name + '] (' + self.type + ')'
+
+    def parseInput(self, index, layout=None, is_bias=False):
+        ii = self.tflite.Inputs(index)
+        it = tensor.get(self.model, self.graph, ii, layout, is_bias)
+        it.parse()
+        it.addConsumer(self)
+        self.inputs.append(it)
+        return it
+
+    def parseOutput(self, index, layout=None):
+        oi = self.tflite.Outputs(index)
+        ot = tensor.get(self.model, self.graph, oi, layout)
+        ot.parse()
+        ot.addProducer(self)
+        self.outputs.append(ot)
+        return ot
 
     def replaceInput(self, original, new):
         logger.debug("Replacing %s input %s with %s", self.shorty, original.shorty, new.shorty)

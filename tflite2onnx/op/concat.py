@@ -1,7 +1,6 @@
 import logging
 import tflite
 
-from tflite2onnx import tensor
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.op.operator import Operator
 
@@ -30,24 +29,16 @@ class Concat(Operator):
         assert(op.OutputsLength() == 1)
 
         for i in range(op.InputsLength()):
-            ii = op.Inputs(i)
-            it = tensor.get(self.model, self.graph, ii)
-            it.parse()
-            it.addConsumer(self)
-            self.inputs.append(it)
+            self.parseInput(i)
 
         op_opt = op.BuiltinOptions()
         option = tflite.ConcatenationOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
         self.attrs['axis'] = option.Axis()
 
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        self.parseOutput(0)
 
-        handleFusedActivation(self, option, ot)
+        handleFusedActivation(self, option, self.outputs[0])
 
         self.setParsed()
 

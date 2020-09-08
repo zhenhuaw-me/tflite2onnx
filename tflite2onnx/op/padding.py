@@ -2,7 +2,6 @@ import logging
 import numpy as np
 import tflite
 
-from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
@@ -35,29 +34,17 @@ class Padding(Operator):
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)
 
-        ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        it = self.parseInput(0)
 
-        pi = op.Inputs(1)
-        pt = tensor.get(self.model, self.graph, pi)
-        pt.parse()
+        pt = self.parseInput(1)
         assert(len(pt.shape) == 2)
         assert(pt.shape[0] == len(it.shape))
         assert(pt.shape[1] == 2)
         assert(pt.isInitializer)
         # bridge semantic gap
         pt.asDtype('int64')
-        pt.addConsumer(self)
-        self.inputs.append(pt)
 
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        self.parseOutput(0)
 
         self.setParsed()
 

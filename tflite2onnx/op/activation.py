@@ -49,11 +49,7 @@ class ReLU(Operator):
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
-        ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        it = self.parseInput(0)
 
         if opcode == tflite.BuiltinOperator.RELU6:
             tmin = tensor.createScalar(it, 0)
@@ -63,11 +59,7 @@ class ReLU(Operator):
             tmax.addConsumer(self)
             self.inputs.append(tmax)
 
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        self.parseOutput(0)
 
         self.setParsed()
 

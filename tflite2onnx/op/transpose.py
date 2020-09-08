@@ -27,21 +27,11 @@ class Transpose(Operator):
 
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)
-
-        ii = op.Inputs(0)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        self.parseInput(0)
+        self.parseOutput(0)
 
         ii = op.Inputs(1)
         self.attrs['perm'] = tensor.getData(self.model, self.graph, ii, 'int32')
-
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
 
         self.setParsed()
 

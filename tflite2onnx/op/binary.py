@@ -94,18 +94,9 @@ class Binary(Operator):
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)
 
-        for i in range(op.InputsLength()):
-            ii = op.Inputs(i)
-            it = tensor.get(self.model, self.graph, ii)
-            it.parse()
-            it.addConsumer(self)
-            self.inputs.append(it)
-
-        oi = op.Outputs(0)
-        ot = tensor.get(self.model, self.graph, oi)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        self.parseInput(0)
+        self.parseInput(1)
+        ot = self.parseOutput(0)
 
         self.fakeBroadcast()
 

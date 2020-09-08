@@ -31,11 +31,7 @@ class Split(Operator):
         assert(op.InputsLength() == 2)
 
         # input
-        ii = op.Inputs(1)
-        it = tensor.get(self.model, self.graph, ii)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        it = self.parseInput(1)
 
         # options
         ai = op.Inputs(0)
@@ -58,11 +54,7 @@ class Split(Operator):
 
         # output
         for i in range(split_size):
-            oi = op.Outputs(i)
-            ot = tensor.get(self.model, self.graph, oi)
-            ot.parse()
-            ot.addProducer(self)
-            self.outputs.append(ot)
+            self.parseOutput(i)
 
         self.setParsed()
 

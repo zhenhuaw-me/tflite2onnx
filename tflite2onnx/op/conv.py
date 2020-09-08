@@ -26,8 +26,6 @@ class Conv(Operator):
         self.attrs['dilations'] = []
         self.attrs['group'] = -1
 
-        self.has_bias = True
-
         self.setInited()
 
     @property
@@ -49,41 +47,23 @@ class Conv(Operator):
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode is tflite.BuiltinOperator.CONV_2D or tflite.BuiltinOperator.DEPTHWISE_CONV_2D)
 
-        self.has_bias = op.InputsLength() == 3
-        assert(self.has_bias), "TFLite Conv always has bias"
+        assert(op.InputsLength() == 3), "TFLite Conv always has bias"
         assert(op.OutputsLength() == 1)
 
         # input
-        ii = op.Inputs(0)
         ilayout = Layout('NHWC', 'NCHW')
-        it = tensor.get(self.model, self.graph, ii, ilayout)
-        it.parse()
-        it.addConsumer(self)
-        self.inputs.append(it)
+        it = self.parseInput(0, ilayout)
 
         # weight
-        wi = op.Inputs(1)
         wlayout = Layout('CHWM', 'MCHW') if self.isDepthwise else Layout('OHWI', 'OIHW')
-        wt = tensor.get(self.model, self.graph, wi, wlayout)
-        wt.parse()
-        wt.addConsumer(self)
-        self.inputs.append(wt)
-
-        # output
-        oi = op.Outputs(0)
-        olayout = Layout('NHWC', 'NCHW')
-        ot = tensor.get(self.model, self.graph, oi, olayout)
-        ot.parse()
-        ot.addProducer(self)
-        self.outputs.append(ot)
+        wt = self.parseInput(1, wlayout)
 
         # bias
-        if self.has_bias:
-            bi = op.Inputs(2)
-            bt = tensor.get(self.model, self.graph, bi, is_bias=True)
-            bt.parse()
-            bt.addConsumer(self)
-            self.inputs.append(bt)
+        self.parseInput(2, is_bias=True)
+
+        # output
+        olayout = Layout('NHWC', 'NCHW')
+        ot = self.parseOutput(0, olayout)
 
         # options
         op_opt = op.BuiltinOptions()
@@ -91,7 +71,7 @@ class Conv(Operator):
         option.Init(op_opt.Bytes, op_opt.Pos)
 
         self.attrs['dilations'] = [option.DilationHFactor(), option.DilationWFactor()]
-        self.attrs['group'] = it.shape[3] if self.isDepthwise else 1
+        self.attrs['group'] = wt.shape[3] if self.isDepthwise else 1
         self.attrs['kernel_shape'] = wt.shape[1:3]
         self.attrs['strides'] = [option.StrideH(), option.StrideW()]
         # XXX Not enabled as ONNXRuntime has limitation to infer pads for non-1 dilation
