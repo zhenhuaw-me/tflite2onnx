@@ -1,7 +1,6 @@
 import logging
 import tflite
 
-from tflite2onnx import tensor
 from tflite2onnx.layout import Layout
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.op.operator import Operator
@@ -30,10 +29,7 @@ class Conv(Operator):
 
     @property
     def type(self):
-        if self.status.parsed and self.quantized:
-            return 'QLinearConv'
-        else:
-            return 'Conv'
+        return 'Conv'
 
     @property
     def isDepthwise(self):
@@ -88,11 +84,6 @@ class Conv(Operator):
 
     def propagatableTensors(self):
         return list()
-
-    @property
-    def quantized(self):
-        return False
-        return tensor.isTFLiteQuantized(self.graph, self.tflite.Outputs(0))
 
     def transform(self):
         pass

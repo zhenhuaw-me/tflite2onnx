@@ -2,7 +2,6 @@ import copy
 import logging
 import numpy as np
 import onnx
-import tflite
 from onnx import helper, TensorProto
 
 from tflite2onnx import mapping
@@ -226,12 +225,6 @@ def getData(model, graph, index, dtype):
         return None
     data = np.frombuffer(raw, dtype=dtype)
     return data.copy()
-
-
-def isTFLiteQuantized(graph, tensor_index):
-    t = graph.Tensors(tensor_index)
-    return ((t.Type() == tflite.TensorType.UINT8) and
-            (t.Quantization() is not None))
 
 
 def createScalar(ref, value):
