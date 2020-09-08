@@ -9,8 +9,8 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Split(Operator):
-    def __init__(self, model, graph, index):
-        super().__init__(model, graph, index)
+    def __init__(self, model, graph, tregistry, index):
+        super().__init__(model, graph, tregistry, index)
 
         self.attrs['axis'] = -1
         self.attrs['split'] = None

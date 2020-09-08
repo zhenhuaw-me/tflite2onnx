@@ -10,12 +10,6 @@ from tflite2onnx.op import Operator
 
 logger = logging.getLogger('tflite2onnx')
 
-# The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map.
-# As Registery here is *global*, we need to manually clear it when new in a SubGraph
-# TODO: move the registery to Graph scope to save clear operation.
-registery = {}
-
-
 class Tensor(T2OBase):
     def __init__(self, model, graph, index, layout=None, is_bias=False):
         super().__init__(model, graph, index)
@@ -180,38 +174,88 @@ class Tensor(T2OBase):
         return '%s: {%s} -> {%s}' % (self.shorty, producer_names, consumer_names)
 
 
-def get(model, graph, index, layout=None, is_bias=False):
-    tft = graph.Tensors(index)
-    name = tft.Name().decode('utf-8')
-    if name not in registery:
-        t = Tensor(model, graph, index, layout, is_bias)
-        registery[name] = t
-    else:
-        t = registery[name]
-        if t.layout is None:
-            t.layout = layout
-    return t
+class TensorRegister:
+    """The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map."""
+    def __init__(self, model, graph):
+        self.model = model
+        self.graph = graph
+        self.registery = dict()
 
+    def get(self, index, layout=None, is_bias=False):
+        tft = self.graph.Tensors(index)
+        name = tft.Name().decode('utf-8')
+        if name not in self.registery:
+            t = Tensor(self.model, self.graph, index, layout, is_bias)
+            self.registery[name] = t
+        else:
+            t = self.registery[name]
+            if t.layout is None:
+                t.layout = layout
+        return t
 
-def getWithRef(ref, name, forceUnique=False):
-    """Create a copy of the ref tensor.
+    def getWithRef(self, ref, name, forceUnique=False):
+        """Create a copy of the ref tensor.
 
-    This is used to create helper tensors for activations, layout handling,
-    quantization and so on. Some attributions will be removed.
-    """
-    if name not in registery:
-        t = Tensor(ref.model, ref.graph, -1)
-        t.name = name
-        t.dtype = ref.dtype
-        t.layout = copy.deepcopy(ref.layout)
-        t.shape = copy.deepcopy(ref.shape)
-        t.scale = copy.deepcopy(ref.scale)
-        t.zero_point = copy.deepcopy(ref.zero_point)
-        registery[name] = t
-    else:
-        assert(not forceUnique)
-        t = registery[name]
-    return t
+        This is used to create helper tensors for activations, layout handling,
+        quantization and so on. Some attributions will be removed.
+        """
+        if name not in self.registery:
+            t = Tensor(self.model, self.graph, -1)
+            t.name = name
+            t.dtype = ref.dtype
+            t.layout = copy.deepcopy(ref.layout)
+            t.shape = copy.deepcopy(ref.shape)
+            t.scale = copy.deepcopy(ref.scale)
+            t.zero_point = copy.deepcopy(ref.zero_point)
+            self.registery[name] = t
+        else:
+            assert(not forceUnique)
+            t = self.registery[name]
+        return t
+
+    def createScalar(self, ref, value):
+        name = 'TFLITE2ONNX_Scalar_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
+        dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
+        return self._createScalarCore(name, dtype, value)
+
+    def createVector(self, ref, ndarray):
+        array2key = str(ndarray).replace(' ', '_')
+        name = 'TFLITE2ONNX_Vector_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + array2key
+        dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
+        if name not in self.registery:
+            t = Tensor(self.model, self.graph, -1, None)
+            t.name = name
+            t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
+            t.data = ndarray.copy()
+            t.shape = t.data.shape
+            t.setParsed()
+            self.registery[name] = t
+        return self.registery[name]
+
+    def _createScalarCore(self, name, dtype, value):
+        if name not in self.registery:
+            t = Tensor(self.model, self.graph, -1, None)
+            t.name = name
+            t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
+            t.data = np.full((1), value, dtype=dtype)
+            t.setParsed()
+            self.registery[name] = t
+        return self.registery[name]
+
+    def createQuantScale(self, tensor):
+        value = tensor.scale
+        assert(isinstance(value, float) or (len(value) == 1))
+        dtype = 'float32'
+        name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
+        return self._createScalarCore(name, dtype, value)
+
+    def createQuantZeroPoint(self, tensor):
+        value = tensor.zero_point
+        assert(isinstance(value, int) or (len(value) == 1))
+        assert(value >= 0 and value <= 255)
+        dtype = 'uint8'
+        name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
+        return self._createScalarCore(name, dtype, value)
 
 
 def getData(model, graph, index, dtype):
@@ -225,52 +269,3 @@ def getData(model, graph, index, dtype):
         return None
     data = np.frombuffer(raw, dtype=dtype)
     return data.copy()
-
-
-def createScalar(ref, value):
-    name = 'TFLITE2ONNX_Scalar_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
-    dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
-    return _createScalarCore(ref.model, ref.graph, name, dtype, value)
-
-
-def createVector(ref, ndarray):
-    array2key = str(ndarray).replace(' ', '_')
-    name = 'TFLITE2ONNX_Vector_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + array2key
-    dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
-    if name not in registery:
-        t = Tensor(ref.model, ref.graph, -1, None)
-        t.name = name
-        t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
-        t.data = ndarray.copy()
-        t.shape = t.data.shape
-        t.setParsed()
-        registery[name] = t
-    return registery[name]
-
-
-def _createScalarCore(model, graph, name, dtype, value):
-    if name not in registery:
-        t = Tensor(model, graph, -1, None)
-        t.name = name
-        t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
-        t.data = np.full((1), value, dtype=dtype)
-        t.setParsed()
-        registery[name] = t
-    return registery[name]
-
-
-def createQuantScale(tensor):
-    value = tensor.scale
-    assert(isinstance(value, float) or (len(value) == 1))
-    dtype = 'float32'
-    name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
-    return _createScalarCore(tensor.model, tensor.graph, name, dtype, value)
-
-
-def createQuantZeroPoint(tensor):
-    value = tensor.zero_point
-    assert(isinstance(value, int) or (len(value) == 1))
-    assert(value >= 0 and value <= 255)
-    dtype = 'uint8'
-    name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
-    return _createScalarCore(tensor.model, tensor.graph, name, dtype, value)

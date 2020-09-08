@@ -1,15 +1,15 @@
 import logging
 from onnx import helper
 
-from tflite2onnx import tensor
 from tflite2onnx.common import T2OBase
 
 logger = logging.getLogger('tflite2onnx')
 
 
 class Operator(T2OBase):
-    def __init__(self, model, graph, index):
+    def __init__(self, model, graph, tregistry, index):
         super().__init__(model, graph, index)
+        self.tregistry = tregistry
         self.tflite = graph.Operators(index) if index >= 0 else None
         self.inputs = []
         self.outputs = []
@@ -62,7 +62,7 @@ class Operator(T2OBase):
 
     def parseInput(self, index, layout=None, is_bias=False):
         ii = self.tflite.Inputs(index)
-        it = tensor.get(self.model, self.graph, ii, layout, is_bias)
+        it = self.tregistry.get(ii, layout, is_bias)
         it.parse()
         it.addConsumer(self)
         self.inputs.append(it)
@@ -70,7 +70,7 @@ class Operator(T2OBase):
 
     def parseOutput(self, index, layout=None):
         oi = self.tflite.Outputs(index)
-        ot = tensor.get(self.model, self.graph, oi, layout)
+        ot = self.tregistry.get(oi, layout)
         ot.parse()
         ot.addProducer(self)
         self.outputs.append(ot)

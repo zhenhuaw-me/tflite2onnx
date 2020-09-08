@@ -12,8 +12,8 @@ OpTypeMapping = {
 
 
 class Unary(Operator):
-    def __init__(self, model, graph, index):
-        super().__init__(model, graph, index)
+    def __init__(self, model, graph, tregistry, index):
+        super().__init__(model, graph, tregistry, index)
         self.setInited()
 
     @property

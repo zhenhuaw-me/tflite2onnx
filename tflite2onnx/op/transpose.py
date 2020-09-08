@@ -8,8 +8,8 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Transpose(Operator):
-    def __init__(self, model, graph, index):
-        super().__init__(model, graph, index)
+    def __init__(self, model, graph, tregistry, index):
+        super().__init__(model, graph, tregistry, index)
 
         self.attrs['perm'] = []
 

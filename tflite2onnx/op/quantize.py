@@ -2,15 +2,14 @@ import logging
 import tflite
 from onnx import TensorProto
 
-from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
 
 
 class Quantize(Operator):
-    def __init__(self, model, graph, index):
-        super().__init__(model, graph, index)
+    def __init__(self, model, graph, tregistry, index):
+        super().__init__(model, graph, tregistry, index)
 
         # self.axis = 1
 
@@ -52,10 +51,10 @@ class Quantize(Operator):
         ft.dequantize()
         # assert(qt.quantized)
 
-        st = tensor.createQuantScale(qt)
+        st = self.tregistry.createQuantScale(qt)
         st.addConsumer(self)
         self.inputs.append(st)
-        zpt = tensor.createQuantZeroPoint(qt)
+        zpt = self.tregistry.createQuantZeroPoint(qt)
         zpt.addConsumer(self)
         self.inputs.append(zpt)
 

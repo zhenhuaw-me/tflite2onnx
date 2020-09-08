@@ -3,7 +3,7 @@ import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx import tensor
+from tflite2onnx.tensor import TensorRegister
 from tflite2onnx.common import T2OBase
 from tflite2onnx.layout import Layout
 from tflite2onnx.op import getOp
@@ -15,14 +15,18 @@ logger = logging.getLogger('tflite2onnx')
 class Graph(T2OBase):
     def __init__(self, model: tflite.Model, graph: tflite.SubGraph):
         super().__init__(model, graph)
+
         self.ops = []   # the OP that has TFLite peer
         self.op_all = []  # includes helper OP
+
         self.inputs = []
         self.outputs = []
         self.initializer = set()
         self.value_info = set()
+
         self.tflite = graph
-        tensor.registery.clear()
+        self.tregistry = TensorRegister(model, graph)
+
         self.setInited()
 
     def _collectOpAndTensor(self):
@@ -54,7 +58,7 @@ class Graph(T2OBase):
         # operators
         for i in range(self.graph.OperatorsLength()):
             logger.debug("Parsing operator: {}".format(i))
-            op = getOp(self.model, self.graph, i)
+            op = getOp(self.model, self.graph, self.tregistry, i)
             op.parse()
             self.ops.append(op)
 
@@ -63,13 +67,13 @@ class Graph(T2OBase):
         for i in range(self.graph.InputsLength()):
             # FIXME: assert they have been created.
             index = self.graph.Inputs(i)
-            t = tensor.get(self.model, self.graph, index)
+            t = self.tregistry.get(index)
             self.inputs.append(t)
 
         # outputs
         for i in range(self.graph.OutputsLength()):
             index = self.graph.Outputs(i)
-            t = tensor.get(self.model, self.graph, index)
+            t = self.tregistry.get(index)
             self.outputs.append(t)
 
         self._collectOpAndTensor()
@@ -100,7 +104,7 @@ class Graph(T2OBase):
 
         logger.debug("Translating quantization semantic...")
         for t in self.value_info | self.initializer:
-            deqt = handleQuantizationTensor(t)
+            deqt = handleQuantizationTensor(self.tregistry, t)
             for i, o in enumerate(self.outputs):
                 if o == t:
                     self.outputs[i] = deqt

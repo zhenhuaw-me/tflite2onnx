@@ -1,13 +1,12 @@
 import logging
 from onnx import TensorProto
 
-from tflite2onnx import tensor
 from tflite2onnx.op.quantize import Quantize
 
 logger = logging.getLogger('tflite2onnx')
 
 
-def handleQuantizationTensor(t):
+def handleQuantizationTensor(tregistry, t):
     """Translate a UINT8 TFLite tensor to Quantize-Dequantize pattern in ONNX.
 
     As quantization support of ONNX is limited, we currently try to preserve
@@ -41,12 +40,12 @@ def handleQuantizationTensor(t):
 
     # create quantized tensor
     qtname = name_prefix + '_quantized'
-    qtensor = tensor.getWithRef(t, qtname, True)
+    qtensor = tregistry.getWithRef(t, qtname, True)
     qtensor.dtype = TensorProto.UINT8
     qtensor.setParsed()
 
     # create Quantize op
-    qop = Quantize(t.model, t.graph, -1)
+    qop = Quantize(t.model, t.graph, tregistry, -1)
     qop.name = name_prefix + '_Quantize'
     qop.inputs.append(t)
     qop.outputs.append(qtensor)
@@ -55,12 +54,12 @@ def handleQuantizationTensor(t):
 
     # create dequantized tensor
     deqtname = name_prefix + '_dequantized'
-    deqtensor = tensor.getWithRef(t, deqtname, True)
+    deqtensor = tregistry.getWithRef(t, deqtname, True)
     deqtensor.dtype = TensorProto.FLOAT
     deqtensor.setParsed()
 
     # create Dequantize op
-    deqop = Quantize(t.model, t.graph, -1)
+    deqop = Quantize(t.model, t.graph, tregistry, -1)
     deqop.name = name_prefix + '_Dequantize'
     deqop.inputs.append(qtensor)
     deqop.outputs.append(deqtensor)

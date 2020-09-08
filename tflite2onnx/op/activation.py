@@ -1,7 +1,6 @@
 import logging
 import tflite
 
-from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
@@ -18,8 +17,8 @@ OpTypeMapping = {
 
 
 class ReLU(Operator):
-    def __init__(self, model, graph, index, preset_opcode=None):
-        super().__init__(model, graph, index)
+    def __init__(self, model, graph, tregistry, index, preset_opcode=None):
+        super().__init__(model, graph, tregistry, index)
         self.setInited()
         # TFLite op code of the activation, e.g. tflite.BuiltinOperator.RELU
         # Used for fused activation, where we cannot parse type from tflite object.
@@ -52,10 +51,10 @@ class ReLU(Operator):
         it = self.parseInput(0)
 
         if opcode == tflite.BuiltinOperator.RELU6:
-            tmin = tensor.createScalar(it, 0)
+            tmin = self.tregistry.createScalar(it, 0)
             tmin.addConsumer(self)
             self.inputs.append(tmin)
-            tmax = tensor.createScalar(it, 6)
+            tmax = self.tregistry.createScalar(it, 6)
             tmax.addConsumer(self)
             self.inputs.append(tmax)
 
@@ -104,7 +103,7 @@ def handleFusedActivation(master, option, output, intermediate=None):
 
     # create tensor that from Conv/FC to Activation
     iname = 'TFLITE2ONNX_FAF_%s' % output.name
-    input = tensor.getWithRef(output, iname, True)
+    input = intermediate.tregistry.getWithRef(output, iname, True)
     input.setParsed()
 
     intermediate.replaceOutput(output, input)
@@ -112,16 +111,17 @@ def handleFusedActivation(master, option, output, intermediate=None):
 
     # create the activation node, and let intermediate node output to be its'.
     if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6]:
-        act = ReLU(intermediate.model, intermediate.graph, -1, preset_opcode=act_type)
+        act = ReLU(intermediate.model, intermediate.graph, intermediate.tregistry,
+                   -1, preset_opcode=act_type)
 
         input.addConsumer(act)
         act.inputs.append(input)
 
         if act_type == tflite.BuiltinOperator.RELU6:
-            tmin = tensor.createScalar(input, 0)
+            tmin = intermediate.tregistry.createScalar(input, 0)
             tmin.addConsumer(act)
             act.inputs.append(tmin)
-            tmax = tensor.createScalar(input, 6)
+            tmax = intermediate.tregistry.createScalar(input, 6)
             tmax.addConsumer(act)
             act.inputs.append(tmax)
 

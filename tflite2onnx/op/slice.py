@@ -3,15 +3,14 @@ import logging
 import tflite
 import numpy as np
 
-from tflite2onnx import tensor
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
 
 
 class Slice(Operator):
-    def __init__(self, model, graph, index):
-        super().__init__(model, graph, index)
+    def __init__(self, model, graph, tregistry, index):
+        super().__init__(model, graph, tregistry, index)
         self.setInited()
 
     @property
@@ -71,7 +70,7 @@ class Slice(Operator):
 
         # axis, we create from empty
         axis = np.arange(rank)
-        at = tensor.createVector(bt, axis)
+        at = self.tregistry.createVector(bt, axis)
         at.addConsumer(self)
         self.inputs.append(at)
 
