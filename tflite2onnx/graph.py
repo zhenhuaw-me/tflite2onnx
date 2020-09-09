@@ -57,13 +57,12 @@ class Graph(T2OBase):
         logger.debug("Parsing the Graph...")
         # operators
         for i in range(self.graph.OperatorsLength()):
-            logger.debug("Parsing operator: {}".format(i))
+            logger.debug("Parsing operator: %d", i)
             op = getOp(self.TFactory, i)
             op.parse()
             self.ops.append(op)
 
         # inputs
-        logger.debug("Parsing inputs...")
         for i in range(self.graph.InputsLength()):
             # FIXME: assert they have been created.
             index = self.graph.Inputs(i)
@@ -138,21 +137,21 @@ class Graph(T2OBase):
                 T_wild.add(t)
             else:
                 T_toWalk.add(t)
-        logger.debug("Propagation: %d tensors in total, %d to walk, %d at wild" %
-                     (tensor_count, len(T_toWalk), len(T_wild)))
+        logger.debug("Propagation: %d tensors in total, %d to walk, %d at wild",
+                     tensor_count, len(T_toWalk), len(T_wild))
 
         # propagrate layout across graph
         T_ignored = set()
         T_walked = set()
         while (len(T_toWalk) != 0):
             T = T_toWalk.pop()
-            logger.debug("Propagation: walking %s" % T.shorty)
+            logger.debug("Propagation: walking %s", T.shorty)
             for n in T.producers + T.consumers:
                 for t in n.propagatableTensors():
                     if t is T:
                         continue
                     if t in T_wild:
-                        logger.debug("Propagation: propagated to %s" % t.shorty)
+                        logger.debug("Propagation: propagated to %s", t.shorty)
                         assert(t.layout is None)
                         T_wild.remove(t)
                         if t.isScalar:
@@ -161,8 +160,8 @@ class Graph(T2OBase):
                             t.layout = copy.deepcopy(T.layout)
                             T_toWalk.add(t)
             T_walked.add(T)
-        logger.debug("Propagation: wild tensors %d, ignored tensors %d" %
-                     (len(T_wild), len(T_ignored)))
+        logger.debug("Propagation: wild tensors %d, ignored tensors %d",
+                     len(T_wild), len(T_ignored))
 
         # update tensor and operator
         for t in T_walked:
