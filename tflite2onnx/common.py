@@ -40,9 +40,9 @@ class T2OBase(ABC):
     def __init__(self, model=None, graph=None, index=None):
         # Overall fields
         self.status = Status.UNINITIALIZED
+        self.name = None
 
         # TFLite objects
-        self.name = 'Unnamed'
         self.model = model
         self.graph = graph
         self.index = index  # index of tensor or op

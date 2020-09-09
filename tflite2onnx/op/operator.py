@@ -78,27 +78,38 @@ class Operator(T2OBase):
 
     def replaceInput(self, original, new):
         logger.debug("Replacing %s input %s with %s", self.shorty, original.shorty, new.shorty)
-        for index, item in enumerate(self.inputs):
+        assert(original in self.inputs)
+        for i, item in enumerate(self.inputs):
             if item is original:
-                self.inputs[index] = new
+                self.inputs[i] = new
                 return
-        assert(False)
 
     def replaceOutput(self, original, new):
         logger.debug("Replacing %s output %s with %s", self.shorty, original.shorty, new.shorty)
-        for index, item in enumerate(self.outputs):
+        assert(original in self.outputs)
+        for i, item in enumerate(self.outputs):
             if item is original:
-                self.outputs[index] = new
+                self.outputs[i] = new
                 return
-        assert(False)
+
+    def setParsed(self):
+        """Name the operator (if not yet) and change to initialized.
+
+        Assume that the outputs won't change after parsed.
+        * If the operator is a helper in TFLITE2ONNX, it should have been named already.
+        * If the operator is original in TFLite, using name of its first output tensor.
+        """
+        self.name = self.outputs[0].name if self.name is None else self.name
+        super().setParsed()
 
     def validate(self):
         assert(len(self.outputs) >= 1), "Operator should produce something"
 
     def convert(self):
-        logger.debug("converting %s...", self.type)
+        logger.debug("Converting %s...", self.shorty)
         for t in self.inputs + self.outputs:
             t.convert()
+        self.attrs['name'] = self.name
         inames = [t.name for t in self.inputs]
         onames = [t.name for t in self.outputs]
         self.onnx = helper.make_node(self.type, inames, onames, **self.attrs)

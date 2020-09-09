@@ -6,9 +6,9 @@ from onnx import helper, TensorProto
 
 from tflite2onnx import mapping
 from tflite2onnx.common import T2OBase
-from tflite2onnx.op import Operator
 
 logger = logging.getLogger('tflite2onnx')
+
 
 class Tensor(T2OBase):
     def __init__(self, model, graph, index, layout=None, is_bias=False):
@@ -16,11 +16,11 @@ class Tensor(T2OBase):
         self.tflite = graph.Tensors(index) if index >= 0 else None
         self.shape = []
         self.dtype = None
+        self.data = None
 
         # the defaults of quantization parameter
         self.scale = 1.0
         self.zero_point = 127
-        self.data = None
 
         self.layout = layout
         self.producers = []
@@ -36,40 +36,34 @@ class Tensor(T2OBase):
         return self.data is not None
 
     def addProducer(self, op):
-        assert(isinstance(op, Operator))
-        if op not in self.producers:
-            self.producers.append(op)
+        assert(len(self.producers) == 0)
+        self.producers.append(op)
+        assert(len(self.producers) == 1)
 
     def removeProducer(self, op):
-        assert(isinstance(op, Operator))
-        if op in self.producers:
-            self.producers.remove(op)
+        assert(len(self.producers) == 1)
+        assert(self.producers[0] == op)
+        self.producers.remove(op)
 
     def replaceProducer(self, original, new):
         assert(len(self.producers) == 1)
-        assert(isinstance(original, Operator))
-        assert(isinstance(new, Operator))
         assert(self.producers[0] == original)
         self.producers[0] = new
 
     def addConsumer(self, op):
-        assert(isinstance(op, Operator))
-        if op not in self.consumers:
-            self.consumers.append(op)
+        assert(op not in self.consumers)
+        self.consumers.append(op)
 
     def removeConsumer(self, op):
-        assert(isinstance(op, Operator))
-        if op in self.consumers:
-            self.consumers.remove(op)
+        assert(op in self.consumers)
+        self.consumers.remove(op)
 
     def replaceConsumer(self, original, new):
-        assert(isinstance(original, Operator))
-        assert(isinstance(new, Operator))
-        for index, op in enumerate(self.consumers):
+        assert(original in self.consumers)
+        for i, op in enumerate(self.consumers):
             if op is original:
-                self.consumers[index] = new
+                self.consumers[i] = new
                 return
-        assert(False)
 
     @property
     def quantized(self):
@@ -93,13 +87,6 @@ class Tensor(T2OBase):
         self.dtype = TensorProto.FLOAT
 
     @property
-    def layoutMatch(self):
-        if self.layout is None:
-            return True
-        else:
-            return self.layout.match
-
-    @property
     def isScalar(self):
         return (self.layout is None) and (len(self.shape) == 0) and (len(self.data) == 1)
 
@@ -117,7 +104,6 @@ class Tensor(T2OBase):
         self.shape = [int(i) for i in tensor.ShapeAsNumpy()]
 
         assert(tensor.Type() in mapping.DTYPE_TFLITE2ONNX)
-        assert(self.dtype is None)
         self.dtype = mapping.DTYPE_TFLITE2ONNX[tensor.Type()]
 
         if self.quantized:
@@ -128,8 +114,6 @@ class Tensor(T2OBase):
             self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
         self.data = getData(self.model, self.graph, self.index, mapping.DTYPE_ONNX2NAME[self.dtype])
-        if self.isInitializer:
-            assert(self.data is not None), "Preset as initializer, should have data"
 
         self.setParsed()
 

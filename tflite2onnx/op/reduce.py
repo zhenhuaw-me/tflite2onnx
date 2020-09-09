@@ -1,7 +1,7 @@
 import logging
 import tflite
 
-from tflite2onnx import tensor
+from tflite2onnx.tensor import getData
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
@@ -45,7 +45,7 @@ class Reduce(Operator):
 
         # options
         ai = op.Inputs(1)
-        self.attrs['axes'] = tensor.getData(self.model, self.graph, ai, 'int32')
+        self.attrs['axes'] = getData(self.model, self.graph, ai, 'int32')
         self.attrs['keepdims'] = 1 if (len(ot.shape) == len(it.shape)) else 0
 
         self.setParsed()
