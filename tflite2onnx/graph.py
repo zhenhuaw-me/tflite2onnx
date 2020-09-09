@@ -92,8 +92,7 @@ class Graph(T2OBase):
 
         logger.debug("Handling data layout...")
         for op in self.ops:
-            tensors = op.inputs + op.outputs
-            for t in tensors:
+            for t in op.inputs + op.outputs:
                 if t.name in explicit_layouts:
                     assert(t.layout is None)
                     layouts = explicit_layouts[t.name]
