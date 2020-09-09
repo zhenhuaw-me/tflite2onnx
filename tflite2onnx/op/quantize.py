@@ -2,7 +2,7 @@ import logging
 import tflite
 from onnx import TensorProto
 
-from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
 

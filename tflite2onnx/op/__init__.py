@@ -5,7 +5,7 @@ from tflite2onnx.op.binary import Binary
 from tflite2onnx.op.concat import Concat
 from tflite2onnx.op.conv import Conv
 from tflite2onnx.op.fullyconnected import FullyConnected
-from tflite2onnx.op.operator import Operator    # noqa: F401
+from tflite2onnx.op.common import Operator    # noqa: F401
 from tflite2onnx.op.padding import Padding
 from tflite2onnx.op.pooling import Pooling
 from tflite2onnx.op.quantize import Quantize

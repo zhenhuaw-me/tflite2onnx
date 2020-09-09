@@ -3,7 +3,7 @@ import tflite
 
 from tflite2onnx.layout import Layout
 from tflite2onnx.op.activation import handleFusedActivation
-from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.common import Operator
 from tflite2onnx.op.padding import computePaddingSize
 
 logger = logging.getLogger('tflite2onnx')

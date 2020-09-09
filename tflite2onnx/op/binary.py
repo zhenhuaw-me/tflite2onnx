@@ -4,7 +4,7 @@ import tflite
 import numpy as np
 
 from tflite2onnx import mapping
-from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.common import Operator
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.op.reshape import Reshape
 

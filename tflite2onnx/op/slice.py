@@ -3,7 +3,7 @@ import logging
 import tflite
 import numpy as np
 
-from tflite2onnx.op.operator import Operator
+from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
 
