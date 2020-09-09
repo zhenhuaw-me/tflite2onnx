@@ -7,10 +7,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Operator(T2OBase):
-    def __init__(self, model, graph, TFactory, index):
-        super().__init__(model, graph, index)
+    def __init__(self, TFactory, index):
+        super().__init__(TFactory.model, TFactory.graph, index)
         self.TFactory = TFactory
-        self.tflite = graph.Operators(index) if index >= 0 else None
+        self.tflite = self.graph.Operators(index) if index >= 0 else None
         self.inputs = []
         self.outputs = []
         self.pre = []  # ops that before this op which to enable TFLite op

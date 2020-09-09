@@ -23,8 +23,8 @@ OpOptionFuncMapping = {
 
 
 class Binary(Operator):
-    def __init__(self, model, graph, TFactory, index):
-        super().__init__(model, graph, TFactory, index)
+    def __init__(self, TFactory, index):
+        super().__init__(TFactory, index)
         self.setInited()
 
     @property
@@ -65,7 +65,7 @@ class Binary(Operator):
         shape_t.data = np.array(new_shape)
         shape_t.setParsed()
 
-        reshape = Reshape(todo.model, todo.graph, self.TFactory, -1)
+        reshape = Reshape(self.TFactory, -1)
         reshape.forFakeBroadcasting = True
 
         reshape.inputs.append(todo)

@@ -8,8 +8,8 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class FullyConnected(Operator):
-    def __init__(self, model, graph, TFactory, index):
-        super().__init__(model, graph, TFactory, index)
+    def __init__(self, TFactory, index):
+        super().__init__(TFactory, index)
 
         # raw default values
         self.attrs['alpha'] = 1.0

@@ -45,7 +45,7 @@ def handleQuantizationTensor(TFactory, t):
     qtensor.setParsed()
 
     # create Quantize op
-    qop = Quantize(t.model, t.graph, TFactory, -1)
+    qop = Quantize(TFactory, -1)
     qop.name = name_prefix + '_Quantize'
     qop.inputs.append(t)
     qop.outputs.append(qtensor)
@@ -59,7 +59,7 @@ def handleQuantizationTensor(TFactory, t):
     deqtensor.setParsed()
 
     # create Dequantize op
-    deqop = Quantize(t.model, t.graph, TFactory, -1)
+    deqop = Quantize(TFactory, -1)
     deqop.name = name_prefix + '_Dequantize'
     deqop.inputs.append(qtensor)
     deqop.outputs.append(deqtensor)

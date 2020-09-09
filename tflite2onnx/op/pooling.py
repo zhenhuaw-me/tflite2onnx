@@ -16,8 +16,8 @@ OpTypeMapping = {
 
 
 class Pooling(Operator):
-    def __init__(self, model, graph, TFactory, index):
-        super().__init__(model, graph, TFactory, index)
+    def __init__(self, TFactory, index):
+        super().__init__(TFactory, index)
 
         self.attrs['kernel_shape'] = []
         self.attrs['strides'] = []

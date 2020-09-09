@@ -14,8 +14,8 @@ PaddingMapping = {
 
 
 class Padding(Operator):
-    def __init__(self, model, graph, TFactory, index):
-        super().__init__(model, graph, TFactory, index)
+    def __init__(self, TFactory, index):
+        super().__init__(TFactory, index)
 
         self.attrs['mode'] = 'constant'
 

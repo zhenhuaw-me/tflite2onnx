@@ -58,7 +58,7 @@ class Graph(T2OBase):
         # operators
         for i in range(self.graph.OperatorsLength()):
             logger.debug("Parsing operator: {}".format(i))
-            op = getOp(self.model, self.graph, self.TFactory, i)
+            op = getOp(self.TFactory, i)
             op.parse()
             self.ops.append(op)
 

@@ -42,11 +42,11 @@ OP_CONVERTERS = {
 }
 
 
-def getOp(model, graph, TFactory, index):
-    op = graph.Operators(index)
-    opcode = model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+def getOp(TFactory, index):
+    op = TFactory.graph.Operators(index)
+    opcode = TFactory.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
     if opcode not in OP_CONVERTERS:
         raise NotImplementedError("Unsupported TFLite OP: {}".format(opcode))
 
     op_converter = OP_CONVERTERS[opcode]
-    return op_converter(model, graph, TFactory, index)
+    return op_converter(TFactory, index)

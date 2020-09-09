@@ -17,8 +17,8 @@ OpTypeMapping = {
 
 
 class ReLU(Operator):
-    def __init__(self, model, graph, TFactory, index, preset_opcode=None):
-        super().__init__(model, graph, TFactory, index)
+    def __init__(self, TFactory, index, preset_opcode=None):
+        super().__init__(TFactory, index)
         self.setInited()
         # TFLite op code of the activation, e.g. tflite.BuiltinOperator.RELU
         # Used for fused activation, where we cannot parse type from tflite object.
@@ -111,8 +111,7 @@ def handleFusedActivation(master, option, output, intermediate=None):
 
     # create the activation node, and let intermediate node output to be its'.
     if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6]:
-        act = ReLU(intermediate.model, intermediate.graph, intermediate.TFactory,
-                   -1, preset_opcode=act_type)
+        act = ReLU(intermediate.TFactory, -1, preset_opcode=act_type)
 
         input.addConsumer(act)
         act.inputs.append(input)
