@@ -1,7 +1,7 @@
 import logging
 import tflite
 
-from tflite2onnx.tensor import getData
+from tflite2onnx.tensor import TensorRegistry
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
@@ -31,7 +31,7 @@ class Transpose(Operator):
         self.parseOutput(0)
 
         ii = op.Inputs(1)
-        self.attrs['perm'] = getData(self.model, self.graph, ii, 'int32')
+        self.attrs['perm'] = TensorRegistry.getData(self.model, self.graph, ii, 'int32')
 
         self.setParsed()
 

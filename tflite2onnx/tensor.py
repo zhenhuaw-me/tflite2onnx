@@ -113,7 +113,8 @@ class Tensor(T2OBase):
             self.scale = float(quant.ScaleAsNumpy()[0])
             self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
-        self.data = getData(self.model, self.graph, self.index, mapping.DTYPE_ONNX2NAME[self.dtype])
+        self.data = TensorRegistry.getData(self.model, self.graph, self.index,
+                                           mapping.DTYPE_ONNX2NAME[self.dtype])
 
         self.setParsed()
 
@@ -158,7 +159,7 @@ class Tensor(T2OBase):
         return '%s: {%s} -> {%s}' % (self.shorty, producer_names, consumer_names)
 
 
-class TensorRegister:
+class TensorRegistry:
     """The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map."""
     def __init__(self, model, graph):
         self.model = model
@@ -241,15 +242,15 @@ class TensorRegister:
         name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
         return self._createScalarCore(name, dtype, value)
 
-
-def getData(model, graph, index, dtype):
-    assert(dtype in ['int32', 'float32', 'uint8'])
-    assert(index < graph.TensorsLength())
-    t = graph.Tensors(index)
-    bi = t.Buffer()
-    assert(bi < model.BuffersLength())
-    raw = model.Buffers(bi).DataAsNumpy()
-    if isinstance(raw, int) and raw == 0:
-        return None
-    data = np.frombuffer(raw, dtype=dtype)
-    return data.copy()
+    @staticmethod
+    def getData(model, graph, index, dtype):
+        assert(dtype in ['int32', 'float32', 'uint8'])
+        assert(index < graph.TensorsLength())
+        t = graph.Tensors(index)
+        bi = t.Buffer()
+        assert(bi < model.BuffersLength())
+        raw = model.Buffers(bi).DataAsNumpy()
+        if isinstance(raw, int) and raw == 0:
+            return None
+        data = np.frombuffer(raw, dtype=dtype)
+        return data.copy()

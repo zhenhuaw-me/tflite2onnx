@@ -3,7 +3,7 @@ import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx.tensor import TensorRegister
+from tflite2onnx.tensor import TensorRegistry
 from tflite2onnx.common import T2OBase
 from tflite2onnx.layout import Layout
 from tflite2onnx.op import getOp
@@ -25,7 +25,7 @@ class Graph(T2OBase):
         self.value_info = set()
 
         self.tflite = graph
-        self.tregistry = TensorRegister(model, graph)
+        self.tregistry = TensorRegistry(model, graph)
 
         self.setInited()
 

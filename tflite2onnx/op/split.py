@@ -2,7 +2,7 @@ import logging
 import tflite
 import numpy as np
 
-from tflite2onnx.tensor import getData
+from tflite2onnx.tensor import TensorRegistry
 from tflite2onnx.op.operator import Operator
 
 logger = logging.getLogger('tflite2onnx')
@@ -35,7 +35,7 @@ class Split(Operator):
 
         # options
         ai = op.Inputs(0)
-        axis = getData(self.model, self.graph, ai, 'int32')
+        axis = TensorRegistry.getData(self.model, self.graph, ai, 'int32')
         assert(axis.size == 1)
         self.attrs['axis'] = int(axis[0])
 

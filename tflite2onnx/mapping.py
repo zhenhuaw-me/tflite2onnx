@@ -2,11 +2,11 @@ from onnx import TensorProto
 from tflite import TensorType
 
 
-def inverseDict(d):
+def _inverseDict(d):
     return {v: k for k, v in d.items()}
 
 
-def buildIndirectMapping(a, b):
+def _buildIndirectMapping(a, b):
     """Given a maps x->y, b maps y->z, return map of x->z."""
     assert(len(a) == len(b))
     assert(isinstance(list(b.keys())[0], type(list(a.values())[0])))
@@ -29,7 +29,7 @@ DTYPE_ONNX2NAME = {
     TensorProto.UINT8: 'uint8',
 }
 
-DTYPE_NAME2ONNX = inverseDict(DTYPE_ONNX2NAME)
+DTYPE_NAME2ONNX = _inverseDict(DTYPE_ONNX2NAME)
 
 DTYPE_TFLITE2NAME = {
     TensorType.BOOL: 'bool',
@@ -42,7 +42,7 @@ DTYPE_TFLITE2NAME = {
     TensorType.UINT8: 'uint8',
 }
 
-DTYPE_NAME2TFLITE = inverseDict(DTYPE_TFLITE2NAME)
+DTYPE_NAME2TFLITE = _inverseDict(DTYPE_TFLITE2NAME)
 
-DTYPE_TFLITE2ONNX = buildIndirectMapping(DTYPE_TFLITE2NAME, DTYPE_NAME2ONNX)
-DTYPE_ONNX2TFLITE = buildIndirectMapping(DTYPE_ONNX2NAME, DTYPE_NAME2TFLITE)
+DTYPE_TFLITE2ONNX = _buildIndirectMapping(DTYPE_TFLITE2NAME, DTYPE_NAME2ONNX)
+DTYPE_ONNX2TFLITE = _buildIndirectMapping(DTYPE_ONNX2NAME, DTYPE_NAME2TFLITE)
