@@ -23,8 +23,8 @@ OpOptionFuncMapping = {
 
 
 class Binary(Operator):
-    def __init__(self, model, graph, tregistry, index):
-        super().__init__(model, graph, tregistry, index)
+    def __init__(self, model, graph, TFactory, index):
+        super().__init__(model, graph, TFactory, index)
         self.setInited()
 
     @property
@@ -54,18 +54,18 @@ class Binary(Operator):
         assert(len(new_shape) == len(output.shape))
 
         new_t_name = 'TFLITE2ONNX_Reshape_%s' % todo.name
-        new_t = self.tregistry.getWithRef(todo, new_t_name, True)
+        new_t = self.TFactory.getWithRef(todo, new_t_name, True)
         new_t.shape = new_shape
         new_t.setParsed()
 
         shape_t_name = 'TFLITE2ONNX_NewShape_%s' % todo.name
-        shape_t = self.tregistry.getWithRef(todo, shape_t_name, True)
+        shape_t = self.TFactory.getWithRef(todo, shape_t_name, True)
         shape_t.dtype = mapping.DTYPE_NAME2ONNX['int64']
         shape_t.shape = (len(new_shape),)
         shape_t.data = np.array(new_shape)
         shape_t.setParsed()
 
-        reshape = Reshape(todo.model, todo.graph, self.tregistry, -1)
+        reshape = Reshape(todo.model, todo.graph, self.TFactory, -1)
         reshape.forFakeBroadcasting = True
 
         reshape.inputs.append(todo)

@@ -10,8 +10,8 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Reshape(Operator):
-    def __init__(self, model, graph, tregistry, index):
-        super().__init__(model, graph, tregistry, index)
+    def __init__(self, model, graph, TFactory, index):
+        super().__init__(model, graph, TFactory, index)
 
         self.forFakeBroadcasting = False
 

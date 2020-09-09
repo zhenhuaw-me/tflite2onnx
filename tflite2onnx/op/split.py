@@ -2,15 +2,15 @@ import logging
 import tflite
 import numpy as np
 
-from tflite2onnx.tensor import TensorRegistry
+from tflite2onnx.tensor import TensorFactory
 from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
 
 
 class Split(Operator):
-    def __init__(self, model, graph, tregistry, index):
-        super().__init__(model, graph, tregistry, index)
+    def __init__(self, model, graph, TFactory, index):
+        super().__init__(model, graph, TFactory, index)
 
         self.attrs['axis'] = -1
         self.attrs['split'] = None
@@ -35,7 +35,7 @@ class Split(Operator):
 
         # options
         ai = op.Inputs(0)
-        axis = TensorRegistry.getData(self.model, self.graph, ai, 'int32')
+        axis = TensorFactory.getData(self.model, self.graph, ai, 'int32')
         assert(axis.size == 1)
         self.attrs['axis'] = int(axis[0])
 

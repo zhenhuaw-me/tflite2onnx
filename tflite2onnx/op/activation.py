@@ -17,8 +17,8 @@ OpTypeMapping = {
 
 
 class ReLU(Operator):
-    def __init__(self, model, graph, tregistry, index, preset_opcode=None):
-        super().__init__(model, graph, tregistry, index)
+    def __init__(self, model, graph, TFactory, index, preset_opcode=None):
+        super().__init__(model, graph, TFactory, index)
         self.setInited()
         # TFLite op code of the activation, e.g. tflite.BuiltinOperator.RELU
         # Used for fused activation, where we cannot parse type from tflite object.
@@ -51,10 +51,10 @@ class ReLU(Operator):
         it = self.parseInput(0)
 
         if opcode == tflite.BuiltinOperator.RELU6:
-            tmin = self.tregistry.createScalar(it, 0)
+            tmin = self.TFactory.createScalar(it, 0)
             tmin.addConsumer(self)
             self.inputs.append(tmin)
-            tmax = self.tregistry.createScalar(it, 6)
+            tmax = self.TFactory.createScalar(it, 6)
             tmax.addConsumer(self)
             self.inputs.append(tmax)
 
@@ -103,7 +103,7 @@ def handleFusedActivation(master, option, output, intermediate=None):
 
     # create tensor that from Conv/FC to Activation
     iname = 'TFLITE2ONNX_FAF_%s' % output.name
-    input = intermediate.tregistry.getWithRef(output, iname, True)
+    input = intermediate.TFactory.getWithRef(output, iname, True)
     input.setParsed()
 
     intermediate.replaceOutput(output, input)
@@ -111,17 +111,17 @@ def handleFusedActivation(master, option, output, intermediate=None):
 
     # create the activation node, and let intermediate node output to be its'.
     if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6]:
-        act = ReLU(intermediate.model, intermediate.graph, intermediate.tregistry,
+        act = ReLU(intermediate.model, intermediate.graph, intermediate.TFactory,
                    -1, preset_opcode=act_type)
 
         input.addConsumer(act)
         act.inputs.append(input)
 
         if act_type == tflite.BuiltinOperator.RELU6:
-            tmin = intermediate.tregistry.createScalar(input, 0)
+            tmin = intermediate.TFactory.createScalar(input, 0)
             tmin.addConsumer(act)
             act.inputs.append(tmin)
-            tmax = intermediate.tregistry.createScalar(input, 6)
+            tmax = intermediate.TFactory.createScalar(input, 6)
             tmax.addConsumer(act)
             act.inputs.append(tmax)
 

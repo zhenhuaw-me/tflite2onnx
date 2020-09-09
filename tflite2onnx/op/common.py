@@ -7,9 +7,9 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Operator(T2OBase):
-    def __init__(self, model, graph, tregistry, index):
+    def __init__(self, model, graph, TFactory, index):
         super().__init__(model, graph, index)
-        self.tregistry = tregistry
+        self.TFactory = TFactory
         self.tflite = graph.Operators(index) if index >= 0 else None
         self.inputs = []
         self.outputs = []
@@ -62,7 +62,7 @@ class Operator(T2OBase):
 
     def parseInput(self, index, layout=None, is_bias=False):
         ii = self.tflite.Inputs(index)
-        it = self.tregistry.get(ii, layout, is_bias)
+        it = self.TFactory.get(ii, layout, is_bias)
         it.parse()
         it.addConsumer(self)
         self.inputs.append(it)
@@ -70,7 +70,7 @@ class Operator(T2OBase):
 
     def parseOutput(self, index, layout=None):
         oi = self.tflite.Outputs(index)
-        ot = self.tregistry.get(oi, layout)
+        ot = self.TFactory.get(oi, layout)
         ot.parse()
         ot.addProducer(self)
         self.outputs.append(ot)

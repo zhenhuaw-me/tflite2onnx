@@ -9,8 +9,8 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Slice(Operator):
-    def __init__(self, model, graph, tregistry, index):
-        super().__init__(model, graph, tregistry, index)
+    def __init__(self, model, graph, TFactory, index):
+        super().__init__(model, graph, TFactory, index)
         self.setInited()
 
     @property
@@ -70,7 +70,7 @@ class Slice(Operator):
 
         # axis, we create from empty
         axis = np.arange(rank)
-        at = self.tregistry.createVector(bt, axis)
+        at = self.TFactory.createVector(bt, axis)
         at.addConsumer(self)
         self.inputs.append(at)
 

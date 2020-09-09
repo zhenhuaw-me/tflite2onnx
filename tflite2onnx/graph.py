@@ -3,7 +3,7 @@ import logging
 import tflite
 from onnx import helper
 
-from tflite2onnx.tensor import TensorRegistry
+from tflite2onnx.tensor import TensorFactory
 from tflite2onnx.common import T2OBase
 from tflite2onnx.layout import Layout
 from tflite2onnx.op import getOp
@@ -25,7 +25,7 @@ class Graph(T2OBase):
         self.value_info = set()
 
         self.tflite = graph
-        self.tregistry = TensorRegistry(model, graph)
+        self.TFactory = TensorFactory(model, graph)
 
         self.setInited()
 
@@ -58,7 +58,7 @@ class Graph(T2OBase):
         # operators
         for i in range(self.graph.OperatorsLength()):
             logger.debug("Parsing operator: {}".format(i))
-            op = getOp(self.model, self.graph, self.tregistry, i)
+            op = getOp(self.model, self.graph, self.TFactory, i)
             op.parse()
             self.ops.append(op)
 
@@ -67,13 +67,13 @@ class Graph(T2OBase):
         for i in range(self.graph.InputsLength()):
             # FIXME: assert they have been created.
             index = self.graph.Inputs(i)
-            t = self.tregistry.get(index)
+            t = self.TFactory.get(index)
             self.inputs.append(t)
 
         # outputs
         for i in range(self.graph.OutputsLength()):
             index = self.graph.Outputs(i)
-            t = self.tregistry.get(index)
+            t = self.TFactory.get(index)
             self.outputs.append(t)
 
         self._collectOpAndTensor()
@@ -103,7 +103,7 @@ class Graph(T2OBase):
 
         logger.debug("Translating quantization semantic...")
         for t in self.value_info | self.initializer:
-            deqt = handleQuantizationTensor(self.tregistry, t)
+            deqt = handleQuantizationTensor(self.TFactory, t)
             for i, o in enumerate(self.outputs):
                 if o == t:
                     self.outputs[i] = deqt

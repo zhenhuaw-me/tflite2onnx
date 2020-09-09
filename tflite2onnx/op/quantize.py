@@ -8,8 +8,8 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Quantize(Operator):
-    def __init__(self, model, graph, tregistry, index):
-        super().__init__(model, graph, tregistry, index)
+    def __init__(self, model, graph, TFactory, index):
+        super().__init__(model, graph, TFactory, index)
 
         # self.axis = 1
 
@@ -51,10 +51,10 @@ class Quantize(Operator):
         ft.dequantize()
         # assert(qt.quantized)
 
-        st = self.tregistry.createQuantScale(qt)
+        st = self.TFactory.createQuantScale(qt)
         st.addConsumer(self)
         self.inputs.append(st)
-        zpt = self.tregistry.createQuantZeroPoint(qt)
+        zpt = self.TFactory.createQuantZeroPoint(qt)
         zpt.addConsumer(self)
         self.inputs.append(zpt)
 

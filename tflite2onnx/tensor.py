@@ -113,8 +113,8 @@ class Tensor(T2OBase):
             self.scale = float(quant.ScaleAsNumpy()[0])
             self.zero_point = int(quant.ZeroPointAsNumpy()[0])
 
-        self.data = TensorRegistry.getData(self.model, self.graph, self.index,
-                                           mapping.DTYPE_ONNX2NAME[self.dtype])
+        self.data = TensorFactory.getData(self.model, self.graph, self.index,
+                                          mapping.DTYPE_ONNX2NAME[self.dtype])
 
         self.setParsed()
 
@@ -159,7 +159,7 @@ class Tensor(T2OBase):
         return '%s: {%s} -> {%s}' % (self.shorty, producer_names, consumer_names)
 
 
-class TensorRegistry:
+class TensorFactory:
     """The Registery holds all tensors in a SubGraph of TFLite by a name->Tensor map."""
     def __init__(self, model, graph):
         self.model = model
