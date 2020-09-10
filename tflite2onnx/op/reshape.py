@@ -10,6 +10,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Reshape(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.RESHAPE: 'Reshape',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

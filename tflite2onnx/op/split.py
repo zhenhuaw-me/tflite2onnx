@@ -9,6 +9,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Split(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.SPLIT: 'Split',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

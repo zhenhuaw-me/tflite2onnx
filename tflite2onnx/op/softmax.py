@@ -7,6 +7,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Softmax(Operator):
+    TypeMapping = {
+            tflite.BuiltinOperator.SOFTMAX: 'Softmax',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

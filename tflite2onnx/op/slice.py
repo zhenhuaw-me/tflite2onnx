@@ -9,6 +9,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Slice(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.STRIDED_SLICE: 'Slice',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
         self.setInited()

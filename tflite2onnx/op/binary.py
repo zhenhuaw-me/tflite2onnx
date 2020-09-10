@@ -11,18 +11,17 @@ from tflite2onnx.op.reshape import Reshape
 logger = logging.getLogger('tflite2onnx')
 
 
-OpTypeMapping = {
-    tflite.BuiltinOperator.ADD: 'Add',
-    tflite.BuiltinOperator.MUL: 'Mul',
-}
-
-OpOptionFuncMapping = {
-    tflite.BuiltinOperator.ADD: tflite.AddOptions,
-    tflite.BuiltinOperator.MUL: tflite.MulOptions,
-}
-
-
 class Binary(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.ADD: 'Add',
+        tflite.BuiltinOperator.MUL: 'Mul',
+    }
+
+    OptionMapping = {
+        tflite.BuiltinOperator.ADD: tflite.AddOptions,
+        tflite.BuiltinOperator.MUL: tflite.MulOptions,
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
         self.setInited()
@@ -34,8 +33,8 @@ class Binary(Operator):
         else:
             op = self.tflite
             opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-            assert(opcode in OpTypeMapping)
-            return OpTypeMapping[opcode]
+            assert(opcode in self.TypeMapping)
+            return self.TypeMapping[opcode]
 
     def fakeBroadcast(self):
         # Binary operators need to broadcast shape explicitly here since
@@ -65,6 +64,8 @@ class Binary(Operator):
         shape_t.data = np.array(new_shape)
         shape_t.setParsed()
 
+        print(Reshape)
+
         reshape = Reshape(self.TFactory, -1)
         reshape.forFakeBroadcasting = True
 
@@ -87,7 +88,7 @@ class Binary(Operator):
 
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode in OpTypeMapping)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)
@@ -100,7 +101,7 @@ class Binary(Operator):
 
         # options
         op_opt = op.BuiltinOptions()
-        option = OpOptionFuncMapping[opcode]()
+        option = self.OptionMapping[opcode]()
         option.Init(op_opt.Bytes, op_opt.Pos)
 
         handleFusedActivation(self, option, ot)

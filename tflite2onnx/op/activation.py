@@ -5,18 +5,13 @@ from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
 
-FusedActFunc2OpType = {
-    tflite.ActivationFunctionType.RELU6: tflite.BuiltinOperator.RELU6,
-    tflite.ActivationFunctionType.RELU: tflite.BuiltinOperator.RELU,
-}
-
-OpTypeMapping = {
-    tflite.BuiltinOperator.RELU: 'Relu',
-    tflite.BuiltinOperator.RELU6: 'Clip',
-}
-
 
 class ReLU(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.RELU: 'Relu',
+        tflite.BuiltinOperator.RELU6: 'Clip',
+    }
+
     def __init__(self, TFactory, index, preset_opcode=None):
         super().__init__(TFactory, index)
         self.setInited()
@@ -35,15 +30,15 @@ class ReLU(Operator):
             else:
                 op = self.tflite
                 opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-            assert(opcode in OpTypeMapping)
-            return OpTypeMapping[opcode]
+            assert(opcode in self.TypeMapping)
+            return self.TypeMapping[opcode]
 
     def parse(self):
         logger.debug("Parsing %s...", self.type)
 
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode in OpTypeMapping)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
@@ -91,6 +86,11 @@ def handleFusedActivation(master, option, output, intermediate=None):
     * `output`: the tensor that act as output of the whole pattern.
     * `intermediate`: the node that activation attach to, usually same as `master`.
     """
+    FusedActFunc2OpType = {
+        tflite.ActivationFunctionType.RELU6: tflite.BuiltinOperator.RELU6,
+        tflite.ActivationFunctionType.RELU: tflite.BuiltinOperator.RELU,
+    }
+
     logger.debug("Handling FusedActivationFunction for %s", master.shorty)
     faf = option.FusedActivationFunction()
     if faf is tflite.ActivationFunctionType.NONE:

@@ -7,12 +7,11 @@ from tflite2onnx.op.common import Operator
 logger = logging.getLogger('tflite2onnx')
 
 
-OpTypeMapping = {
-    tflite.BuiltinOperator.MEAN: 'ReduceMean',
-}
-
-
 class Reduce(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.MEAN: 'ReduceMean',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 
@@ -28,15 +27,15 @@ class Reduce(Operator):
         else:
             op = self.tflite
             opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-            assert(opcode in OpTypeMapping)
-            return OpTypeMapping[opcode]
+            assert(opcode in self.TypeMapping)
+            return self.TypeMapping[opcode]
 
     def parse(self):
         logger.debug("Parsing %s...", self.type)
 
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode in OpTypeMapping)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)

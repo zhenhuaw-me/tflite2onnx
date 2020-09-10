@@ -8,6 +8,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Transpose(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.TRANSPOSE: 'Transpose'
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

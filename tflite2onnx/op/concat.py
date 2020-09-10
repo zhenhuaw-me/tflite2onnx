@@ -8,6 +8,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Concat(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.CONCATENATION: 'Concat',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

@@ -6,7 +6,6 @@ from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
 
-
 PaddingMapping = {
     tflite.Padding.SAME: 'SAME_UPPER',
     tflite.Padding.VALID: 'VALID',
@@ -14,6 +13,10 @@ PaddingMapping = {
 
 
 class Padding(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.PAD: 'Pad',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

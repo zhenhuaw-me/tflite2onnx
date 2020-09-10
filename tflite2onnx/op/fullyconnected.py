@@ -8,6 +8,10 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class FullyConnected(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.FULLY_CONNECTED: 'Gemm',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

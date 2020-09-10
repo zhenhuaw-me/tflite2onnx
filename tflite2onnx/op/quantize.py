@@ -8,6 +8,11 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Quantize(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.QUANTIZE: 'QuantizeLinear',
+        tflite.BuiltinOperator.DEQUANTIZE: 'DequantizeLinear',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

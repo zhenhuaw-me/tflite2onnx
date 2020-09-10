@@ -6,7 +6,7 @@ from onnx import helper
 from tflite2onnx.tensor import TensorFactory
 from tflite2onnx.common import T2OBase
 from tflite2onnx.layout import Layout
-from tflite2onnx.op import getOp
+from tflite2onnx.op import OpFactory
 from tflite2onnx.quantize import handleQuantizationTensor
 
 logger = logging.getLogger('tflite2onnx')
@@ -26,6 +26,7 @@ class Graph(T2OBase):
 
         self.tflite = graph
         self.TFactory = TensorFactory(model, graph)
+        self.OPCFactory = OpFactory(self.TFactory)
 
         self.setInited()
 
@@ -58,7 +59,7 @@ class Graph(T2OBase):
         # operators
         for i in range(self.graph.OperatorsLength()):
             logger.debug("Parsing operator: %d", i)
-            op = getOp(self.TFactory, i)
+            op = self.OPCFactory.create(i)
             op.parse()
             self.ops.append(op)
 

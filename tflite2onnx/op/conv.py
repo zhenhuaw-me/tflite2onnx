@@ -10,6 +10,11 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Conv(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.CONV_2D: 'Conv',
+        tflite.BuiltinOperator.DEPTHWISE_CONV_2D: 'Conv',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 

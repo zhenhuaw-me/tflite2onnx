@@ -7,6 +7,8 @@ logger = logging.getLogger('tflite2onnx')
 
 
 class Operator(T2OBase):
+    TypeMapping = dict()
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory.model, TFactory.graph, index)
         self.TFactory = TFactory
@@ -123,3 +125,38 @@ class Operator(T2OBase):
         inames = str([t.name for t in self.inputs])
         onames = str([t.name for t in self.outputs])
         return '%s attr%s: %s -> %s' % (self.shorty, self.attrs, inames, onames)
+
+
+class OpFactory:
+    """The factory for creating operater converter objects."""
+
+    registry = dict()
+
+    @staticmethod
+    def register(converter):
+        opcs = converter.TypeMapping.keys()
+        for opc in opcs:
+            assert(opc not in OpFactory.registry)
+            OpFactory.registry[opc] = converter
+
+    def __init__(self, TFactory):
+        self.model = TFactory.model
+        self.graph = TFactory.graph
+        self.TFactory = TFactory
+
+    def create(self, index):
+        op = self.graph.Operators(index)
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        if opcode not in OpFactory.registry:
+            raise NotImplementedError("Unsupported TFLite OP: {}".format(opcode))
+
+        op_converter = OpFactory.registry[opcode]
+        print(op_converter)
+        return op_converter(self.TFactory, index)
+
+    @staticmethod
+    def dump():
+        return "Registered OP converter: %d" % len(OpFactory.registry)
+
+    def __str__(self):
+        return OpFactory.dump()

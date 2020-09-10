@@ -9,13 +9,12 @@ from tflite2onnx.op.padding import PaddingMapping
 logger = logging.getLogger('tflite2onnx')
 
 
-OpTypeMapping = {
-    tflite.BuiltinOperator.AVERAGE_POOL_2D: 'AveragePool',
-    tflite.BuiltinOperator.MAX_POOL_2D: 'MaxPool',
-}
-
-
 class Pooling(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.AVERAGE_POOL_2D: 'AveragePool',
+        tflite.BuiltinOperator.MAX_POOL_2D: 'MaxPool',
+    }
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 
@@ -33,14 +32,14 @@ class Pooling(Operator):
         else:
             op = self.tflite
             opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-            assert(opcode in OpTypeMapping)
-            return OpTypeMapping[opcode]
+            assert(opcode in self.TypeMapping)
+            return self.TypeMapping[opcode]
 
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode in OpTypeMapping)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
