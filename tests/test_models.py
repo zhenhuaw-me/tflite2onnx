@@ -20,7 +20,7 @@ def end2end_test(model_name, use_layout):
 
     onnx_ret = shrub.onnx.run(onnx_name, m.inputs, use_layout)
     tflite_ret = shrub.tflite.run(tflm_path, m.inputs)
-    assert(shrub.network.cmpTensors(onnx_ret, tflite_ret))
+    assert(shrub.network.cmpTensors(onnx_ret, tflite_ret, useLayout=use_layout))
 
 
 def test_ops_implicit_layout():

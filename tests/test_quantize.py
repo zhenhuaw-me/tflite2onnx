@@ -39,7 +39,7 @@ def end2end_test(model_name, use_layout, atol, rtol):
         finputs.append(finput)
     onnx_ret = shrub.onnx.run(onnx_name, finputs, use_layout)
 
-    assert(shrub.network.cmpTensors(foutputs, onnx_ret, atol=atol, rtol=rtol))
+    assert(shrub.network.cmpTensors(foutputs, onnx_ret, atol=atol, rtol=rtol, useLayout=use_layout))
 
 
 def test_quantized_ops():
