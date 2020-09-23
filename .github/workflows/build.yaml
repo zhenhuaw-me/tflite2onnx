@@ -33,7 +33,7 @@ jobs:
       run: pip install -U assets/dist/tflite2onnx-*.whl
 
     - name: Testing (collecting coverage data)
-      run: coverage run --source=./shrub -m pytest
+      run: coverage run --source=./tflite2onnx -m pytest
 
     # - name: SSH via Ngrok if fail
     #   if: ${{ failure() }}
