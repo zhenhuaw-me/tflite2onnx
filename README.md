@@ -1,8 +1,9 @@
 TFLITE2ONNX - Convert TensorFlow Lite models to ONNX
 ====================================================
 
-![Build and Test](https://github.com/jackwish/tflite2onnx/workflows/Build%20and%20Test/badge.svg)
-![Sanity](https://github.com/jackwish/tflite2onnx/workflows/Sanity/badge.svg)
+[![Build and Test](https://github.com/jackwish/tflite2onnx/workflows/Build%20and%20Test/badge.svg)](https://github.com/jackwish/tflite2onnx/actions?query=workflow%3A%22Build+and+Test%22)
+[![Sanity](https://github.com/jackwish/tflite2onnx/workflows/Sanity/badge.svg)](https://github.com/jackwish/tflite2onnx/actions?query=workflow%3ASanity)
+[![Coverage](https://codecov.io/gh/jackwish/tflite2onnx/branch/master/graph/badge.svg)](https://codecov.io/gh/jackwish/tflite2onnx)
 
 `tflite2onnx` converts TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`).
 
