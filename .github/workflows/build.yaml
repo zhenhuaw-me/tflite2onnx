@@ -10,25 +10,31 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.5, 3.6, 3.7]
+        python-version: [3.5, 3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install --use-feature=2020-resolver -r requirements.txt
+
     - name: Build package
       run: tools/1-build.sh
       shell: bash
+
     - name: Install package
       run: pip install -U assets/dist/tflite2onnx-*.whl
-    - name: Testing
-      run: pytest
+
+    - name: Testing (collecting coverage data)
+      run: coverage run --source=./shrub -m pytest
+
     # - name: SSH via Ngrok if fail
     #   if: ${{ failure() }}
     #   env:
@@ -39,3 +45,11 @@ jobs:
     # - name: Live instance if fail
     #   if: ${{ failure() }}
     #   run: sleep 1h
+
+    - name: Uploading coverage report
+      continue-on-error: true
+      env:
+        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      run: |
+        coverage xml
+        bash <(curl -s https://codecov.io/bash)
