@@ -1,4 +1,4 @@
-TFLITE2ONNX - Convert TensorFlow Lite models to ONNX
+tflite2onnx - Convert TensorFlow Lite models to ONNX
 ====================================================
 
 [![Build and Test](https://github.com/jackwish/tflite2onnx/workflows/Build%20and%20Test/badge.svg)](https://github.com/jackwish/tflite2onnx/actions?query=workflow%3A%22Build+and+Test%22)
@@ -39,24 +39,20 @@ tflite2onnx.convert(tflite_path, onnx_path)
 tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 ```
 
+## Documents
+
+* [Introduction blog - the background, design and implementation][intro]
+* [Release note](docs/release-notes.md)
+* [Supported operators](docs/operator-support-status.md) ([Onging status issue](https://github.com/jackwish/tflite2onnx/issues/11))
+* [How to enable a new operator](docs/how-to-enable-new-operator.md)
+
 
 ## Contributing
-
-Any contribution is welcome to this tool.
 
 * If you think something is wrong, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
 * If some operators are not supported yet, you may [request a new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * It would be great if you can help to enable new operators, please join us with [How to enable a new operator](docs/how-to-enable-new-operator.md).
 * Feel free to open discussions if you have any great idea to improve this tool.
-
-
-## Resources
-
-* [Introduction blog][intro]
-* [Release note](docs/release-notes.md).
-* [PyPI page][pypi].
-* [GitHub page][github].
-* [TensorFlow Lite converter][tf2tflite].
 
 
 ## License
