@@ -43,6 +43,8 @@ def test_ops_implicit_layout():
         'conv-reshape.float32',
         'reshape-conv.float32',
         'conv-reshape-multiple-conv.float32',
+        'conv-transpose.float32',
+        'conv-transpose_relu.float32',
     )
 
     for op in OP_LIST:
