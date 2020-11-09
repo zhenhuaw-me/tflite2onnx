@@ -64,8 +64,6 @@ class Binary(Operator):
         shape_t.data = np.array(new_shape)
         shape_t.setParsed()
 
-        print(Reshape)
-
         reshape = Reshape(self.TFactory, -1)
         reshape.forFakeBroadcasting = True
 

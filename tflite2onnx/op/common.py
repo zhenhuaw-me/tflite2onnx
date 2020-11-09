@@ -151,7 +151,6 @@ class OpFactory:
             raise NotImplementedError("Unsupported TFLite OP: {}".format(opcode))
 
         op_converter = OpFactory.registry[opcode]
-        print(op_converter)
         return op_converter(self.TFactory, index)
 
     @staticmethod
