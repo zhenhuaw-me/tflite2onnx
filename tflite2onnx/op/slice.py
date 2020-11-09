@@ -74,7 +74,7 @@ class Slice(Operator):
 
         # axis, we create from empty
         axis = np.arange(rank)
-        at = self.TFactory.createVector(bt, axis)
+        at = self.TFactory.createVector(axis.astype('int32'))
         at.addConsumer(self)
         self.inputs.append(at)
 

@@ -32,24 +32,40 @@ class Reshape(Operator):
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode is tflite.BuiltinOperator.RESHAPE)
 
-        assert(op.InputsLength() == 2)
+        assert(op.InputsLength() >= 1)
         assert(op.OutputsLength() == 1)
 
         # input
         self.parseInput(0)
 
-        # shape
-        st = self.parseInput(1)
-        # TFLite shape is int32 data type, ONNX is int64
-        st.dtype = mapping.DTYPE_NAME2ONNX['int64']
-        if st.isInitializer:
-            st.data = st.data.astype('int64')
-        if (len(st.shape) > 1):
-            logger.warning("ONNXRuntime doesn't support 2+rank shape, "
-                           "flatten if the shape is initialzier, ignore otherwise."
-                           "https://github.com/jackwish/tflite2onnx/issues/16")
+        # This block has been commented
+        # because the `Reshape` with only one input seems like a special case
+        # haven't manage to reproduce currently
+        # data = self.parseInput(0)
+        # if op.InputsLength() == 1:
+        #     # options
+        #     op_opt = op.BuiltinOptions()
+        #     option = tflite.ReshapeOptions()
+        #     option.Init(op_opt.Bytes, op_opt.Pos)
+        #     sp = option.NewShapeAsNumpy()
+        #     sp = self.TFactory.createVector(sp.asdtype('int64'))
+        #     sp.addConsumer(self)
+        #     self.inputs.append(sp)
+
+        if op.InputsLength() == 2:
+            # shape
+            st = self.parseInput(1)
+
+            # TFLite shape is int32 data type, ONNX is int64
+            st.dtype = mapping.DTYPE_NAME2ONNX['int64']
             if st.isInitializer:
-                st.shape = (np.prod(np.array(st.shape)),)
+                st.data = st.data.astype('int64')
+            if len(st.shape) > 1:
+                logger.warning("ONNXRuntime doesn't support 2+rank shape, "
+                               "flatten if the shape is initialzier, ignore otherwise."
+                               "https://github.com/jackwish/tflite2onnx/issues/16")
+                if st.isInitializer:
+                    st.shape = (np.prod(np.array(st.shape)),)
 
         # output
         self.parseOutput(0)
