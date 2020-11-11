@@ -1,7 +1,6 @@
 import logging
 import tflite
 
-from tflite2onnx import mapping
 from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
