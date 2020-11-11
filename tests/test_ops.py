@@ -38,6 +38,7 @@ def test_ops_implicit_layout():
         'fullyconnected.float32',
         'fullyconnected-relu6.float32',
         'maxpooling.float32',
+        'resize-bilinear.float32',
     )
 
     for op in OP_LIST:
