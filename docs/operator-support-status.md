@@ -16,14 +16,17 @@ Please add in A-Z style.
     - [x] Padding
 - [x] Dequantize
 - [x] FullyConnected
+- [x] Logistic (Sigmoid)
 - [x] MaxPooling
 - [x] Mean (reduce)
 - [x] Mul
 - [x] Pad
+- [x] PReLU
 - [x] Quantize
 - [x] ReLU
 - [x] ReLU6
 - [x] Reshape
+- [x] Resize
 - [x] Softmax
 - [x] Split
 - [x] StridedSlice
