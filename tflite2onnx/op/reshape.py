@@ -45,7 +45,6 @@ class Reshape(Operator):
             option.Init(op_opt.Bytes, op_opt.Pos)
             sp = option.NewShapeAsNumpy()
             sp = self.TFactory.createVector(data, sp)
-            sp.parse()
             sp.addConsumer(self)
             sp.dtype = mapping.DTYPE_NAME2ONNX['int64']
             self.inputs.append(sp)

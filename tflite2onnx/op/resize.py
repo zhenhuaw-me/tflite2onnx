@@ -107,7 +107,8 @@ class Resize(Operator):
 
         # options
         op_opt = op.BuiltinOptions()
-        option = tflite.ResizeBilinearOptions() if self.isRESIZE_BILINEAR else tflite.ResizeNearestNeighborOptions()
+        option = tflite.ResizeBilinearOptions() if self.isRESIZE_BILINEAR \
+            else tflite.ResizeNearestNeighborOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
 
         if self.isRESIZE_BILINEAR:

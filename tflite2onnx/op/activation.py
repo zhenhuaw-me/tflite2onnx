@@ -96,10 +96,9 @@ class ReLU(Operator):
             # `alpha` should be a learned array with the same shape as `X`
             # But there is no `batch_size` dimension in its shape,
             # which will cause `out of index` exception during axis transform
-            # so we copy the `batch_size` from `X` to expand its dimension
+            # so we expand its dimension by insert 1 to its shape
             alpha = self.parseInput(1)
-            alpha.shape.insert(0, self.inputs[0].shape[0])
-            alpha.dtype = mapping.DTYPE_NAME2ONNX['float32']
+            alpha.shape.insert(0, 1)
 
         self.parseOutput(0)
 
