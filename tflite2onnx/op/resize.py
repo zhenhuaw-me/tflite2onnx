@@ -2,10 +2,12 @@ import logging
 import tflite
 import numpy as np
 
+from tflite2onnx.layout import Layout
 from tflite2onnx import mapping
 from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
+
 
 class Resize(Operator):
     TypeMapping = {
@@ -16,7 +18,8 @@ class Resize(Operator):
 
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
-        # Four choices: half_pixel, pytorch_half_pixel, align_corners, asymmetric, tf_crop_and_resize
+        # Four choices:
+        # half_pixel, pytorch_half_pixel, align_corners, asymmetric, tf_crop_and_resize
         self.attrs['coordinate_transformation_mode'] = 'half_pixel'
         # This attribute is valid only if "mode" is "cubic".
         # The coefficient 'a' used in cubic interpolation.
@@ -25,9 +28,11 @@ class Resize(Operator):
         self.attrs['exclude_outside'] = 0
         self.attrs['extrapolation_value'] = 0.0
         # Three interpolation modes: nearest (default), linear and cubic.
-        # The "linear" mode includes linear interpolation for 1D tensor and N-linear interpolation for N-D tensor
+        # The "linear" mode includes linear interpolation for 1D tensor
+        # and N-linear interpolation for N-D tensor
         # (for example, bilinear interpolation for 2D tensor).
-        # The "cubic" mode includes cubic interpolation for 1D tensor and N-cubic interpolation for N-D tensor
+        # The "cubic" mode includes cubic interpolation for 1D tensor
+        # and N-cubic interpolation for N-D tensor
         # (for example, bicubic interpolation for 2D tensor).
         self.attrs['mode'] = 'nearest'
         # Four modes: round_prefer_floor (default, as known as round half down),
@@ -59,16 +64,19 @@ class Resize(Operator):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.RESIZE_BILINEAR or tflite.BuiltinOperator.RESIZE_NEAREST_NEIGHBOR)
+        assert(opcode is tflite.BuiltinOperator.RESIZE_BILINEAR
+               or tflite.BuiltinOperator.RESIZE_NEAREST_NEIGHBOR)
 
         assert(op.InputsLength() >= 2), "Only first two arguments: image and size, are compulsory"
         assert(op.OutputsLength() == 1)
 
         # image
-        im = self.parseInput(0)
+        ilayout = Layout('NHWC', 'NCHW')
+        im = self.parseInput(0, ilayout)
 
         # Fill 'ROI' empty temporarily
-        # because 'tf_crop_and_resize' was not found in BuiltinOptions of ResizeBilinear and ResizeNearestNeighbor
+        # because 'tf_crop_and_resize' was not found in BuiltinOptions
+        # of ResizeBilinear and ResizeNearestNeighbor
         holder = self.TFactory.createVector(im, np.array([]))
         holder.parse()
         holder.addConsumer(self)
@@ -93,7 +101,9 @@ class Resize(Operator):
         sz.shape = [len(im.shape)]
         sz.dtype = mapping.DTYPE_NAME2ONNX['int64']
 
-        ot = self.parseOutput(0)
+        # output
+        olayout = Layout('NHWC', 'NCHW')
+        self.parseOutput(0, olayout)
 
         # options
         op_opt = op.BuiltinOptions()
@@ -104,8 +114,7 @@ class Resize(Operator):
             self.attrs['mode'] = 'linear'
         if option.AlignCorners():
             self.attrs['coordinate_transformation_mode'] = 'align_corners'
-        # Actually docs for the argument `half_pixel_centers` in tf.compat.v1.image.resize_bilinear
-        # and tf.compat.v1.image.resize_nearest_neighbor are missing...
+
         # if option.HalfPixelCenters():
         #     self.attrs['coordinate_transformation_mode'] = 'half_pixel'
 
