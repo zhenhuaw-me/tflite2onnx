@@ -1,15 +1,51 @@
 import logging
 import tflite
 
+from tflite2onnx import mapping
 from tflite2onnx.op.common import Operator
 
 logger = logging.getLogger('tflite2onnx')
+
+
+class Logistic(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.LOGISTIC: 'Sigmoid',
+    }
+
+    def __init__(self, TFactory, index):
+        super().__init__(TFactory, index)
+        self.setInited()
+
+    @property
+    def type(self):
+        return 'Sigmoid'
+
+    def parse(self):
+        logger.debug("Parsing %s...", self.type)
+
+        op = self.tflite
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+        assert (opcode in self.TypeMapping)
+
+        assert (op.InputsLength() == 1)
+        assert (op.OutputsLength() == 1)
+        self.parseInput(0)
+        self.parseOutput(0)
+
+        self.setParsed()
+
+    def propagatableTensors(self):
+        return self.inputs + self.outputs
+
+    def transform(self):
+        pass
 
 
 class ReLU(Operator):
     TypeMapping = {
         tflite.BuiltinOperator.RELU: 'Relu',
         tflite.BuiltinOperator.RELU6: 'Clip',
+        tflite.BuiltinOperator.PRELU: 'PRelu',
     }
 
     def __init__(self, TFactory, index, preset_opcode=None):
@@ -40,7 +76,10 @@ class ReLU(Operator):
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in self.TypeMapping)
 
-        assert(op.InputsLength() == 1)
+        if opcode == tflite.BuiltinOperator.PRELU:
+            assert (op.InputsLength() == 2)
+        else:
+            assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
         it = self.parseInput(0)
@@ -52,6 +91,15 @@ class ReLU(Operator):
             tmax = self.TFactory.createScalar(it, 6)
             tmax.addConsumer(self)
             self.inputs.append(tmax)
+
+        if opcode == tflite.BuiltinOperator.PRELU:
+            # `alpha` should be a learned array with the same shape as `X`
+            # But there is no `batch_size` dimension in its shape,
+            # which will cause `out of index` exception during axis transform
+            # so we copy the `batch_size` from `X` to expand its dimension
+            alpha = self.parseInput(1)
+            alpha.shape.insert(0, self.inputs[0].shape[0])
+            alpha.dtype = mapping.DTYPE_NAME2ONNX['float32']
 
         self.parseOutput(0)
 

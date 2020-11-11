@@ -73,6 +73,8 @@ def test_ops_layout_transparent():
         'mul.float32',
         'relu6.float32',
         'relu.float32',
+        'prelu.float32',
+        'sigmoid.float32',
     )
 
     for op in OP_LIST:
