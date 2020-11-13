@@ -145,6 +145,7 @@ class Tensor(T2OBase):
             onnx.checker.check_tensor(self.onnx)
         else:
             self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
+            onnx.checker.check_value_info(self.onnx)
         assert(self.onnx)
 
         self.setConverted()
@@ -213,6 +214,20 @@ class TensorFactory:
             t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
             t.data = ndarray.copy()
             t.shape = t.data.shape
+            t.setParsed()
+            self.registery[name] = t
+        return self.registery[name]
+
+    def createEmptyTensor(self):
+        # Used for optional inputs that we need it to be empty.
+        logger.warning("Empty tensor used, please double confirm your code path!")
+        name = 'TFLITE2ONNX_EmptyTensor'
+        if name not in self.registery:
+            t = Tensor(self.model, self.graph, -1, None)
+            t.name = name
+            t.dtype = mapping.DTYPE_NAME2ONNX['float32']
+            t.data = np.array([])
+            t.shape = [0]
             t.setParsed()
             self.registery[name] = t
         return self.registery[name]

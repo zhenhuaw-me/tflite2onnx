@@ -13,7 +13,6 @@ class Resize(Operator):
     TypeMapping = {
         tflite.BuiltinOperator.RESIZE_NEAREST_NEIGHBOR: 'Resize',
         tflite.BuiltinOperator.RESIZE_BILINEAR: 'Resize',
-        # No RESIZE_BICUBIC in BuiltinOperator
     }
 
     def __init__(self, TFactory, index):
@@ -48,55 +47,34 @@ class Resize(Operator):
     def type(self):
         return 'Resize'
 
-    @property
-    def isRESIZE_BILINEAR(self):
-        op = self.tflite
-        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        return opcode is tflite.BuiltinOperator.RESIZE_BILINEAR
-
-    @property
-    def isRESIZE_NEAREST_NEIGHBOR(self):
-        op = self.tflite
-        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        return opcode is tflite.BuiltinOperator.RESIZE_NEAREST_NEIGHBOR
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in self.TypeMapping)
 
-        assert(op.InputsLength() == 2), "Only first two arguments: image and size, are compulsory"
+        assert(op.InputsLength() == 2), "TFLite has only two inputs"
         assert(op.OutputsLength() == 1)
 
-        # image
-        # TFLite requires its `Resize` to be NHWC
+        # ONNX Resize doesn't have layout semantic, but TFLite requires NHWC
         ilayout = Layout('NHWC', 'NCHW')
         im = self.parseInput(0, ilayout)
 
-        # Fill 'ROI' empty temporarily
-        # because 'tf_crop_and_resize' was not found in BuiltinOptions
-        # of ResizeBilinear and ResizeNearestNeighbor
-        roi = self.TFactory.createVector(im, np.array([]))
-        roi.addConsumer(self)
-        self.inputs.append(roi)
+        # ROI and Scale are not optional until Resize v13,
+        # currently (v11) we create them as empty initializer.
+        # After v13, we can try to not include them in graph
+        empty_input = self.TFactory.createEmptyTensor()
+        empty_input.addConsumer(self)
+        self.inputs.append(empty_input)  # ROI
+        self.inputs.append(empty_input)  # Scale
 
-        # Fill empty to scales temporarily
-        sc = self.TFactory.createVector(im, np.array([]))
-        self.inputs.append(sc)
-
-        # output size expected
+        # output size
         sz = self.parseInput(1)
-
-        # In case Resize, the number of elements of both the arguments
-        # 'sizes' and 'scales' are required to be the same as the rank of input 'X'.
-        # The 'X' usually has a (N,C,H,W) layout after transforming
-        # while the 'sizes' and 'scales' only have (H_new,W_new).
-        # Thus we copy the N and C to achieve (N, C, H_new,W_new) for these two arguments.
+        # TFLite sizes is (H_new, W_new) while ONNX needs (N, C, H_new,W_new)
         assert len(sz.data) == 2
         assert len(im.shape) == 4
-        sz.data = np.concatenate((np.array([im.shape[0], im.shape[-1]]), sz.data))
         sz.shape = [len(im.shape)]
+        sz.data = np.concatenate((np.array([im.shape[0], im.shape[-1]]), sz.data))
         sz.dtype = mapping.DTYPE_NAME2ONNX['int64']
 
         # output
@@ -104,20 +82,24 @@ class Resize(Operator):
         self.parseOutput(0, olayout)
 
         # options
-        op_opt = op.BuiltinOptions()
-        option = tflite.ResizeBilinearOptions() if self.isRESIZE_BILINEAR \
-            else tflite.ResizeNearestNeighborOptions()
-        option.Init(op_opt.Bytes, op_opt.Pos)
-
-        if self.isRESIZE_BILINEAR:
+        if opcode is tflite.BuiltinOperator.RESIZE_BILINEAR:
             self.attrs['mode'] = 'linear'
-        elif self.isRESIZE_NEAREST_NEIGHBOR:
+            option = tflite.ResizeBilinearOptions()
+        elif opcode is tflite.BuiltinOperator.RESIZE_NEAREST_NEIGHBOR:
             self.attrs['mode'] = 'nearest'
+            option = tflite.ResizeNearestNeighborOptions()
+        else:
+            assert False, "Unreachable path!"
+
+        op_opt = op.BuiltinOptions()
+        option.Init(op_opt.Bytes, op_opt.Pos)
 
         if option.AlignCorners():
             self.attrs['coordinate_transformation_mode'] = 'align_corners'
         elif option.HalfPixelCenters():
             self.attrs['coordinate_transformation_mode'] = 'half_pixel'
+        else:
+            raise NotImplementedError("This path has not been tried")
 
         self.setParsed()
 
