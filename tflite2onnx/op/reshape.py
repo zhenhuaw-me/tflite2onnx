@@ -48,9 +48,8 @@ class Reshape(Operator):
         #     option = tflite.ReshapeOptions()
         #     option.Init(op_opt.Bytes, op_opt.Pos)
         #     sp = option.NewShapeAsNumpy()
-        #     sp = self.TFactory.createVector(data, sp)
+        #     sp = self.TFactory.createVector(sp.asdtype('int64'))
         #     sp.addConsumer(self)
-        #     sp.dtype = mapping.DTYPE_NAME2ONNX['int64']
         #     self.inputs.append(sp)
 
         if op.InputsLength() == 2:

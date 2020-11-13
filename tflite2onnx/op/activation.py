@@ -81,13 +81,13 @@ class ReLU(Operator):
             assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)
 
-        it = self.parseInput(0)
+        self.parseInput(0)
 
         if opcode == tflite.BuiltinOperator.RELU6:
-            tmin = self.TFactory.createScalar(it, 0)
+            tmin = self.TFactory.createScalar('float32', 0.0)
             tmin.addConsumer(self)
             self.inputs.append(tmin)
-            tmax = self.TFactory.createScalar(it, 6)
+            tmax = self.TFactory.createScalar('float32', 6.0)
             tmax.addConsumer(self)
             self.inputs.append(tmax)
 
@@ -163,10 +163,10 @@ def handleFusedActivation(master, option, output, intermediate=None):
         act.inputs.append(input)
 
         if act_type == tflite.BuiltinOperator.RELU6:
-            tmin = intermediate.TFactory.createScalar(input, 0)
+            tmin = intermediate.TFactory.createScalar('float32', 0.0)
             tmin.addConsumer(act)
             act.inputs.append(tmin)
-            tmax = intermediate.TFactory.createScalar(input, 6)
+            tmax = intermediate.TFactory.createScalar('float32', 6.0)
             tmax.addConsumer(act)
             act.inputs.append(tmax)
 
