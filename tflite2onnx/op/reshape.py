@@ -3,6 +3,7 @@ import logging
 import tflite
 import numpy as np
 
+from tflite2onnx.op.transpose import Transpose
 from tflite2onnx import mapping
 from tflite2onnx.op.common import Operator
 
@@ -67,7 +68,38 @@ class Reshape(Operator):
         # output
         self.parseOutput(0)
 
+        self.fakeTranspose()
         self.setParsed()
+
+    def fakeTranspose(self):
+        # Binary operators need to broadcast shape explicitly here since
+        # they may not be broadcastable after layout propagration.
+        # We don't really broadcast here, but extend shape with 1.
+        assert(self.status.initialized)
+        todo = self.inputs[0]
+
+        new_t_name = 'TFLITE2ONNX_Transpose_%s' % todo.name
+        new_t = self.TFactory.getWithRef(todo, new_t_name, True)
+        new_t.shape = todo.shape
+        new_t.asDtype('float32')
+        print("todo shape", todo.shape)
+        new_t.setParsed()
+
+        trans = Transpose(self.TFactory, -1)
+        shape_t_name = 'TFLITE2ONNX_Perm_%s' % todo.name
+        self.attrs['perm'] = self.TFactory.getWithRef(todo, shape_t_name, True)
+        self.attrs['perm'].asDtype('int64')
+
+        trans.inputs.append(todo)
+        todo.replaceConsumer(self, trans)
+        self.replaceInput(todo, new_t)
+
+        trans.outputs.append(new_t)
+        new_t.addProducer(trans)
+        new_t.addConsumer(self)
+        trans.setParsed()
+
+        self.pre.append(trans)
 
     def propagatableTensors(self):
         return list()

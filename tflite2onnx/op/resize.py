@@ -67,24 +67,23 @@ class Resize(Operator):
         assert(opcode is tflite.BuiltinOperator.RESIZE_BILINEAR
                or tflite.BuiltinOperator.RESIZE_NEAREST_NEIGHBOR)
 
-        assert(op.InputsLength() >= 2), "Only first two arguments: image and size, are compulsory"
+        assert(op.InputsLength() == 2), "Only first two arguments: image and size, are compulsory"
         assert(op.OutputsLength() == 1)
 
         # image
+        # TFLite requires its `Resize` to be NHWC
         ilayout = Layout('NHWC', 'NCHW')
         im = self.parseInput(0, ilayout)
 
         # Fill 'ROI' empty temporarily
         # because 'tf_crop_and_resize' was not found in BuiltinOptions
         # of ResizeBilinear and ResizeNearestNeighbor
-        holder = self.TFactory.createVector(im, np.array([]))
-        holder.parse()
-        holder.addConsumer(self)
-        self.inputs.append(holder)
+        roi = self.TFactory.createVector(im, np.array([]))
+        roi.addConsumer(self)
+        self.inputs.append(roi)
 
         # Fill empty to scales temporarily
         sc = self.TFactory.createVector(im, np.array([]))
-        sc.parse()
         self.inputs.append(sc)
 
         # output size expected
@@ -113,11 +112,13 @@ class Resize(Operator):
 
         if self.isRESIZE_BILINEAR:
             self.attrs['mode'] = 'linear'
+        elif self.isRESIZE_NEAREST_NEIGHBOR:
+            self.attrs['mode'] = 'nearest'
+
         if option.AlignCorners():
             self.attrs['coordinate_transformation_mode'] = 'align_corners'
-
-        # if option.HalfPixelCenters():
-        #     self.attrs['coordinate_transformation_mode'] = 'half_pixel'
+        elif option.HalfPixelCenters():
+            self.attrs['coordinate_transformation_mode'] = 'half_pixel'
 
         self.setParsed()
 
