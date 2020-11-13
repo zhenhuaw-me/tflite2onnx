@@ -199,15 +199,14 @@ class TensorFactory:
             t = self.registery[name]
         return t
 
-    def createScalar(self, ref, value):
-        name = 'TFLITE2ONNX_Scalar_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + str(value)
-        dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
+    def createScalar(self, dtype, value):
+        name = 'TFLITE2ONNX_Scalar_' + dtype + '_' + str(value)
         return self._createScalarCore(name, dtype, value)
 
-    def createVector(self, ref, ndarray):
+    def createVector(self, ndarray):
         array2key = str(ndarray).replace(' ', '_')
-        name = 'TFLITE2ONNX_Vector_' + mapping.DTYPE_ONNX2NAME[ref.dtype] + '_' + array2key
-        dtype = mapping.DTYPE_ONNX2NAME[ref.dtype]
+        dtype = str(ndarray.dtype)
+        name = 'TFLITE2ONNX_Vector_' + dtype + '_' + array2key
         if name not in self.registery:
             t = Tensor(self.model, self.graph, -1, None)
             t.name = name
