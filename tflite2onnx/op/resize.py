@@ -64,9 +64,8 @@ class Resize(Operator):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.RESIZE_BILINEAR
-               or tflite.BuiltinOperator.RESIZE_NEAREST_NEIGHBOR)
-
+        assert (opcode in self.TypeMapping)
+        
         assert(op.InputsLength() == 2), "Only first two arguments: image and size, are compulsory"
         assert(op.OutputsLength() == 1)
 
