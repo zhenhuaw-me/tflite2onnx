@@ -1,5 +1,4 @@
-from tflite2onnx.op.activation import ReLU
-from tflite2onnx.op.activation import Logistic
+from tflite2onnx.op.activation import Activation
 from tflite2onnx.op.binary import Binary
 from tflite2onnx.op.common import OpFactory
 from tflite2onnx.op.common import Operator  # noqa: F401
@@ -18,6 +17,7 @@ from tflite2onnx.op.split import Split
 from tflite2onnx.op.transpose import Transpose
 from tflite2onnx.op.unary import Unary
 
+OpFactory.register(Activation)
 OpFactory.register(Binary)
 OpFactory.register(Concat)
 OpFactory.register(Conv)
@@ -25,8 +25,6 @@ OpFactory.register(FullyConnected)
 OpFactory.register(Padding)
 OpFactory.register(Pooling)
 OpFactory.register(Quantize)
-OpFactory.register(ReLU)
-OpFactory.register(Logistic)
 OpFactory.register(Reduce)
 OpFactory.register(Reshape)
 OpFactory.register(Resize)
