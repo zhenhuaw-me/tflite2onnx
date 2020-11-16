@@ -5,6 +5,7 @@ import numpy as np
 
 from tflite2onnx import mapping
 from tflite2onnx.op.common import Operator
+from tflite2onnx.op.transpose import Transpose
 
 logger = logging.getLogger('tflite2onnx')
 
@@ -42,15 +43,15 @@ class Reshape(Operator):
         # because the `Reshape` with only one input seems like a special case
         # haven't manage to reproduce currently
         # data = self.parseInput(0)
-        # if op.InputsLength() == 1:
-        #     # options
-        #     op_opt = op.BuiltinOptions()
-        #     option = tflite.ReshapeOptions()
-        #     option.Init(op_opt.Bytes, op_opt.Pos)
-        #     sp = option.NewShapeAsNumpy()
-        #     sp = self.TFactory.createVector(sp.asdtype('int64'))
-        #     sp.addConsumer(self)
-        #     self.inputs.append(sp)
+        if op.InputsLength() == 1:
+            # options
+            op_opt = op.BuiltinOptions()
+            option = tflite.ReshapeOptions()
+            option.Init(op_opt.Bytes, op_opt.Pos)
+            sp = option.NewShapeAsNumpy()
+            sp = self.TFactory.createVector(sp.astype('int64'))
+            sp.addConsumer(self)
+            self.inputs.append(sp)
 
         if op.InputsLength() == 2:
             # shape
@@ -70,7 +71,39 @@ class Reshape(Operator):
         # output
         self.parseOutput(0)
 
+        # Insert a `Transpose`
+        self.fakeTranspose()
+
         self.setParsed()
+
+    def fakeTranspose(self):
+        # If the input (or output) tensor of Reshape
+        # holds a special data layout semantic,
+        # we need to insert Transpose before (or after) the Reshape operator
+        # https://github.com/jackwish/tflite2onnx/issues/28
+
+        assert(self.status.initialized)
+        to_transpose = self.inputs[0]
+
+        transposed_name = 'TFLITE2ONNX_Transposed_%s' % to_transpose.name
+        transposed = self.TFactory.getWithRef(to_transpose, transposed_name, True)
+        transposed.shape = [to_transpose.shape[p] for p in [0, 2, 3, 1]]
+        transposed.setParsed()
+
+        # Construct the additional transpose
+        trans = Transpose(self.TFactory, -1)
+        trans.attrs['perm'] = np.array([0, 2, 3, 1])
+
+        trans.inputs.append(to_transpose)
+        to_transpose.replaceConsumer(self, trans)
+        self.replaceInput(to_transpose, transposed)
+
+        trans.outputs.append(transposed)
+        transposed.addProducer(trans)
+        transposed.addConsumer(self)
+        trans.setParsed()
+
+        self.pre.append(trans)
 
     def propagatableTensors(self):
         return list()
