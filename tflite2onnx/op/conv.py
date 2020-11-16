@@ -46,7 +46,7 @@ class Conv(Operator):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.CONV_2D or tflite.BuiltinOperator.DEPTHWISE_CONV_2D)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 3), "TFLite Conv always has bias"
         assert(op.OutputsLength() == 1)

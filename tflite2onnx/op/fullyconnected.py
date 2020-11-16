@@ -32,7 +32,7 @@ class FullyConnected(Operator):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.FULLY_CONNECTED)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 3), "TFLite Fullly Connected always has bias"
         assert(op.OutputsLength() == 1)

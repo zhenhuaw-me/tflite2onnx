@@ -32,7 +32,7 @@ class Padding(Operator):
         logger.debug("Parsing %s...", self.shorty)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.PAD)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)

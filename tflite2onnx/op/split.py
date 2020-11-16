@@ -30,7 +30,7 @@ class Split(Operator):
 
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.SPLIT)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 2)
 

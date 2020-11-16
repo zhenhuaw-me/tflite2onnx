@@ -26,7 +26,7 @@ class Slice(Operator):
 
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.STRIDED_SLICE)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 4)
         assert(op.OutputsLength() == 1)

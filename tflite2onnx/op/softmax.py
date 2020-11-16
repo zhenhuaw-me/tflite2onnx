@@ -26,7 +26,7 @@ class Softmax(Operator):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.SOFTMAX)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 1)
         assert(op.OutputsLength() == 1)

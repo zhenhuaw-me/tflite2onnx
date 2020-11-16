@@ -27,7 +27,7 @@ class Transpose(Operator):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.TRANSPOSE)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)

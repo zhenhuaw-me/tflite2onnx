@@ -27,7 +27,7 @@ class Concat(Operator):
         logger.debug("Parsing %s...", self.shorty)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
-        assert(opcode is tflite.BuiltinOperator.CONCATENATION)
+        assert(opcode in self.TypeMapping)
 
         assert(op.InputsLength() >= 1)
         assert(op.OutputsLength() == 1)
