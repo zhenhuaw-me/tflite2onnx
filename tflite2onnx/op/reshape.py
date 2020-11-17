@@ -43,15 +43,15 @@ class Reshape(Operator):
         # because the `Reshape` with only one input seems like a special case
         # haven't manage to reproduce currently
         # data = self.parseInput(0)
-        if op.InputsLength() == 1:
-            # options
-            op_opt = op.BuiltinOptions()
-            option = tflite.ReshapeOptions()
-            option.Init(op_opt.Bytes, op_opt.Pos)
-            sp = option.NewShapeAsNumpy()
-            sp = self.TFactory.createVector(sp.astype('int64'))
-            sp.addConsumer(self)
-            self.inputs.append(sp)
+        # if op.InputsLength() == 1:
+        #     # options
+        #     op_opt = op.BuiltinOptions()
+        #     option = tflite.ReshapeOptions()
+        #     option.Init(op_opt.Bytes, op_opt.Pos)
+        #     sp = option.NewShapeAsNumpy()
+        #     sp = self.TFactory.createVector(sp.astype('int64'))
+        #     sp.addConsumer(self)
+        #     self.inputs.append(sp)
 
         if op.InputsLength() == 2:
             # shape
