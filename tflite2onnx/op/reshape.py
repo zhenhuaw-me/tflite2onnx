@@ -71,9 +71,6 @@ class Reshape(Operator):
         # output
         self.parseOutput(0)
 
-        # Insert a `Transpose`
-        self.fakeTranspose()
-
         self.setParsed()
 
     def fakeTranspose(self):
@@ -82,7 +79,7 @@ class Reshape(Operator):
         # we need to insert Transpose before (or after) the Reshape operator
         # https://github.com/jackwish/tflite2onnx/issues/28
 
-        assert(self.status.initialized)
+        # assert(self.status.initialized)
         to_transpose = self.inputs[0]
 
         transposed_name = 'TFLITE2ONNX_Transposed_%s' % to_transpose.name
@@ -109,9 +106,12 @@ class Reshape(Operator):
         return list()
 
     def transform(self):
+        i = self.inputs[0]
+        if i.layout is not None:
+            # Insert a `Transpose` if a required layout has propagated here
+            self.fakeTranspose()
         if not self.forFakeBroadcasting:
             return
-        i = self.inputs[0]
         o = self.outputs[0]
         assert(len(i.shape) != len(o.shape))
         shape_t = self.inputs[1]
