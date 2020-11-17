@@ -45,6 +45,7 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 * [Release note](docs/release-notes.md)
 * [Supported operators](docs/operator-support-status.md) ([Onging status issue](https://github.com/jackwish/tflite2onnx/issues/11))
 * [How to enable a new operator](docs/how-to-enable-new-operator.md)
+* [Data layout semantic](docs/data-layout-semantic.md)
 
 
 ## Contributing
