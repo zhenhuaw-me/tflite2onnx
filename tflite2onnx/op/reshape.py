@@ -196,14 +196,7 @@ class Reshape(Operator):
     def transform(self):
         i = self.inputs[0]
         o = self.outputs[0]
-        if i.layout:
-            # Insert a `Transpose` before `Reshape`
-            # if a required layout has propagated here
-            self.preserveInputSpatialSemantic()
-        if o.layout:
-            # Insert a `Transpose` after `Reshape`
-            # if a explicit layout is required later
-            self.preserveOutputSpatialSemantic()
+
         if self.forFakeBroadcasting:
             assert(len(i.shape) != len(o.shape))
             shape_t = self.inputs[1]
@@ -211,3 +204,13 @@ class Reshape(Operator):
             if layout is None:
                 raise ValueError("Requires layout description for <%s>" % i.name)
             shape_t.data = layout.transform(shape_t.data)
+        else:
+            if i.layout:
+                # Insert a `Transpose` before `Reshape`
+                # if a required layout has propagated here
+                self.preserveInputSpatialSemantic()
+            if o.layout:
+                # Insert a `Transpose` after `Reshape`
+                # if a explicit layout is required later
+                self.preserveOutputSpatialSemantic()
+

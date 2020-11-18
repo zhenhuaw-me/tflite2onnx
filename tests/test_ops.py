@@ -43,7 +43,7 @@ def test_ops_implicit_layout():
         'conv-reshape.float32',
         'conv-reshape-conv.float32',
         'conv-reshape-multiple-conv.float32',
-        #'reshape-conv.float32',
+        # 'reshape-conv.float32',
         # The 'reshape-conv.float32' has a
         # input layout NHWC but a NCHW output layout,
         # which seems not so convenient to be tested in current framework
