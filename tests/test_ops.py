@@ -40,6 +40,7 @@ def test_ops_implicit_layout():
         'maxpooling.float32',
         'resize-bilinear.float32',
         'resize-nearest-neighbor.float32',
+        'reshape-transpose.float32',
     )
 
     for op in OP_LIST:
