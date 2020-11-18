@@ -213,4 +213,3 @@ class Reshape(Operator):
                 # Insert a `Transpose` after `Reshape`
                 # if a explicit layout is required later
                 self.preserveOutputSpatialSemantic()
-
