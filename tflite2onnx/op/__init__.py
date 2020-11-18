@@ -17,7 +17,6 @@ from tflite2onnx.op.split import Split
 from tflite2onnx.op.transpose import Transpose
 from tflite2onnx.op.unary import Unary
 from tflite2onnx.op.conv_transpose import ConvTranspose
-from tflite2onnx.op.logistic import Logistic
 
 
 OpFactory.register(Activation)
@@ -37,4 +36,3 @@ OpFactory.register(Split)
 OpFactory.register(Transpose)
 OpFactory.register(Unary)
 OpFactory.register(ConvTranspose)
-OpFactory.register(Logistic)
