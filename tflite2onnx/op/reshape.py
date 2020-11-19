@@ -4,6 +4,7 @@ import tflite
 import numpy as np
 
 from tflite2onnx import mapping
+from tflite2onnx.layout import Layout
 from tflite2onnx.op.common import Operator
 from tflite2onnx.op.transpose import Transpose
 
@@ -101,13 +102,10 @@ class Reshape(Operator):
         transposed_name = 'TFLITE2ONNX_Transposed_%s' % to_transpose.name
         transposed = self.TFactory.getWithRef(to_transpose, transposed_name, True)
 
-        # Copy the layout of original input of `Reshape`
-        # e.g. current: NCHW, (source: NHWC, target: NCHW)
-        layout = copy.deepcopy(to_transpose.layout)
+        # Construct the layout as original input of `Reshape`
+        # e.g. source: NHWC, target: NCHW
         # Exchange the source and target layout for layout preservation
-        layout.current = layout.source
-        layout.source = layout.target
-        layout.target = layout.current
+        layout = Layout(to_transpose.layout.target, to_transpose.layout.source)
         transposed.shape = layout.transform(to_transpose.shape)
         transposed.setParsed()
 
@@ -154,7 +152,7 @@ class Reshape(Operator):
         assert(self.status.parsed)
         transposed = self.outputs[0]
 
-        transposed_new_name = 'TFLITE2ONNX_Transposed_%s' % transposed.name
+        transposed_new_name = 'TFLITE2ONNX_ToTransposed_%s' % transposed.name
         to_transpose_name = transposed.name
         # Rename the transposed tensor
         # because it will be the output of the new `transpose`
@@ -163,13 +161,10 @@ class Reshape(Operator):
         transposed.name = transposed_new_name
         to_transpose = self.TFactory.getWithRef(transposed, to_transpose_name, True)
 
-        # Copy the layout of original output of `Reshape`
-        # e.g. current: NHWC, (source: NCHW, target: NHWC )
-        layout = copy.deepcopy(transposed.layout)
+        # Construct a layout as original output of `Reshape`
+        # e.g. source: NCHW, target: NHWC
         # Exchange the source and target layout for layout preservation
-        layout.current = layout.source
-        layout.source = layout.target
-        layout.target = layout.current
+        layout = Layout(transposed.layout.target, transposed.layout.source)
         to_transpose.shape = layout.transform(transposed.shape)
         to_transpose.setParsed()
 
@@ -204,11 +199,9 @@ class Reshape(Operator):
                 raise ValueError("Requires layout description for <%s>" % i.name)
             shape_t.data = layout.transform(shape_t.data)
         else:
+            # Insert a `Transpose` before/after `Reshape`
+            # if a explicit layout is required
             if i.layout:
-                # Insert a `Transpose` before `Reshape`
-                # if a required layout has propagated here
                 self.preserveInputSpatialSemantic()
             if o.layout:
-                # Insert a `Transpose` after `Reshape`
-                # if a explicit layout is required later
                 self.preserveOutputSpatialSemantic()
