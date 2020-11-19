@@ -42,7 +42,6 @@ class Reshape(Operator):
         # This block has been commented
         # because the `Reshape` with only one input seems like a special case
         # haven't manage to reproduce currently
-        # data = self.parseInput(0)
         # if op.InputsLength() == 1:
         #     # options
         #     op_opt = op.BuiltinOptions()
