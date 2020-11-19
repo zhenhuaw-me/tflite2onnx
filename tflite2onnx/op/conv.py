@@ -5,7 +5,6 @@ from tflite2onnx.layout import Layout
 from tflite2onnx.op.activation import handleFusedActivation
 from tflite2onnx.op.common import Operator
 from tflite2onnx.op.padding import computePaddingSize
-from tflite2onnx.op.padding import PaddingMapping
 
 logger = logging.getLogger('tflite2onnx')
 
@@ -100,15 +99,22 @@ class TransposeConv(Operator):
         tflite.BuiltinOperator.TRANSPOSE_CONV: 'ConvTranspose',
     }
 
+    # FIXME: cases that untested yet (we are not fully understand the semantic gap)
+    # 1. Special output shape for VALID padding
+    # 2. Different input/output shape for SAME padding
+
     def __init__(self, TFactory, index):
         super().__init__(TFactory, index)
 
-        self.attrs['dilations'] = []
-        self.attrs['group'] = -1
-        self.attrs['output_shape'] = []
+        self.attrs['dilations'] = [1, 1]  # TFLite TransposeConv doesn't have dilation
+        self.attrs['group'] = 1  # TFLite TransposeConv doesn't have group
         self.attrs['kernel_shape'] = []
+        # self.attrs['output_padding'] = []
+        self.attrs['output_shape'] = []
+        # pads are overwrited by output_shape
+        # self.attrs['auto_pad'] = 'NOTSET'
+        # self.attrs['pads'] = []
         self.attrs['strides'] = []
-        self.attrs['auto_pad'] = 'SAME_UPPER'  # See ComputePaddingHeightWidth() of TFLite
 
         self.setInited()
 
@@ -116,42 +122,43 @@ class TransposeConv(Operator):
     def type(self):
         return 'ConvTranspose'
 
-
     def parse(self):
         logger.debug("Parsing %s...", self.type)
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
 
-        assert(opcode is tflite.BuiltinOperator.TRANSPOSE_CONV)
+        assert(opcode in self.TypeMapping)
         assert(op.InputsLength() == 3)
         assert(op.OutputsLength() == 1)
+
+        # oshape
+        osi = op.Inputs(0)
+        oshape = self.TFactory.getData(self.model, self.graph, osi, 'int32')
 
         # X
         ilayout = Layout('NHWC', 'NCHW')
         self.parseInput(2, ilayout)
 
         # weight
-        wlayout = Layout('CHWM', 'MCHW') 
-        W = self.parseInput(1, wlayout)
+        wlayout = Layout('OHWI', 'IOHW')
+        wt = self.parseInput(1, wlayout)
+
+        # FIXME: we don't have a model containing bias.
 
         # output
         olayout = Layout('NHWC', 'NCHW')
-        O = self.parseOutput(0, olayout)
-        os = O.shape
-        os_olayout = olayout.transform(os)
+        ot = self.parseOutput(0, olayout)
+        assert((ot.shape == oshape).all())
 
         # options
         op_opt = op.BuiltinOptions()
         option = tflite.TransposeConvOptions()
         option.Init(op_opt.Bytes, op_opt.Pos)
 
-        self.attrs['output_shape'] = os_olayout
-        self.attrs['dilations'] = [1, 1]
-        self.attrs['group'] = 1
-        self.attrs['auto_pad'] = PaddingMapping[option.Padding()]
-        self.attrs['kernel_shape'] = W.shape[1:3]  
+        self.attrs['kernel_shape'] = wt.shape[1:3]
         self.attrs['strides'] = [option.StrideH(), option.StrideW()]
-
+        oslayout = Layout('NHWC', 'NCHW')
+        self.attrs['output_shape'] = oslayout.transform(oshape)
         self.setParsed()
 
     def propagatableTensors(self):
