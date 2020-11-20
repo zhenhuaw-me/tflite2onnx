@@ -152,13 +152,7 @@ class Reshape(Operator):
         assert(self.status.parsed)
         transposed = self.outputs[0]
 
-        transposed_new_name = 'TFLITE2ONNX_ToTransposed_%s' % transposed.name
-        to_transpose_name = transposed.name
-        # Rename the transposed tensor
-        # because it will be the output of the new `transpose`
-        self.TFactory.registery[transposed_new_name] = \
-            self.TFactory.registery.pop(transposed.name)
-        transposed.name = transposed_new_name
+        to_transpose_name = 'TFLITE2ONNX_ToTranspose_%s' % transposed.name
         to_transpose = self.TFactory.getWithRef(transposed, to_transpose_name, True)
 
         # Construct a layout as original output of `Reshape`
@@ -181,6 +175,9 @@ class Reshape(Operator):
         to_transpose.addProducer(self)
         to_transpose.addConsumer(trans)
         trans.setParsed()
+        # Rename the new `Transpose` operator
+        # to avoid the same name with 'Reshape'
+        trans.name = 'TFLITE2ONNX_Transpose_%s' % transposed.name
 
         self.post.append(trans)
 
