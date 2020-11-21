@@ -7,6 +7,7 @@ else
 fi
 rm -f ${root_dir}/assets/dist/tflite2onnx-*.whl
 
+pip install numpy onnx tflite
 python ${root_dir}/setup.py bdist_wheel \
   --bdist-dir ${root_dir}/assets/build \
   --dist-dir ${root_dir}/assets/dist

@@ -26,7 +26,7 @@ jobs:
         pip install --use-feature=2020-resolver -r requirements.txt
 
     - name: Build package
-      run: tools/1-build.sh
+      run: tools/build-wheel.sh
       shell: bash
 
     - name: Install package

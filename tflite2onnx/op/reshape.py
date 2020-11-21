@@ -74,9 +74,6 @@ class Reshape(Operator):
         self.setParsed()
 
     def preserveInputSpatialSemantic(self):
-        # If the input (or output) tensor of Reshape
-        # holds a special data layout semantic,
-        # we need to insert Transpose before (or after) the Reshape operator
         # https://github.com/jackwish/tflite2onnx/issues/28
         # An example for inserting `Transpose` before `Reshape`
         #    ------
@@ -94,7 +91,6 @@ class Reshape(Operator):
         #   --------
         #  | Reshape |
         #   --------
-        #
 
         assert(self.status.parsed)
         to_transpose = self.inputs[0]
@@ -102,16 +98,13 @@ class Reshape(Operator):
         transposed_name = 'TFLITE2ONNX_Transposed_%s' % to_transpose.name
         transposed = self.TFactory.getWithRef(to_transpose, transposed_name, True)
 
-        # Construct the layout as original input of `Reshape`
-        # e.g. source: NHWC, target: NCHW
-        # Exchange the source and target layout for layout preservation
+        # Construct the layout from the original input of `Reshape`
         layout = Layout(to_transpose.layout.target, to_transpose.layout.source)
         transposed.shape = layout.transform(to_transpose.shape)
         transposed.setParsed()
 
         # Construct the additional transpose before `Reshape`
         trans = Transpose(self.TFactory, -1)
-        # e.g. From NCHW to NHWC
         trans.attrs['perm'] = layout.perm
 
         trans.inputs.append(to_transpose)
@@ -126,11 +119,7 @@ class Reshape(Operator):
         self.pre.append(trans)
 
     def preserveOutputSpatialSemantic(self):
-        # If the input (or output) tensor of Reshape
-        # holds a special data layout semantic,
-        # we need to insert Transpose before (or after) the Reshape operator
         # https://github.com/jackwish/tflite2onnx/issues/28
-
         # An example for inserting `Transpose` after `Reshape`
         #   -------
         # | Reshape |
@@ -147,7 +136,6 @@ class Reshape(Operator):
         #    ------
         #   | Conv |
         #    ------
-        #
 
         assert(self.status.parsed)
         transposed = self.outputs[0]
@@ -155,16 +143,13 @@ class Reshape(Operator):
         to_transpose_name = 'TFLITE2ONNX_ToTranspose_%s' % transposed.name
         to_transpose = self.TFactory.getWithRef(transposed, to_transpose_name, True)
 
-        # Construct a layout as original output of `Reshape`
-        # e.g. source: NCHW, target: NHWC
-        # Exchange the source and target layout for layout preservation
+        # Construct a layout from the original output of `Reshape`
         layout = Layout(transposed.layout.target, transposed.layout.source)
         to_transpose.shape = layout.transform(transposed.shape)
         to_transpose.setParsed()
 
         # Construct the additional transpose after `Reshape`
         trans = Transpose(self.TFactory, -1)
-        # e.g. From NHWC to NCHW
         trans.attrs['perm'] = transposed.layout.perm
 
         trans.inputs.append(to_transpose)
@@ -175,8 +160,7 @@ class Reshape(Operator):
         to_transpose.addProducer(self)
         to_transpose.addConsumer(trans)
         trans.setParsed()
-        # Rename the new `Transpose` operator
-        # to avoid the same name with 'Reshape'
+        # Rename the new `Transpose` operator avoid the name conflict with 'Reshape'
         trans.name = 'TFLITE2ONNX_Transpose_%s' % transposed.name
 
         self.post.append(trans)
@@ -196,8 +180,7 @@ class Reshape(Operator):
                 raise ValueError("Requires layout description for <%s>" % i.name)
             shape_t.data = layout.transform(shape_t.data)
         else:
-            # Insert a `Transpose` before/after `Reshape`
-            # if a explicit layout is required
+            # Insert `Transpose` before/after `Reshape` to preserve spatial semantic
             if i.layout:
                 self.preserveInputSpatialSemantic()
             if o.layout:

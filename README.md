@@ -14,12 +14,28 @@ Or, you can firstly [convert][tf2tflite] it to a TFLite (`*.tflite`) model,
 and then convert the TFLite model to ONNX.
 
 
-## Usage
+## Installation
+
 
 Install via [pip][pypi] `pip install tflite2onnx`.
-After installation, you may either try either.
 
-**Python interface**
+Or install from source to get latest features:
+
+1. Download the source code: `git clone https://github.com/jackwish/tflite2onnx.git`
+2. Build the package: `${tflite2onnx}/tools/build-wheel.sh`
+3. Install the built package: `pip install assets/dist/tflite2onnx-*.whl`
+
+Or you can just add the code tree to your `$PYTHONPATH`.
+(Command line tool is not avaiable in this mode.)
+
+```sh
+export PYTHONPATH=$(pwd):${PYTHONPATH}
+```
+
+
+## Usage
+
+### Python Interface
 
 ```py
 import tflite2onnx
@@ -33,7 +49,8 @@ tflite2onnx.convert(tflite_path, onnx_path)
 `tflite2onnx` now supports *explicit layout*, check the
 [test example](https://github.com/jackwish/tflite2onnx/blob/master/tests/test_explicit_layout.py).
 
-**Command line**
+
+### Command Line
 
 ```sh
 tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
@@ -50,10 +67,10 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 
 ## Contributing
 
-* If you think something is wrong, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
+* If something seems wrong to you, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
 * If some operators are not supported yet, you may [request a new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * It would be great if you can help to enable new operators, please join us with [How to enable a new operator](docs/how-to-enable-new-operator.md).
-* Feel free to open discussions if you have any great idea to improve this tool.
+* Feel free to open any related discussions.
 
 
 ## License

@@ -6,7 +6,7 @@ else
   root_dir=$(dirname $(dirname $(readlink -f $0})))
 fi
 
-${root_dir}/tools/1-build.sh
+${root_dir}/tools/build-wheel.sh
 
 read -p "Will upload to test.pypi.org, for real publishment type \"Release\": " input_str
 if [ -z "${input_str}" -o ${input_str} != "Release" ]; then
