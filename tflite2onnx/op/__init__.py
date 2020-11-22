@@ -4,6 +4,7 @@ from tflite2onnx.op.common import OpFactory
 from tflite2onnx.op.common import Operator  # noqa: F401
 from tflite2onnx.op.concat import Concat
 from tflite2onnx.op.conv import Conv
+from tflite2onnx.op.conv import TransposeConv
 from tflite2onnx.op.fullyconnected import FullyConnected
 from tflite2onnx.op.padding import Padding
 from tflite2onnx.op.pooling import Pooling
@@ -16,6 +17,7 @@ from tflite2onnx.op.softmax import Softmax
 from tflite2onnx.op.split import Split
 from tflite2onnx.op.transpose import Transpose
 from tflite2onnx.op.unary import Unary
+
 
 OpFactory.register(Activation)
 OpFactory.register(Binary)
@@ -32,4 +34,5 @@ OpFactory.register(Slice)
 OpFactory.register(Softmax)
 OpFactory.register(Split)
 OpFactory.register(Transpose)
+OpFactory.register(TransposeConv)
 OpFactory.register(Unary)

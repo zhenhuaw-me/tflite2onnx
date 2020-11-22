@@ -92,3 +92,77 @@ class Conv(Operator):
 
     def transform(self):
         pass
+
+
+class TransposeConv(Operator):
+    TypeMapping = {
+        tflite.BuiltinOperator.TRANSPOSE_CONV: 'ConvTranspose',
+    }
+
+    # FIXME: cases that untested yet (we are not fully understand the semantic gap)
+    # 1. Special output shape for VALID padding
+    # 2. Different input/output shape for SAME padding
+
+    def __init__(self, TFactory, index):
+        super().__init__(TFactory, index)
+
+        self.attrs['dilations'] = [1, 1]  # TFLite TransposeConv doesn't have dilation
+        self.attrs['group'] = 1  # TFLite TransposeConv doesn't have group
+        self.attrs['kernel_shape'] = []
+        # self.attrs['output_padding'] = []
+        self.attrs['output_shape'] = []
+        # pads are overwrited by output_shape
+        # self.attrs['auto_pad'] = 'NOTSET'
+        # self.attrs['pads'] = []
+        self.attrs['strides'] = []
+
+        self.setInited()
+
+    @property
+    def type(self):
+        return 'ConvTranspose'
+
+    def parse(self):
+        logger.debug("Parsing %s...", self.type)
+        op = self.tflite
+        opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
+
+        assert(opcode in self.TypeMapping)
+        assert(op.InputsLength() == 3)
+        assert(op.OutputsLength() == 1)
+
+        # oshape
+        osi = op.Inputs(0)
+        oshape = self.TFactory.getData(self.model, self.graph, osi, 'int32')
+
+        # X
+        ilayout = Layout('NHWC', 'NCHW')
+        self.parseInput(2, ilayout)
+
+        # weight
+        wlayout = Layout('OHWI', 'IOHW')
+        wt = self.parseInput(1, wlayout)
+
+        # FIXME: we don't have a model containing bias.
+
+        # output
+        olayout = Layout('NHWC', 'NCHW')
+        ot = self.parseOutput(0, olayout)
+        assert((ot.shape == oshape).all())
+
+        # options
+        op_opt = op.BuiltinOptions()
+        option = tflite.TransposeConvOptions()
+        option.Init(op_opt.Bytes, op_opt.Pos)
+
+        self.attrs['kernel_shape'] = wt.shape[1:3]
+        self.attrs['strides'] = [option.StrideH(), option.StrideW()]
+        oslayout = Layout('NHWC', 'NCHW')
+        self.attrs['output_shape'] = oslayout.transform(oshape)
+        self.setParsed()
+
+    def propagatableTensors(self):
+        return list()
+
+    def transform(self):
+        pass
