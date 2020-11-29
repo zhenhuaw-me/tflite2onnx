@@ -258,7 +258,9 @@ class TensorFactory:
 
     @staticmethod
     def getData(model, graph, index, dtype):
-        assert(dtype in ['int32', 'float32', 'uint8'])
+        if (dtype not in ['int32', 'float32', 'uint8']):
+            logger.warning("Data type {} not supported/tested yet, "
+                           "the generated model may contain error".format(dtype))
         assert(index < graph.TensorsLength())
         t = graph.Tensors(index)
         bi = t.Buffer()
