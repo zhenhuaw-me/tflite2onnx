@@ -13,13 +13,20 @@ or whatever) to ONNX, try [`tf2onnx`](https://github.com/onnx/tensorflow-onnx).
 Or, you can firstly [convert][tf2tflite] it to a TFLite (`*.tflite`) model,
 and then convert the TFLite model to ONNX.
 
+
+## Highlights
+
 It's significant to understand the use cases of `tflite2onnx`, which helps us
 to decide how to shape `tflite2onnx` - what features we take as first priority for example.
 **Please help to provide some input in [this issue](https://github.com/jackwish/tflite2onnx/issues/32)**
 
+Support of this tool is by _best effort_ - we have very limited resouce,
+i.e. basically off time effort by the maintainers.
+So we encourage you to deep dive into your issue and then discuss with us to figure out a solution.
+Please [join](#contributing) to improve this tool!
+
 
 ## Installation
-
 
 Install via [pip][pypi] `pip install tflite2onnx`.
 
