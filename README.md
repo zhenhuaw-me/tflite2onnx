@@ -23,7 +23,7 @@ to decide how to shape `tflite2onnx` - what features we take as first priority f
 Support of this tool is by _best effort_ - we have very limited resouce,
 i.e. basically off time effort by the maintainers.
 So we encourage you to deep dive into your issue and then discuss with us to figure out a solution.
-Please [join](#contributing) to improve this tool!
+Please [join](#contributing) to improve!
 
 
 ## Installation
@@ -67,21 +67,26 @@ tflite2onnx.convert(tflite_path, onnx_path)
 tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 ```
 
-## Documents
-
-* [Introduction blog - the background, design and implementation][intro]
-* [Release note](docs/release-notes.md)
-* [Supported operators](docs/operator-support-status.md) ([Onging status issue](https://github.com/jackwish/tflite2onnx/issues/11))
-* [How to enable a new operator](docs/how-to-enable-new-operator.md)
-* [Data layout semantic](docs/data-layout-semantic.md)
-
 
 ## Contributing
 
 * If something seems wrong to you, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
 * If some operators are not supported yet, you may [request a new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * It would be great if you can help to enable new operators, please join us with [How to enable a new operator](docs/how-to-enable-new-operator.md).
-* Feel free to open any related discussions.
+* Feel free to open any other related discussions.
+
+Check [contribution guide](docs/contribution-guide.md) for more.
+
+
+## Documents
+
+* [Introduction blog - the background, design and implementation][intro]
+* [Release note](docs/release-notes.md)
+* [FAQ](docs/faq.md)
+* [Contribution guide](docs/contribution-guide.md)
+* [Supported operators](docs/operator-support-status.md) ([Onging status issue](https://github.com/jackwish/tflite2onnx/issues/11))
+* [How to enable a new operator](docs/how-to-enable-new-operator.md)
+* [Data layout semantic](docs/data-layout-semantic.md)
 
 
 ## License
