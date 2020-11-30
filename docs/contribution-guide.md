@@ -11,6 +11,9 @@ Materials are split into sections, just jump to topics you are interested in.
 * If some operators are not supported yet, you may [request a new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * Feel free to open any other related discussions.
 
+It's high recommended to attach a narrow down-ed TFLite model and
+debug logs (generate it with `tflite2onnx.enableDebugLog()`).
+
 
 ## Contributing Code
 
@@ -35,3 +38,5 @@ In general we need:
 * No significant code coverage drop (guarded by `CodeCov`).
   * Automatically checked when open/update PR.
 
+Like many other python packages, you can set `PYTHONPATH` to `tflite2onnx`
+instead of building and installing to try our your changed.

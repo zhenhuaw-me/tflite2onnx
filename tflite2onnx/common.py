@@ -87,3 +87,9 @@ class T2OBase(ABC):
     def __str__(self):
         """A readable description for the class/object."""
         raise NotImplementedError("method __str__() should be overrided!")
+
+
+def enableDebugLog():
+    import logging
+    fmt = '%(asctime)s %(levelname).1s [%(name)s][%(filename)s:%(lineno)d] %(message)s'
+    logging.basicConfig(format=fmt, level=logging.DEBUG)
