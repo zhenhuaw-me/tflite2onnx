@@ -40,18 +40,16 @@ class Reshape(Operator):
         # input
         self.parseInput(0)
 
-        # This block has been commented
-        # because the `Reshape` with only one input seems like a special case
-        # haven't manage to reproduce currently
-        # if op.InputsLength() == 1:
-        #     # options
-        #     op_opt = op.BuiltinOptions()
-        #     option = tflite.ReshapeOptions()
-        #     option.Init(op_opt.Bytes, op_opt.Pos)
-        #     sp = option.NewShapeAsNumpy()
-        #     sp = self.TFactory.createVector(sp.astype('int64'))
-        #     sp.addConsumer(self)
-        #     self.inputs.append(sp)
+        if op.InputsLength() == 1:
+            # This path has not been tested by CI as we don't have a simple model for it.
+            # See https://github.com/tensorflow/tensorflow/issues/45150
+            op_opt = op.BuiltinOptions()
+            option = tflite.ReshapeOptions()
+            option.Init(op_opt.Bytes, op_opt.Pos)
+            sp = option.NewShapeAsNumpy()
+            sp = self.TFactory.createVector(sp.astype('int64'))
+            sp.addConsumer(self)
+            self.inputs.append(sp)
 
         if op.InputsLength() == 2:
             # shape
