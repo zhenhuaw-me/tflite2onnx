@@ -70,3 +70,9 @@ class Quantize(Operator):
 
     def transform(self):
         pass
+
+    def validate(self):
+        quant_dtype = self.outputs[0].dtype if self.isQuantize else self.inputs[0].dtype
+        if quant_dtype not in [TensorProto.UINT8, TensorProto.INT8, TensorProto.INT32]:
+            raise ValueError("Unsupported quantization type due to ONNX operator semantic. "
+                             "See https://github.com/jackwish/tflite2onnx/blob/master/docs/faq.md#fp16-quantization-model-doesnt-work")  # noqa: E501
