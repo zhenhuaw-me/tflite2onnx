@@ -59,8 +59,7 @@ def test_quantized_networks():
     )
 
     for net in NETWORK_LIST:
-        # relax precision for end to end network
-        end2end_test(net, 'NCHW', 1e-1, 1e-5)
+        end2end_test(net, 'NCHW', 1, 1e-5)
 
 
 if __name__ == '__main__':
