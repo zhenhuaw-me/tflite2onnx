@@ -26,8 +26,13 @@ class Quantize(Operator):
 
     @property
     def isQuantize(self):
-        assert(self.status.parsed)
-        return self.inputs[0].dtype is TensorProto.FLOAT
+        if self.status.parsed:
+            return self.inputs[0].dtype is TensorProto.FLOAT
+        else:
+            # to cover the case when isQuantize is called from logger
+            # it may happen before the actual parsing begins
+            opcode = self.model.OperatorCodes(self.tflite.OpcodeIndex()).BuiltinCode()
+            return opcode is tflite.BuiltinOperator.QUANTIZE
 
     def parse(self):
         logger.debug("Parsing %s...", self.shorty)
