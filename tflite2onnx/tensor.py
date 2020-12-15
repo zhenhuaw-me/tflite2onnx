@@ -2,7 +2,7 @@ import copy
 import logging
 import numpy as np
 import onnx
-from onnx import helper, TensorProto
+from onnx import helper, numpy_helper, TensorProto
 
 from tflite2onnx import mapping
 from tflite2onnx.common import T2OBase
@@ -124,8 +124,7 @@ class Tensor(T2OBase):
         if self.isInitializer:
             data = self.data.reshape(self.shape)
             self.shape = self.layout.transform(self.shape)
-            data = data.transpose(self.layout.perm)
-            self.data = data.flatten()
+            self.data = data.transpose(self.layout.perm)
         else:
             self.shape = self.layout.transform(self.shape)
 
@@ -141,7 +140,12 @@ class Tensor(T2OBase):
             return
         logger.debug("Converting %s...", self.shorty)
         if self.isInitializer:
-            self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, self.data)
+            if isinstance(self.data, np.ndarray):
+                # Need this because ONNX saves non-C-builtin data type in a special way.
+                # https://github.com/onnx/onnx/blob/v1.8.0/onnx/onnx.proto3#L523
+                self.onnx = numpy_helper.from_array(self.data, self.name)
+            else:
+                self.onnx = helper.make_tensor(self.name, self.dtype, self.shape, self.data)
             onnx.checker.check_tensor(self.onnx)
         else:
             self.onnx = helper.make_tensor_value_info(self.name, self.dtype, self.shape)
@@ -225,7 +229,7 @@ class TensorFactory:
             t = Tensor(self.model, self.graph, -1, None)
             t.name = name
             t.dtype = mapping.DTYPE_NAME2ONNX['float32']
-            t.data = np.array([])
+            t.data = []
             t.shape = [0]
             t.setParsed()
             self.registery[name] = t
@@ -236,7 +240,7 @@ class TensorFactory:
             t = Tensor(self.model, self.graph, -1, None)
             t.name = name
             t.dtype = mapping.DTYPE_NAME2ONNX[dtype]
-            t.data = np.full((1), value, dtype=dtype)
+            t.data = [value]  # cannot use NDArray for cases such as min/max of ReLU6
             t.setParsed()
             self.registery[name] = t
         return self.registery[name]
@@ -264,9 +268,12 @@ class TensorFactory:
         assert(index < graph.TensorsLength())
         t = graph.Tensors(index)
         bi = t.Buffer()
+        shape = t.ShapeAsNumpy()
         assert(bi < model.BuffersLength())
         raw = model.Buffers(bi).DataAsNumpy()
         if isinstance(raw, int) and raw == 0:
             return None
         data = np.frombuffer(raw, dtype=dtype)
+        if len(shape) > 0:
+            data = data.reshape(shape)
         return data.copy()
