@@ -9,6 +9,8 @@ assignees: ''
 
 **Describe the bug**
 A clear and concise description of what the bug is.
+Please check the [FAQ](https://github.com/jackwish/tflite2onnx/blob/master/docs/faq.md)
+and search around before creating a real issue.
 
 **To Reproduce**
 1. Please help to narrow down the TFLite model as far as you can.
