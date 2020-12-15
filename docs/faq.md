@@ -34,9 +34,29 @@ ensor<1x2x3x4xf32>} : () -> ()
 In general, FP16 in a TFLite model exists due to
 [FP16 quantization](https://www.tensorflow.org/lite/performance/post_training_quantization#float16_quantization).
 As of today, I'd recommend to use
-[Full integer quantization](https://www.tensorflow.org/lite/performance/post_training_quantization#full_integer_quantization)
+[full integer quantization](https://www.tensorflow.org/lite/performance/post_training_quantization#full_integer_quantization)
 and quantization-aware training.
 Or keep the TensorFlow/TFLite model in FP32 format.
+
+
+## FP16 Quantization Model doesn't Work
+
+Many people are using TFLite
+[FP16 quantization](https://www.tensorflow.org/lite/performance/post_training_quantization#float16_quantization),
+and some models ([example](https://github.com/jackwish/tflite2onnx/issues/33))
+are published in such format.
+Unfortunately, we don't support such case.
+
+The FP16 weights in these models will be converted to FP32 online by a TFLite
+operator `Dequantize`. In general, we convert TFLite `Dequantize` to ONNX
+[`DequantizeLinear`](https://github.com/onnx/onnx/blob/master/docs/Changelog.md#DequantizeLinear-10).
+However, `DequantizeLinear` in ONNX supports only dequantize an integer
+(`uint8`, `int8`, `int32`). So we cannot conduct such conversion.
+
+Please try
+[full integer quantization](https://www.tensorflow.org/lite/performance/post_training_quantization#full_integer_quantization)
+if possible. And we can provid workaround such as fold the *FP16 - Dequantize - FP32*
+if many people are blocked by public FP16 model.
 
 
 ## TFLite Model Contains Custom Operators

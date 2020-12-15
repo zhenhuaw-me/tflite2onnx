@@ -4,7 +4,8 @@ How to Enable New Operator
 This document will walk you through steps to enable new operators in `tflite2onnx`.
 
 It's highly recommended to read the [blog][blog] which introduces the
-background of `tflite2onnx`. I am sure it will help when enabling new operators.
+background of `tflite2onnx` and [general contribution guide](contribution-guide.md).
+I am sure it will help when enabling new operators.
 Also, make sure that the operator is has not been enabled,
 i.e. not included in [Operator Support Status](how-to-enable-new-operator.md).
 
