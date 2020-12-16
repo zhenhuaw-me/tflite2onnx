@@ -15,6 +15,7 @@ PaddingMapping = {
 class Padding(Operator):
     TypeMapping = {
         tflite.BuiltinOperator.PAD: 'Pad',
+        tflite.BuiltinOperator.MIRROR_PAD: 'MirrorPad',
     }
 
     def __init__(self, TFactory, index):
@@ -33,6 +34,9 @@ class Padding(Operator):
         op = self.tflite
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         assert(opcode in self.TypeMapping)
+
+        if opcode is tflite.BuiltinOperator.MIRROR_PAD:
+            self.attrs['mode'] = 'reflect'
 
         assert(op.InputsLength() == 2)
         assert(op.OutputsLength() == 1)

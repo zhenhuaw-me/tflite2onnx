@@ -67,6 +67,7 @@ def test_ops_post_propagation():
         'stridedslice-stride.float32',
         'stridedslice.float32',
         'transpose.float32',
+        'mirror-pad.int32',
     )
 
     for op in OP_LIST:
