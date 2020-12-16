@@ -3,4 +3,9 @@ coverage:
     project:
       default:
         threshold: 1%
-        only_pulls: true
+        target: auto
+        base: auto
+        branches: 
+          - master
+        only_pulls: false
+
