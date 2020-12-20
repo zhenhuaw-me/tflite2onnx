@@ -9,6 +9,7 @@ logger = logging.getLogger('tflite2onnx')
 class Unary(Operator):
     TypeMapping = {
         tflite.BuiltinOperator.ABS: 'Abs',
+        tflite.BuiltinOperator.SQRT: 'Sqrt',
     }
 
     def __init__(self, TFactory, index):

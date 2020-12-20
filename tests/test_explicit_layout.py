@@ -52,6 +52,9 @@ def test_explicit_layout():
 
     end2end_test('padding.float32', 'NHWC', 'NCHW', ['input', ])
 
+    end2end_test('abs-sqrt.float32', 'NHWC', 'NCHW', ['input', 'output'])
+    end2end_test('abs-sqrt.float32', 'NHWC', 'NCHW', ['input', ])
+
 
 if __name__ == '__main__':
     test_explicit_layout()

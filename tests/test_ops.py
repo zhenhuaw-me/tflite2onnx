@@ -86,6 +86,7 @@ def test_ops_layout_transparent():
         'prelu.float32',
         'sigmoid.float32',
         'sub.float32',
+        'abs-sqrt.float32',
     )
 
     for op in OP_LIST:
