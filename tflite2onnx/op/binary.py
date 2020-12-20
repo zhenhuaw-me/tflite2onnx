@@ -15,11 +15,13 @@ class Binary(Operator):
     TypeMapping = {
         tflite.BuiltinOperator.ADD: 'Add',
         tflite.BuiltinOperator.MUL: 'Mul',
+        tflite.BuiltinOperator.SUB: 'Sub',
     }
 
     OptionMapping = {
         tflite.BuiltinOperator.ADD: tflite.AddOptions,
         tflite.BuiltinOperator.MUL: tflite.MulOptions,
+        tflite.BuiltinOperator.SUB: tflite.SubOptions,
     }
 
     def __init__(self, TFactory, index):
