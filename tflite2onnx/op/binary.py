@@ -16,6 +16,7 @@ class Binary(Operator):
         tflite.BuiltinOperator.ADD: 'Add',
         tflite.BuiltinOperator.MUL: 'Mul',
         tflite.BuiltinOperator.SUB: 'Sub',
+        tflite.BuiltinOperator.POW: 'Pow',
     }
 
     OptionMapping = {
@@ -101,10 +102,11 @@ class Binary(Operator):
 
         # options
         op_opt = op.BuiltinOptions()
-        option = self.OptionMapping[opcode]()
-        option.Init(op_opt.Bytes, op_opt.Pos)
+        if opcode in self.OptionMapping:
+            option = self.OptionMapping[opcode]()
+            option.Init(op_opt.Bytes, op_opt.Pos)
 
-        handleFusedActivation(self, option, ot)
+            handleFusedActivation(self, option, ot)
 
         self.setParsed()
 
