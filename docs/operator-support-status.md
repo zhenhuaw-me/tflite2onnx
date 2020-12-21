@@ -23,6 +23,7 @@ Please add in A-Z style.
 - [x] Mean (reduce)
 - [x] Mul
 - [x] Pad
+- [x] Pow
 - [x] PReLU
 - [x] Quantize
 - [x] ReLU
@@ -31,7 +32,9 @@ Please add in A-Z style.
 - [x] Resize
 - [x] Softmax
 - [x] Split
+- [x] Sqrt
 - [x] StridedSlice
+- [x] Sub
 - [x] Transpose
 
 - [ ] Fused Activations

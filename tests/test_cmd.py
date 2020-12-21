@@ -19,7 +19,6 @@ def cmd_convert(model_name):
 def test_cmd_convert():
     MODEL_LIST = (
         'abs.float32',
-        'abs-sqrt.float32',
     )
 
     for m in MODEL_LIST:
