@@ -1,6 +1,8 @@
 Operator Support Status
 =======================
 
+Track the TensorFlow Lite operators that have been enabled in `tflite2onnx`.
+
 Please add in A-Z style.
 
 - [x] Abs
