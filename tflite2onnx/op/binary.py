@@ -15,11 +15,14 @@ class Binary(Operator):
     TypeMapping = {
         tflite.BuiltinOperator.ADD: 'Add',
         tflite.BuiltinOperator.MUL: 'Mul',
+        tflite.BuiltinOperator.SUB: 'Sub',
+        tflite.BuiltinOperator.POW: 'Pow',
     }
 
     OptionMapping = {
         tflite.BuiltinOperator.ADD: tflite.AddOptions,
         tflite.BuiltinOperator.MUL: tflite.MulOptions,
+        tflite.BuiltinOperator.SUB: tflite.SubOptions,
     }
 
     def __init__(self, TFactory, index):
@@ -99,10 +102,11 @@ class Binary(Operator):
 
         # options
         op_opt = op.BuiltinOptions()
-        option = self.OptionMapping[opcode]()
-        option.Init(op_opt.Bytes, op_opt.Pos)
+        if opcode in self.OptionMapping:
+            option = self.OptionMapping[opcode]()
+            option.Init(op_opt.Bytes, op_opt.Pos)
 
-        handleFusedActivation(self, option, ot)
+            handleFusedActivation(self, option, ot)
 
         self.setParsed()
 
