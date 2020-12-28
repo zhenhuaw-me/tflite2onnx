@@ -16,8 +16,6 @@ and then convert the TFLite model to ONNX.
 
 ## Highlights
 
-Planning `v0.3.1` release by the end of this year. Open PR if you have ops to get in please :)
-
 It's significant to understand the use cases of `tflite2onnx`, which helps us
 to decide how to shape `tflite2onnx` - what features we take as first priority for example.
 **Please help to provide some input in [this issue](https://github.com/jackwish/tflite2onnx/issues/32)**

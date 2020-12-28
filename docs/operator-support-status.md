@@ -21,6 +21,7 @@ Please add in A-Z style.
 - [x] Logistic (Sigmoid)
 - [x] MaxPooling
 - [x] Mean (reduce)
+- [x] MirrorPad
 - [x] Mul
 - [x] Pad
 - [x] Pow

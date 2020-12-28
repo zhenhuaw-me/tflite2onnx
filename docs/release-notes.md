@@ -2,6 +2,15 @@ Release Notes
 =============
 
 
+## v0.3.1
+
+2020-12-28, [Project](https://github.com/jackwish/tflite2onnx/projects/5)
+
+* More operators, check [the support list](operator-support-status.md).
+* Relax data type check, most for FP16 and INT8.
+* Interface `enableDebugLog()` to dump log for debugging purpose.
+
+
 ## v0.3.0
 
 2020-09-30, [Project](https://github.com/jackwish/tflite2onnx/projects/4)
