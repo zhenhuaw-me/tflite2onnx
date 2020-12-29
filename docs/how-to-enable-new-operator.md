@@ -393,9 +393,8 @@ If you have any question, just open issue to discuss.
 ## Going Further
 
 Congratulation! You have basically finished the implementation of
-a new operator. If everthing looks good, please update the
-[Operator Support Status](how-to-enable-new-operator.md), and open
-pull request. Let your work empower the community.
+a new operator. If everthing looks good, open pull request.
+Let your work empower the community.
 
 Thank you for your contribution!
 

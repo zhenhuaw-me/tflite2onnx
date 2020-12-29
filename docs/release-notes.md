@@ -6,7 +6,7 @@ Release Notes
 
 2020-12-28, [Project](https://github.com/jackwish/tflite2onnx/projects/5)
 
-* More operators, check [the support list](https://github.com/jackwish/tflite2onnx/blob/master/docs/operator-support-status.md).
+* More operators, check [the support list](https://github.com/jackwish/tflite2onnx/blob/v0.3.1/docs/operator-support-status.md).
 * Relax data type check, most for FP16 and INT8.
 * Interface `enableDebugLog()` to dump log for debugging purpose.
 
@@ -20,7 +20,7 @@ Thanks for the contribution of @erizmr @briangrifiin and @IkbeomJeon!
 * Now open source with [annocement blog](https://jackwish.net/2020/Convert-TensorFlow-Lite-models-to-ONNX.html).
 * [Quantization support](https://github.com/jackwish/tflite2onnx/issues/10) enabled, and tried quantized MobileNetV1 an MobileNetV2.
 * Drop [Transpose based layout handling](https://github.com/jackwish/tflite2onnx/issues/2) to save effort of managing quantization.
-* More [operators](https://github.com/jackwish/tflite2onnx/blob/master/docs/operator-support-status.md) added, and [tested models](https://github.com/jackwish/tflite2onnx/tree/more-model-test/assets/networks):
+* More [operators](https://github.com/jackwish/tflite2onnx/blob/v0.3.0/docs/operator-support-status.md) added, and [tested models](https://github.com/jackwish/tflite2onnx/tree/more-model-test/assets/networks):
   * MobileNetV1
   * MobileNetV2
   * DenseNet

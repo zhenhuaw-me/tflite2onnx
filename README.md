@@ -84,7 +84,6 @@ Check [contribution guide](docs/contribution-guide.md) for more.
 * [Release note](docs/release-notes.md)
 * [FAQ](docs/faq.md)
 * [Contribution guide](docs/contribution-guide.md)
-* [Supported operators](docs/operator-support-status.md) ([Onging status issue](https://github.com/jackwish/tflite2onnx/issues/11))
 * [How to enable a new operator](docs/how-to-enable-new-operator.md)
 * [Data layout semantic](docs/data-layout-semantic.md)
 
