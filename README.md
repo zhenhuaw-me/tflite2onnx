@@ -33,7 +33,7 @@ Install via [pip][pypi] `pip install tflite2onnx`.
 Or install from source to get latest features:
 
 1. Download the source code: `git clone https://github.com/jackwish/tflite2onnx.git`
-2. Build the package: `${tflite2onnx}/tools/build-wheel.sh`
+2. Build the package: `${tflite2onnx}/scripts/build-wheel.sh`
 3. Install the built package: `pip install assets/dist/tflite2onnx-*.whl`
 
 Or you can just add the code tree to your `$PYTHONPATH`.

@@ -26,7 +26,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Build package
-      run: tools/build-wheel.sh
+      run: scripts/build-wheel.sh
       shell: bash
 
     - name: Install package
@@ -41,7 +41,7 @@ jobs:
     #     # Find token in: https://dashboard.ngrok.com/get-started/setup
     #     NGROK_TOKEN: ${{ secrets.NGROK_TOKEN }}
     #     NGROK_LOCAL_PASS: ${{ secrets.NGROK_LOCAL_PASS }}
-    #   run: tools/open-github-connection.sh
+    #   run: scripts/open-github-connection.sh
     # - name: Live instance if fail
     #   if: ${{ failure() }}
     #   run: sleep 1h
