@@ -15,6 +15,7 @@ from tflite2onnx.op.resize import Resize
 from tflite2onnx.op.slice import Slice
 from tflite2onnx.op.softmax import Softmax
 from tflite2onnx.op.split import Split
+from tflite2onnx.op.squareddifference import SquaredDifference
 from tflite2onnx.op.transpose import Transpose
 from tflite2onnx.op.unary import Unary
 
@@ -33,6 +34,7 @@ OpFactory.register(Resize)
 OpFactory.register(Slice)
 OpFactory.register(Softmax)
 OpFactory.register(Split)
+OpFactory.register(SquaredDifference)
 OpFactory.register(Transpose)
 OpFactory.register(TransposeConv)
 OpFactory.register(Unary)

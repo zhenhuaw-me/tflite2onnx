@@ -88,6 +88,7 @@ def test_ops_layout_transparent():
         'sub.float32',
         'abs-sqrt.float32',
         'relu6-power.float32',
+        'squared-diff.float32',
     )
 
     for op in OP_LIST:
