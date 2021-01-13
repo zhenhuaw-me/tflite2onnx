@@ -9,14 +9,7 @@ from tflite2onnx.op.binary import Binary
 logger = logging.getLogger('tflite2onnx')
 
 
-# wrappers are used here to override Binary.type property
-# otherwise, Binary.type fails when trying to get self.tflite
-class SubtractWrapper(Binary):
-    @property
-    def type(self):
-        return 'Sub'
-
-
+# wrapper is used here to override Binary.type property
 class PowerWrapper(Binary):
     @property
     def type(self):
@@ -24,9 +17,9 @@ class PowerWrapper(Binary):
 
 
 class SquaredDifference(Operator):
-    # use identity to propagate difference output to square input
+    # use subtraction as input operator and propagate output to power
     TypeMapping = {
-        tflite.BuiltinOperator.SQUARED_DIFFERENCE: 'Identity',
+        tflite.BuiltinOperator.SQUARED_DIFFERENCE: 'Sub',
     }
 
     def __init__(self, TFactory, index):
@@ -36,7 +29,7 @@ class SquaredDifference(Operator):
     @property
     def type(self):
         if self.status.uninitialized:
-            return 'Identity'
+            return 'Sub'
         else:
             op = self.tflite
             opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
@@ -59,9 +52,8 @@ class SquaredDifference(Operator):
 
         assert(len(self.inputs[0].shape) == len(self.inputs[1].shape))
 
-        # squared difference consists of two operations
-        self.prependSubtraction()   # difference
-        self.appendSquare()         # and square
+        # apply square to the subtraction result
+        self.appendSquare()
 
         self.setParsed()
 
@@ -70,28 +62,6 @@ class SquaredDifference(Operator):
 
     def transform(self):
         pass
-
-    def prependSubtraction(self):
-        subtract = SubtractWrapper(self.TFactory, -1)
-
-        difference_name = 'TFLITE2ONNX_Diff_%s' % self.outputs[0].name
-        difference_t = self.TFactory.getWithRef(self.outputs[0], difference_name, True)
-        difference_t.setParsed()
-        difference_t.addProducer(subtract)
-        difference_t.addConsumer(self)
-
-        subtract.inputs.append(self.inputs[0])
-        self.inputs[0].replaceConsumer(self, subtract)
-
-        subtract.inputs.append(self.inputs[1])
-        self.inputs[1].replaceConsumer(self, subtract)
-
-        # identity has single input
-        self.inputs = [difference_t]
-        subtract.outputs.append(difference_t)
-
-        subtract.setParsed()
-        self.pre.append(subtract)
 
     def appendSquare(self):
         square = PowerWrapper(self.TFactory, -1)
