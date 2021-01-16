@@ -5,7 +5,7 @@ coverage:
         threshold: 1%
         target: auto
         base: auto
-        branches: 
+        branches:
           - master
         only_pulls: false
 
