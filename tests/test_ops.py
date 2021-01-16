@@ -90,6 +90,7 @@ def test_ops_layout_transparent():
         'abs-sqrt.float32',
         'relu6-power.float32',
         'squared-diff.float32',
+        'abs-add-rsqrt.float32',
     )
 
     for op in OP_LIST:

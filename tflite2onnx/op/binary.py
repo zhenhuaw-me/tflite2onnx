@@ -134,3 +134,10 @@ def alignDimension(a, b):
         aligned.insert(0, 1)
 
     return (align_a, aligned)
+
+
+# wrapper is used here to override Binary.type property
+class PowerWrapper(Binary):
+    @property
+    def type(self):
+        return 'Pow'
