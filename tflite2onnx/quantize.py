@@ -91,3 +91,40 @@ def handleQuantizationTensor(TFactory, t):
     t.addConsumer(qop)
 
     return deqtensor
+
+
+def foldFP16QuantPattern(ops):
+    """Fold TFLite FP16 quantization pattern.
+
+    * `FP16 weights - Dequantize - FP32 tensor - Conv` -> `FP32 weights - Conv`
+    * `FP16 input - Dequantize - FP32 tensor - Conv` -> `FP32 input - Conv`
+    """
+    logger.debug("FP16 Quant Folder: Folding FP16 quantization subgraph across graph...")
+
+    # Using `Graph.ops` in this part as these operators should be raw TFLite ones
+    fp16deqs = [op for op in ops if op.type == 'DequantizeLinear' and op.inputs[0].dtype is TensorProto.FLOAT16]  # noqa: E501
+
+    count = 0
+    for dep in fp16deqs:
+        logger.debug("FP16 Quant Folder: Folding FP16-Quant for op %s", dep.name)
+        fp16i = dep.inputs[0]
+        fp16i.dtype = TensorProto.FLOAT
+        if fp16i.isInitializer:
+            fp16i.data = fp16i.data.astype('float32')
+        fp32i = fp16i
+
+        # attach the casted fp32 tensor to the op that consumes the output of the Dequantize
+        fp32o = dep.outputs[0]
+        for op in fp32o.consumers:
+            op.replaceInput(fp32o, fp32i)
+            fp32i.addConsumer(op)
+        fp32i.removeConsumer(dep)
+
+        # remove Dequantize operator
+        ops.remove(dep)
+        # the unneeded tensos will be removed in graph automatically
+        # graph.value_info.remove(fp32o)
+        count += 1
+
+    if count > 0:
+        logger.info("FP16 Quant Folder: %d FP16 Quant Pattern are folded!", count)

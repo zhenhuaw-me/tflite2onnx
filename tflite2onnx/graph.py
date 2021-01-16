@@ -8,6 +8,7 @@ from tflite2onnx.common import T2OBase
 from tflite2onnx.layout import Layout
 from tflite2onnx.op import OpFactory
 from tflite2onnx.quantize import handleQuantizationTensor
+from tflite2onnx.quantize import foldFP16QuantPattern
 
 logger = logging.getLogger('tflite2onnx')
 
@@ -99,6 +100,9 @@ class Graph(T2OBase):
                     assert(len(layouts) == 2)
                     t.layout = Layout(layouts[0], layouts[1])
         self._propagateLayout()
+        self._collectOpAndTensor()
+
+        foldFP16QuantPattern(self.ops)
         self._collectOpAndTensor()
 
         logger.debug("Translating quantization semantic...")
