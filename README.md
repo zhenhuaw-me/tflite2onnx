@@ -8,19 +8,18 @@ tflite2onnx - Convert TensorFlow Lite models to ONNX
 `tflite2onnx` converts TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`),
 with data layout and quantization semantic properly handled (check the [introduction blog][intro] for detail).
 
-> If you'd like to convert a TensorFlow model (frozen graph `*.pb`, `SavedModel`
+**Highlights**
+
+* If you'd like to convert a TensorFlow model (frozen graph `*.pb`, `SavedModel`
 or whatever) to ONNX, try [`tf2onnx`](https://github.com/onnx/tensorflow-onnx).
 Or, you can firstly [convert][tf2tflite] it to a TFLite (`*.tflite`) model,
 and then convert the TFLite model to ONNX.
 
-
-## Highlights
-
-It's significant to understand the use cases of `tflite2onnx`, which helps us
+* It's significant to understand the use cases of `tflite2onnx`, which helps us
 to decide how to shape `tflite2onnx` - what features we take as first priority for example.
 **Please help to provide some input in [this issue](https://github.com/jackwish/tflite2onnx/issues/32)**
 
-Support of this tool is by _best effort_ - we have very limited resouce,
+* Support of this tool is by _best effort_ - we have very limited resouce,
 i.e. basically off time effort by the maintainers.
 So we encourage you to deep dive into your issue and then discuss with us to figure out a solution.
 Please [join](#contributing) to improve!
@@ -68,6 +67,16 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 ```
 
 
+## Documentation
+
+* [FAQ](docs/faq.md)
+* [Release note](docs/release-notes.md)
+* [Contribution guide](docs/contribution-guide.md)
+* [Introduction blog - the background, design and implementation][intro]
+* [How to enable a new operator](docs/how-to-enable-new-operator.md)
+* [Data layout semantic](docs/data-layout-semantic.md)
+
+
 ## Contributing
 
 * If something seems wrong to you, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
@@ -76,16 +85,6 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 * Feel free to open any other related discussions.
 
 Check [contribution guide](docs/contribution-guide.md) for more.
-
-
-## Documents
-
-* [Introduction blog - the background, design and implementation][intro]
-* [Release note](docs/release-notes.md)
-* [FAQ](docs/faq.md)
-* [Contribution guide](docs/contribution-guide.md)
-* [How to enable a new operator](docs/how-to-enable-new-operator.md)
-* [Data layout semantic](docs/data-layout-semantic.md)
 
 
 ## License
