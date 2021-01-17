@@ -1,4 +1,5 @@
 import logging
+import tflite
 from onnx import helper
 
 from tflite2onnx.common import T2OBase
@@ -148,7 +149,10 @@ class OpFactory:
         op = self.graph.Operators(index)
         opcode = self.model.OperatorCodes(op.OpcodeIndex()).BuiltinCode()
         if opcode not in OpFactory.registry:
-            raise NotImplementedError("Unsupported TFLite OP: {}".format(opcode))
+            if opcode in tflite.BUILTIN_OPCODE2NAME:
+                raise NotImplementedError("Unsupported TFLite OP: {} {}, please help to contribute!".format(opcode, tflite.opcode2name))  # noqa: E501
+            else:
+                raise ValueError("Opcode {} is not TFLite builtin operator!".format(opcode))
 
         op_converter = OpFactory.registry[opcode]
         return op_converter(self.TFactory, index)

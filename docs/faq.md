@@ -5,6 +5,37 @@ _Just jump to the sections that you are interested in.
 Please help to raise issues if any of the document here is wrong._
 
 
+## Unsupported TFLite OP Error
+
+As of today, `tflite2onnx` supports about 31 TFLite operators (check
+the `tflite2onnx.getSupportedOperators()` API). However, there are
+127 builtin operators (check via `tflite.BUILTIN_OPCODE2NAME`) in TFLite.
+For the operators that is unsupported, an error like below will be thrown
+
+```
+NotImplementedError: Unsupported TFLite OP: 123 {OPNAME}
+```
+
+Usually, we need to enable that operator in `tflite2onnx`.
+Please [report and contribute](contribution-guide.md)!
+
+However, sometimes, there are operators that are not _TFLite builtin operators_
+in the original model. For example, an TensorFlow operator is added
+when converting TensorFlow model to TFLite like below.
+
+```py
+converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS,
+                                       tf.lite.OpsSet.SELECT_TF_OPS]
+converter.allow_custom_ops = True
+```
+
+This is not supported currently as it requires significant end to end effort.
+To workaround it, you may need to replace complicate TensorFlow operators
+with [TFLite builtin operators](https://jackwish.net/tflite/docs/BuiltinOperator.m.html),
+and then try again.
+
+
+
 ## FP16 Error When Converting
 
 Related issue: [#30](https://github.com/jackwish/tflite2onnx/issues/30).

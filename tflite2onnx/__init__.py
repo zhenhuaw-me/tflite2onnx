@@ -1,7 +1,7 @@
 """Converting TensorFlow Lite models (*.tflite) to ONNX models (*.onnx)"""
 
 from tflite2onnx.convert import convert
-from tflite2onnx.misc import enableDebugLog, getSupportedOperator
+from tflite2onnx.utils import enableDebugLog, getSupportedOperators
 
 # package metadata
 NAME = 'tflite2onnx'
@@ -13,7 +13,7 @@ tflite2onnx v%s, https://github.com/jackwish/tflite2onnx""" % VERSION
 __all__ = [
     convert,
     enableDebugLog,
-    getSupportedOperator,
+    getSupportedOperators,
     NAME,
     VERSION,
     __version__,
