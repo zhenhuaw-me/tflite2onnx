@@ -12,6 +12,7 @@ from tflite2onnx.op.quantize import Quantize
 from tflite2onnx.op.reduce import Reduce
 from tflite2onnx.op.reshape import Reshape
 from tflite2onnx.op.resize import Resize
+from tflite2onnx.op.rsqrt import Rsqrt
 from tflite2onnx.op.slice import Slice
 from tflite2onnx.op.softmax import Softmax
 from tflite2onnx.op.split import Split
@@ -31,6 +32,7 @@ OpFactory.register(Quantize)
 OpFactory.register(Reduce)
 OpFactory.register(Reshape)
 OpFactory.register(Resize)
+OpFactory.register(Rsqrt)
 OpFactory.register(Slice)
 OpFactory.register(Softmax)
 OpFactory.register(Split)
