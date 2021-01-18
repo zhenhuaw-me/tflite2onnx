@@ -7,7 +7,7 @@ from tflite2onnx.misc import enableDebugLog, getSupportedOperator
 NAME = 'tflite2onnx'
 VERSION = '0.3.1'
 __version__ = VERSION
-DESCRIPTION =  "tflite2onnx v%s, Convert TensorFlow Lite models to ONNX" % VERSION
+DESCRIPTION = "tflite2onnx v%s, Convert TensorFlow Lite models to ONNX" % VERSION
 
 __all__ = [
     convert,
