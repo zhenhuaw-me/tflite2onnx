@@ -4,17 +4,15 @@ from tflite2onnx.convert import convert
 from tflite2onnx.misc import enableDebugLog, getSupportedOperator
 
 # package metadata
-NAME = 'tflite2onnx'
-VERSION = '0.3.1'
-__version__ = VERSION
-DESCRIPTION = "tflite2onnx v%s, Convert TensorFlow Lite models to ONNX" % VERSION
+__name__ = 'tflite2onnx'
+__version__ = '0.3.1'
+DESCRIPTION = "Convert TensorFlow Lite models to ONNX"
 
 __all__ = [
     convert,
     enableDebugLog,
     getSupportedOperator,
-    NAME,
-    VERSION,
+    __name__,
     __version__,
     DESCRIPTION,
 ]
