@@ -16,10 +16,8 @@ jobs:
       with:
         python-version: 3.8
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+    - name: Update pip
+      run: python -m pip install --upgrade pip
 
     - name: Build package
       run: scripts/build-wheel.sh
@@ -27,6 +25,9 @@ jobs:
 
     - name: Install package
       run: pip install -U assets/dist/tflite2onnx-*.whl
+
+    - name: Install development dependencies
+      run: pip install -r requirements.txt
 
     - name: Testing (collecting coverage data)
       run: coverage run --source=./tflite2onnx -m pytest
@@ -42,7 +43,7 @@ jobs:
     #   if: ${{ failure() }}
     #   run: sleep 1h
 
-    - name: Uploading coverage report
+    - name: Upload coverage report
       continue-on-error: true
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

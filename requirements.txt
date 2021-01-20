@@ -1,10 +1,9 @@
+build
 coverage
 flake8
 numpy
 onnx
 pytest
-setuptools
 shrub
 tflite
 twine
-wheel

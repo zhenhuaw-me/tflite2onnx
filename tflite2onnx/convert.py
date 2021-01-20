@@ -47,7 +47,8 @@ def convert(tflite_path: str, onnx_path: str, explicit_layouts=None):
 
 
 def cmd_convert():
-    parser = argparse.ArgumentParser(description=tflite2onnx.DESCRIPTION,
+    description = "tflite2onnx " + tflite2onnx.__version__ + ", " + tflite2onnx.DESCRIPTION
+    parser = argparse.ArgumentParser(description=description,
                                      formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('tflite_path', help="Path to the input TFLite mode")
     parser.add_argument('onnx_path', help="Path to save the converted ONNX mode")
