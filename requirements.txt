@@ -5,5 +5,5 @@ numpy
 onnx
 pytest
 shrub
-tflite
+tflite>=2.4.0
 twine
