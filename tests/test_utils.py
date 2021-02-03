@@ -1,13 +1,14 @@
 import logging
 import shrub
-from tflite2onnx import getSupportedOperator
+from tflite2onnx import getSupportedOperators
 
 shrub.util.formatLogging(logging.DEBUG)
 
 
 def test_supported_ops():
-    assert(len(getSupportedOperator()) > 0)
-    assert(getSupportedOperator(0) == 'ADD')
+    ops = getSupportedOperators()
+    assert(len(ops) > 0)
+    assert(ops[0] == 'ADD')
 
 
 if __name__ == '__main__':
