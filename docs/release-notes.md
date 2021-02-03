@@ -2,6 +2,16 @@ Release Notes
 =============
 
 
+## v0.3.2
+
+2021-02-03, [Project](https://github.com/jackwish/tflite2onnx/projects/5)
+
+* New API `getSupportedOperators()` to know what operators have been supported. No longer need to maintain a list manually.
+* FP16 quantization: fold FP16 tensors to unblock MediaPipe models. See [this issue](https://github.com/jackwish/tflite2onnx/issues/35) for details.
+
+Thanks for the contribution of @briangrifiin!
+
+
 ## v0.3.1
 
 2020-12-28, [Project](https://github.com/jackwish/tflite2onnx/projects/5)
