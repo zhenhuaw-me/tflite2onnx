@@ -109,3 +109,16 @@ model such that composing the custom operator with builtin operator.
 I believe you have met similar in other deep learning system...
 And I believe this can be resolved in the future.
 But before that, we need to workaround...
+
+
+## Custom the ONNX Opset Version
+
+`tflite2onnx` is bound to ONNX Opset 11 currently.
+We don't plan to support a _custom_ opset version,
+since it requires opset semantic conversion
+which could be a burden to handle but I don't see the value of it.
+
+If you really need a custom opset, try
+[the ONNX Version Converter](https://github.com/onnx/onnx/blob/master/docs/VersionConverter.md).
+And ask them to fix if there is any bug.
+(I have not used it :))
