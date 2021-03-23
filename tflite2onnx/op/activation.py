@@ -12,7 +12,7 @@ class Activation(Operator):
         tflite.BuiltinOperator.PRELU: 'PRelu',
         tflite.BuiltinOperator.RELU6: 'Clip',
         tflite.BuiltinOperator.RELU: 'Relu',
-        tflite.BuiltinOperator.LEAKY_RELU: 'Leaky_Relu',
+        tflite.BuiltinOperator.LEAKY_RELU: 'LeakyRelu',
     }
 
     def __init__(self, TFactory, index, preset_opcode=None):
@@ -70,7 +70,11 @@ class Activation(Operator):
             alpha.shape.insert(0, 1)
 
         if opcode == tflite.BuiltinOperator.LEAKY_RELU:
-            alpha = self.parseInput(0.1)
+            op_opt = op.BuiltinOptions()
+            option = tflite.LeakyReluOptions()
+            option.Init(op_opt.Bytes, op_opt.Pos)
+            alpha = option.Alpha()
+
 
         self.parseOutput(0)
 
@@ -108,7 +112,6 @@ def handleFusedActivation(master, option, output, intermediate=None):
     FusedActFunc2OpType = {
         tflite.ActivationFunctionType.RELU6: tflite.BuiltinOperator.RELU6,
         tflite.ActivationFunctionType.RELU: tflite.BuiltinOperator.RELU,
-        tflite.ActivationFunctionType.LEAKY_RELU: tflite.BuiltinOperator.LEAKY_RELU,
     }
 
     logger.debug("Handling FusedActivationFunction for %s", master.shorty)
@@ -143,11 +146,6 @@ def handleFusedActivation(master, option, output, intermediate=None):
             tmax = intermediate.TFactory.createScalar('float32', 6.0)
             tmax.addConsumer(act)
             act.inputs.append(tmax)
-
-        if act_type == tflite.BuiltinOperator.LEAKY_RELU:
-            tinput = intermediate.TFactory.createScalar('float32', 0.1)
-            tmax.addConsumer(tinput)
-            act.inputs.append(tinput)
 
         output.replaceProducer(intermediate, act)
         act.outputs.append(output)
