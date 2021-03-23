@@ -74,8 +74,6 @@ class Activation(Operator):
             option = tflite.LeakyReluOptions()
             option.Init(op_opt.Bytes, op_opt.Pos)
             alpha = option.Alpha()
-
-
         self.parseOutput(0)
 
         self.setParsed()
