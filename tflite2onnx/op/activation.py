@@ -12,6 +12,7 @@ class Activation(Operator):
         tflite.BuiltinOperator.PRELU: 'PRelu',
         tflite.BuiltinOperator.RELU6: 'Clip',
         tflite.BuiltinOperator.RELU: 'Relu',
+        tflite.BuiltinOperator.LEAKY_RELU: 'Leaky_Relu',
     }
 
     def __init__(self, TFactory, index, preset_opcode=None):
@@ -68,6 +69,9 @@ class Activation(Operator):
             alpha = self.parseInput(1)
             alpha.shape.insert(0, 1)
 
+        if opcode == tflite.BuiltinOperator.LEAKY_RELU:
+            alpha = self.parseInput(0.1)
+
         self.parseOutput(0)
 
         self.setParsed()
@@ -104,6 +108,7 @@ def handleFusedActivation(master, option, output, intermediate=None):
     FusedActFunc2OpType = {
         tflite.ActivationFunctionType.RELU6: tflite.BuiltinOperator.RELU6,
         tflite.ActivationFunctionType.RELU: tflite.BuiltinOperator.RELU,
+        tflite.ActivationFunctionType.LEAKY_RELU: tflite.BuiltinOperator.LEAKY_RELU,
     }
 
     logger.debug("Handling FusedActivationFunction for %s", master.shorty)
@@ -125,7 +130,7 @@ def handleFusedActivation(master, option, output, intermediate=None):
     input.addProducer(intermediate)
 
     # create the activation node, and let intermediate node output to be its'.
-    if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6]:
+    if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6, tflite.BuiltinOperator.LEAKY_RELU]:
         act = Activation(intermediate.TFactory, -1, preset_opcode=act_type)
 
         input.addConsumer(act)
@@ -138,6 +143,11 @@ def handleFusedActivation(master, option, output, intermediate=None):
             tmax = intermediate.TFactory.createScalar('float32', 6.0)
             tmax.addConsumer(act)
             act.inputs.append(tmax)
+
+        if act_type == tflite.BuiltinOperator.LEAKY_RELU:
+            tinput = intermediate.TFactory.createScalar('float32', 0.1)
+            tmax.addConsumer(tinput)
+            act.inputs.append(tinput)
 
         output.replaceProducer(intermediate, act)
         act.outputs.append(output)
