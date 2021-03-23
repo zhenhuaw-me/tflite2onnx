@@ -133,7 +133,7 @@ def handleFusedActivation(master, option, output, intermediate=None):
     input.addProducer(intermediate)
 
     # create the activation node, and let intermediate node output to be its'.
-    if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6, tflite.BuiltinOperator.LEAKY_RELU]:
+    if act_type in [tflite.BuiltinOperator.RELU, tflite.BuiltinOperator.RELU6]:
         act = Activation(intermediate.TFactory, -1, preset_opcode=act_type)
 
         input.addConsumer(act)
