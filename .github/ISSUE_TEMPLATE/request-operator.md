@@ -2,7 +2,7 @@
 name: Request new operator
 about: Request to enable support for new TensorFlow Lite operator
 title: 'Operator request:'
-labels: operator, help wanted
+labels: Operator
 assignees: ''
 
 ---
