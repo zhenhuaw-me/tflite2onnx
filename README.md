@@ -16,7 +16,7 @@ or whatever) to ONNX, try [`tf2onnx`](https://github.com/onnx/tensorflow-onnx).
 Or, you can firstly [convert][tf2tflite] it to a TFLite (`*.tflite`) model,
 and then convert the TFLite model to ONNX.
 
-* Microsoft has re-invented the _TensorFlow Lite to ONNX model converter_ in `tf2onnx`
+* Microsoft has implemented another _TensorFlow Lite to ONNX model converter_ in `tf2onnx`
 [at Feb 2021](https://github.com/onnx/sigs/blob/master/converters/meetings/019-20210212.md)
 (we open sourced `tflite2onnx` in May 2020). `tf2onnx` seems to able to convert Quantization
 just like us, and it seems able to convert RNN networks which we are not supported yet.
