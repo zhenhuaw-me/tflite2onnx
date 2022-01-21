@@ -14,7 +14,7 @@ jobs:
         days-before-close: 14
         stale-issue-message: 'This issue is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 14 days.'
         stale-issue-label: 'stale'
-        exempt-issue-labels: 'Story,help wanted,Enhancement'
+        exempt-issue-labels: 'Story,help wanted,Enhancement,bug'
         stale-pr-message: 'This PR is stale because it has been open 30 days with no activity. Remove stale label or comment or this will be closed in 14 days.'
         stale-pr-label: 'stale'
-        exempt-pr-labels: 'Story,help wanted,Enhancement'
+        exempt-pr-labels: 'Story,help wanted,Enhancement,bug'
