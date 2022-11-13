@@ -5,7 +5,7 @@ from tflite2onnx.utils import enableDebugLog, getSupportedOperators
 
 # package metadata
 __name__ = 'tflite2onnx'
-__version__ = '0.4.0'
+__version__ = '0.4.1'
 DESCRIPTION = "Convert TensorFlow Lite models to ONNX"
 
 __all__ = [
