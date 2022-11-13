@@ -110,7 +110,7 @@ NotImplementedError: Unsupported TFLite OP: 2
 
 The `2` of `NotImplementedError: Unsupported TFLite OP: 2` indicates which operator
 has not been enabled yet. It is `CONCATENATION` in
-[`tflite.BuiltinOperator`](https://github.com/jackwish/tflite/blob/master/tflite/BuiltinOperator.py).
+[`tflite.BuiltinOperator`](https://github.com/zhenhuaw-me/tflite/blob/master/tflite/BuiltinOperator.py).
 
 With this, we can really start to write some code.
 
@@ -232,10 +232,10 @@ Unfortuanately, TFLite doesn't provide rich documents about operators, we may ch
 and sometimes even the [source code](https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/kernels/internal/reference/concatenation.h).
 
 For options or attributes, we can check the
-[*OperatorOption* of TFLite](https://jackwish.net/tflite/docs/ConcatenationOptions.m.html#tflite.ConcatenationOptions.ConcatenationOptions).
+[*OperatorOption* of TFLite](https://zhenhuaw.me/tflite/docs/ConcatenationOptions.m.html#tflite.ConcatenationOptions.ConcatenationOptions).
 In our `Concat` example, it has two:
 * `Axis` indicates concatenating on which dimension. This attribute is sensitive to how we handle layout issue. For example, if TFLite concatenates on axis `-1` and has a `NHWC` data layout - which means it's concatenating on `C` dimension. While ONNX uses layout `NCHW`, ONNX version needs to concatenates on axis `1` for it's dimension `C` in ONNX. This is needed when `Concat` feeds to a `Conv`. The interesting part is, if the model contains no `Conv`, for example has only one `Concat` in our case, we'd better keep it unchanged. We will discuss this more in dedicated document.
-* `FusedActivationFunction` describes which [activation function](https://jackwish.net/tflite/docs/ActivationFunctionType.m.html) has been fused into this operator. This is commen in operators like `Conv` and `FullyConnected`.
+* `FusedActivationFunction` describes which [activation function](https://zhenhuaw.me/tflite/docs/ActivationFunctionType.m.html) has been fused into this operator. This is commen in operators like `Conv` and `FullyConnected`.
 
 
 ### Parse the Tensors
@@ -334,7 +334,7 @@ Among all the options, *fused activation function* is one special, for which
 we need to add one more ONNX operator to the graph. But, don't worry, it can be
 handled by simply calling `handleFusedActivation(self, option, ot)`, if that
 operator has a `FusedActivationFunction()`
-([`Concat` example](https://jackwish.net/tflite/docs/ConcatenationOptions.m.html#tflite.ConcatenationOptions.ConcatenationOptions.FusedActivationFunction))
+([`Concat` example](https://zhenhuaw.me/tflite/docs/ConcatenationOptions.m.html#tflite.ConcatenationOptions.ConcatenationOptions.FusedActivationFunction))
 method of its option class. If that is the case, please don't add output tensor
 of the operator directly, but do something like below.
 
@@ -402,6 +402,6 @@ Cheers!
 
 
 [onnx-op]: https://github.com/onnx/onnx/blob/master/docs/Operators.md
-[layout-handling]: https://github.com/jackwish/tflite2onnx/issues/2
-[tflite-api]: https://jackwish.net/tflite/docs
-[blog]: https://jackwish.net/2020/Convert-TensorFlow-Lite-models-to-ONNX.html
+[layout-handling]: https://github.com/zhenhuaw-me/tflite2onnx/issues/2
+[tflite-api]: https://zhenhuaw.me/tflite/docs
+[blog]: https://zhenhuaw.me/blog/2020/Convert-TensorFlow-Lite-models-to-ONNX.html

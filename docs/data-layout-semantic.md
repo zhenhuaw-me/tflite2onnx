@@ -1,7 +1,7 @@
 Data Layout Semantic Conversion
 ===============================
 
-This document, which is originally written in the [introducing blog](https://jackwish.net/2020/Convert-TensorFlow-Lite-models-to-ONNX.html), covers the _layout semantic divergence_ between TensorFlow Lite (TFLite) models which is NHWC and ONNX which is NCHW.
+This document, which is originally written in the [introducing blog](https://zhenhuaw.me/blog/2020/Convert-TensorFlow-Lite-models-to-ONNX.html), covers the _layout semantic divergence_ between TensorFlow Lite (TFLite) models which is NHWC and ONNX which is NCHW.
 
 The data layout format of TFLite has not been mentioned in either the document or the [model representation](https://github.com/tensorflow/tensorflow/blob/v2.1.0/tensorflow/lite/schema/schema.fbs) but in the implicit agreement of the [TFLite converter](https://github.com/tensorflow/tensorflow/blob/v2.1.0/tensorflow/lite/toco/import_tensorflow.cc#L795) (the TensorFlow model needs to be NHWC) and the [kernels](https://github.com/tensorflow/tensorflow/blob/v2.1.0/tensorflow/lite/kernels/conv.cc#L251). On the contrary, ONNX explicitly declares that it uses NCHW in both [operator representation](https://github.com/onnx/onnx/blob/6bdac246617682f9696f0dac40362ef4f4de2cde/onnx/defs/nn/defs.cc#L713) and document (which is generated from operator representation).
 
@@ -56,7 +56,7 @@ $$
 
 ## Broadcast of Propagation
 
-Another problem is the [broadcast](https://numpy.org/doc/stable/user/basics.broadcasting.html) of binary operators such as `Add` (see [this issue](https://github.com/jackwish/tflite2onnx/issues/13) for more). Taking the example below, in which tensor $$\left< B \right>$$ needs to be broadcasted. If $$\left< A \right>$$ is converted from NHWC to NCHW, i.e. $$\left< A_{(2 \times 5 \times 3 \times 4)} \right>$$, $$\left< B \right>$$ is no longer broadcastable in ONNX. Even worse, the _layout semantic divergence_ will fail when propagated to $$\left< B \right>$$ as $$\left< A \right>$$ and $$\left< B \right>$$ have different dimensions.
+Another problem is the [broadcast](https://numpy.org/doc/stable/user/basics.broadcasting.html) of binary operators such as `Add` (see [this issue](https://github.com/zhenhuaw-me/tflite2onnx/issues/13) for more). Taking the example below, in which tensor $$\left< B \right>$$ needs to be broadcasted. If $$\left< A \right>$$ is converted from NHWC to NCHW, i.e. $$\left< A_{(2 \times 5 \times 3 \times 4)} \right>$$, $$\left< B \right>$$ is no longer broadcastable in ONNX. Even worse, the _layout semantic divergence_ will fail when propagated to $$\left< B \right>$$ as $$\left< A \right>$$ and $$\left< B \right>$$ have different dimensions.
 
 $$
 \left.

@@ -62,7 +62,7 @@ class Reshape(Operator):
             if len(st.shape) > 1:
                 logger.warning("ONNXRuntime doesn't support 2+rank shape, "
                                "flatten if the shape is initialzier, ignore otherwise."
-                               "https://github.com/jackwish/tflite2onnx/issues/16")
+                               "https://github.com/zhenhuaw-me/tflite2onnx/issues/16")
                 if st.isInitializer:
                     st.shape = (np.prod(np.array(st.shape)),)
 
@@ -72,7 +72,7 @@ class Reshape(Operator):
         self.setParsed()
 
     def preserveInputSpatialSemantic(self):
-        # https://github.com/jackwish/tflite2onnx/issues/28
+        # https://github.com/zhenhuaw-me/tflite2onnx/issues/28
         # An example for inserting `Transpose` before `Reshape`
         #    ------
         #   | Conv |
@@ -117,7 +117,7 @@ class Reshape(Operator):
         self.pre.append(trans)
 
     def preserveOutputSpatialSemantic(self):
-        # https://github.com/jackwish/tflite2onnx/issues/28
+        # https://github.com/zhenhuaw-me/tflite2onnx/issues/28
         # An example for inserting `Transpose` after `Reshape`
         #   -------
         # | Reshape |

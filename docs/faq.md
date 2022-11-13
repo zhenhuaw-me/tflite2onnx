@@ -31,14 +31,14 @@ converter.allow_custom_ops = True
 
 This is not supported currently as it requires significant end to end effort.
 To workaround it, you may need to replace complicate TensorFlow operators
-with [TFLite builtin operators](https://jackwish.net/tflite/docs/BuiltinOperator.m.html),
+with [TFLite builtin operators](https://zhenhuaw.me/tflite/docs/BuiltinOperator.m.html),
 and then try again.
 
 
 
 ## FP16 Error When Converting
 
-Related issue: [#30](https://github.com/jackwish/tflite2onnx/issues/30).
+Related issue: [#30](https://github.com/zhenhuaw-me/tflite2onnx/issues/30).
 
 As of TensorFlow `v2.3.0`, FP16 is not natively supported by TFLite.
 Operators such as [`Add`](https://github.com/tensorflow/tensorflow/blob/v2.3.0/tensorflow/lite/kernels/add.cc#L196)
@@ -74,7 +74,7 @@ Or keep the TensorFlow/TFLite model in FP32 format.
 
 Many people are using TFLite
 [FP16 quantization](https://www.tensorflow.org/lite/performance/post_training_quantization#float16_quantization),
-and some models ([example](https://github.com/jackwish/tflite2onnx/issues/33))
+and some models ([example](https://github.com/zhenhuaw-me/tflite2onnx/issues/33))
 are published in such format.
 
 The FP16 weights in these models will be converted to FP32 online by a TFLite
@@ -83,7 +83,7 @@ operator `Dequantize`. In general, we convert TFLite `Dequantize` to ONNX
 However, `DequantizeLinear` in ONNX supports only dequantize an integer
 (`uint8`, `int8`, `int32`).
 
-We enabled [*FP16 Quantizatoin Pattern Folding*](https://github.com/jackwish/tflite2onnx/issues/35)
+We enabled [*FP16 Quantizatoin Pattern Folding*](https://github.com/zhenhuaw-me/tflite2onnx/issues/35)
 to workaround this issue. In the resulted model, the FP16 tensors are converted into FP32.
 Be carefull when feed or retrieve data to and from the model.
 

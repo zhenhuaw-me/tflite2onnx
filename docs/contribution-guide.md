@@ -7,8 +7,8 @@ Materials are split into sections, just jump to topics you are interested in.
 
 ## Reporting Issues
 
-* If something seems wrong to you, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
-* If some operators are not supported yet, you may [request a new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
+* If something seems wrong to you, [report bugs](https://github.com/zhenhuaw-me/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
+* If some operators are not supported yet, you may [request a new operator](https://github.com/zhenhuaw-me/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * Feel free to open any other related discussions.
 
 It's high recommended to attach a narrow down-ed TFLite model and

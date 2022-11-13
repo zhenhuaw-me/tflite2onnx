@@ -1,9 +1,9 @@
 tflite2onnx - Convert TensorFlow Lite models to ONNX
 ====================================================
 
-[![Build and Test](https://github.com/jackwish/tflite2onnx/workflows/Build%20and%20Test/badge.svg)](https://github.com/jackwish/tflite2onnx/actions?query=workflow%3A%22Build+and+Test%22)
-[![Sanity](https://github.com/jackwish/tflite2onnx/workflows/Sanity/badge.svg)](https://github.com/jackwish/tflite2onnx/actions?query=workflow%3ASanity)
-[![Coverage](https://codecov.io/gh/jackwish/tflite2onnx/branch/master/graph/badge.svg)](https://codecov.io/gh/jackwish/tflite2onnx)
+[![Build and Test](https://github.com/zhenhuaw-me/tflite2onnx/workflows/Build%20and%20Test/badge.svg)](https://github.com/zhenhuaw-me/tflite2onnx/actions?query=workflow%3A%22Build+and+Test%22)
+[![Sanity](https://github.com/zhenhuaw-me/tflite2onnx/workflows/Sanity/badge.svg)](https://github.com/zhenhuaw-me/tflite2onnx/actions?query=workflow%3ASanity)
+[![Coverage](https://codecov.io/gh/zhenhuaw-me/tflite2onnx/branch/master/graph/badge.svg)](https://codecov.io/gh/zhenhuaw-me/tflite2onnx)
 
 `tflite2onnx` converts TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`),
 with data layout and quantization semantic properly handled (check the [introduction blog][intro] for detail).
@@ -29,7 +29,7 @@ Install via [pip][pypi] `pip install tflite2onnx`.
 
 Or install from source to get latest features (please try out with [virtualenv](https://virtualenv.pypa.io)):
 
-1. Download the repo: `git clone https://github.com/jackwish/tflite2onnx.git && cd tflite2onnx`
+1. Download the repo: `git clone https://github.com/zhenhuaw-me/tflite2onnx.git && cd tflite2onnx`
 2. Build the package: `./scripts/build-wheel.sh`
 3. Install the built package: `pip install assets/dist/tflite2onnx-*.whl`
 
@@ -55,7 +55,7 @@ tflite2onnx.convert(tflite_path, onnx_path)
 ```
 
 `tflite2onnx` now supports *explicit layout*, check the
-[test example](https://github.com/jackwish/tflite2onnx/blob/master/tests/test_explicit_layout.py).
+[test example](https://github.com/zhenhuaw-me/tflite2onnx/blob/master/tests/test_explicit_layout.py).
 
 
 ### Command Line
@@ -77,8 +77,8 @@ tflite2onnx /path/to/original/tflite/model /path/to/save/converted/onnx/model
 
 ## Contributing
 
-* If something seems wrong to you, [report bugs](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
-* If some operators are not supported yet, you may [request a new operator](https://github.com/jackwish/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
+* If something seems wrong to you, [report bugs](https://github.com/zhenhuaw-me/tflite2onnx/issues/new?assignees=&labels=bug&template=bug-report.md&title=).
+* If some operators are not supported yet, you may [request a new operator](https://github.com/zhenhuaw-me/tflite2onnx/issues/new?assignees=&labels=operator%2C+help+wanted&template=request-operator.md&title=Operator+request%3A).
 * It would be great if you can help to enable new operators, please join us with [How to enable a new operator](docs/how-to-enable-new-operator.md).
 * Feel free to open any other related discussions.
 
@@ -89,7 +89,7 @@ Check [contribution guide](docs/contribution-guide.md) for more.
 
 Apache License Version 2.0.
 
-[intro]: https://jackwish.net/2020/Convert-TensorFlow-Lite-models-to-ONNX.html
+[intro]: https://zhenhuaw.me/blog/2020/Convert-TensorFlow-Lite-models-to-ONNX.html
 [pypi]: https://pypi.org/project/tflite2onnx
-[github]: https://github.com/jackwish/tflite2onnx
+[github]: https://github.com/zhenhuaw-me/tflite2onnx
 [tf2tflite]: https://www.tensorflow.org/lite/convert
