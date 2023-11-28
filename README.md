@@ -9,19 +9,27 @@ tflite2onnx - Convert TensorFlow Lite models to ONNX
 `tflite2onnx` converts TensorFlow Lite (TFLite) models (`*.tflite`) to ONNX models (`*.onnx`),
 with data layout and quantization semantic properly handled (check the [introduction blog][intro] for detail).
 
-**Highlights**
-
-
-* If you'd like to convert a TensorFlow model (frozen graph `*.pb`, `SavedModel`
+If you'd like to convert a TensorFlow model (frozen graph `*.pb`, `SavedModel`
 or whatever) to ONNX, try [`tf2onnx`](https://github.com/onnx/tensorflow-onnx).
 Or, you can firstly [convert][tf2tflite] it to a TFLite (`*.tflite`) model,
 and then convert the TFLite model to ONNX.
 
-* Microsoft has implemented another _TensorFlow Lite to ONNX model converter_ in `tf2onnx`
+
+## Call for Contribution
+
+Currently we have [14 open issues](https://github.com/zhenhuaw-me/tflite2onnx/issues).
+I am sorry that I don't have more bandwidth to work on them.
+*Please help to contribute to this project!* See [Contributing](#contributing) below.
+
+Started from the beginning, I have written [docs](#documentation) to help you ramp up this project.
+Therefore I am not the critical path of this project.
+
+Microsoft has implemented another _TensorFlow Lite to ONNX model converter_ in `tf2onnx`
 [at Feb 2021](https://github.com/onnx/sigs/blob/master/converters/meetings/019-20210212.md)
 (we open sourced `tflite2onnx` in May 2020). `tf2onnx` seems to able to convert Quantization
 just like us, and it seems able to convert RNN networks which we are not supported yet.
-Please try `tf2onnx --tflite` if `tflite2onnx` missing any functionality.
+Yet, due to the architecture, I think it's non-trivial to fix a bug, which means that,
+`tflite2onnx` is a rather better choice if you are blocked and don't wait for a fix from the maintainer.
 
 
 ## Installation
